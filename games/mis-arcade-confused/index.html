@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ארקייד המבולבלים: קרב המערכות</title>
+<style>
+:root{
+  --tps:#22d3a8; --tps-d:#0f9e7c;
+  --mis:#38bdf8; --mis-d:#1d7fb8;
+  --ess:#a78bfa; --ess-gold:#fbbf24; --ess-d:#6d4fd1;
+  --trash:#94a3b8; --trash-d:#475569;
+  --bg0:#070a16; --bg1:#0e1530; --panel:rgba(13,18,42,.92);
+  --ink:#eef2ff; --ink-dim:#9aa4c7;
+  --danger:#f87171; --good:#4ade80; --warn:#facc15; --pink:#f472b6;
+  --radius:16px;
+  font-size:16px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; min-height:100vh; background:radial-gradient(1200px 800px at 50% -10%, #1c2450 0%, var(--bg0) 55%), var(--bg0);
+  color:var(--ink); font-family:"Segoe UI","Arial Hebrew","Noto Sans Hebrew",Arial,sans-serif;
+  font-weight:700; overflow-x:hidden;
+  display:flex; align-items:center; justify-content:center; padding:14px;
+}
+button{font-family:inherit; font-weight:800; cursor:pointer;}
+h1,h2,h3,p{margin:0;}
+.hidden{display:none !important;}
+.pixel{font-family:"Courier New",monospace; letter-spacing:1px;}
+
+/* ===== ARCADE CABINET FRAME ===== */
+#cabinet{
+  position:relative; width:min(96vw,900px); height:min(94vh,900px);
+  background:linear-gradient(160deg,#2a1e55,#150f2e 60%);
+  border-radius:26px; padding:16px;
+  box-shadow:0 0 0 3px #3a2b74, 0 0 40px rgba(140,100,255,.35), inset 0 0 60px rgba(0,0,0,.5);
+  display:flex; flex-direction:column;
+}
+#marquee{
+  height:26px; border-radius:10px; margin-bottom:10px;
+  background:repeating-linear-gradient(90deg, var(--pink) 0 14px, var(--ess-gold) 14px 28px, var(--mis) 28px 42px, var(--tps) 42px 56px);
+  background-size:200% 100%;
+  animation:marquee-move 3s linear infinite;
+  box-shadow:0 0 18px rgba(244,114,182,.6);
+  opacity:.9;
+}
+@keyframes marquee-move{ to{ background-position:-56px 0; } }
+#screen-wrap{
+  position:relative; flex:1; min-height:0; border-radius:14px; overflow:hidden;
+  background:linear-gradient(180deg,#0a0f24,#050813);
+  box-shadow:inset 0 0 0 4px #000, inset 0 0 40px rgba(0,0,0,.7);
+}
+#crt{
+  position:absolute; inset:0; pointer-events:none; z-index:50; mix-blend-mode:overlay;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 2px, transparent 3px);
+}
+#vignette{
+  position:absolute; inset:0; pointer-events:none; z-index:49;
+  box-shadow:inset 0 0 120px rgba(0,0,0,.65);
+}
+#screen{
+  position:absolute; inset:0; overflow:hidden;
+}
+
+/* ===== HUD ===== */
+#hud{
+  position:absolute; top:0; right:0; left:0; z-index:40;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 12px; font-size:.85rem;
+  background:linear-gradient(180deg, rgba(5,8,20,.85), transparent);
+  pointer-events:none;
+}
+#hud > div{display:flex; align-items:center; gap:8px;}
+.hud-chip{
+  background:rgba(15,20,45,.75); border:1px solid rgba(255,255,255,.12);
+  border-radius:999px; padding:4px 10px; display:flex; align-items:center; gap:6px;
+  pointer-events:auto;
+}
+#lives-chip span.heart{filter:drop-shadow(0 0 4px rgba(248,113,113,.8));}
+#hud #combo-chip{color:var(--warn); display:none;}
+#hud #combo-chip.show{display:flex;}
+#pause-btn,#music-btn{background:rgba(15,20,45,.75); border:1px solid rgba(255,255,255,.2); color:var(--ink); border-radius:999px; padding:5px 10px; pointer-events:auto;}
+
+/* ===== GENERIC PANELS ===== */
+.panel{
+  background:var(--panel); border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,.45);
+  backdrop-filter:blur(6px);
+}
+.stage-view{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:54px 16px 16px; gap:12px; text-align:center;}
+.stage-title{font-size:1.15rem; color:var(--ink);}
+.stage-sub{font-size:.8rem; color:var(--ink-dim);}
+
+.btn{
+  border:none; border-radius:12px; padding:10px 18px; font-size:.95rem; color:#0a0f1f;
+  background:linear-gradient(180deg,#fff,#dfe6ff); box-shadow:0 4px 0 #9aa4c7, 0 8px 16px rgba(0,0,0,.35);
+  transition:transform .08s;
+}
+.btn:active{transform:translateY(3px); box-shadow:0 1px 0 #9aa4c7;}
+.btn-primary{background:linear-gradient(180deg,var(--mis),var(--mis-d)); color:#fff; box-shadow:0 4px 0 #0c4f75, 0 8px 16px rgba(0,0,0,.35);}
+.btn-good{background:linear-gradient(180deg,var(--good),#16a34a); color:#04210f; box-shadow:0 4px 0 #0e5c28,0 8px 16px rgba(0,0,0,.35);}
+.btn-warn{background:linear-gradient(180deg,var(--warn),#d97706); color:#2a1500; box-shadow:0 4px 0 #7c3e05,0 8px 16px rgba(0,0,0,.35);}
+.btn-danger{background:linear-gradient(180deg,var(--danger),#b91c1c); color:#fff; box-shadow:0 4px 0 #6b0f0f,0 8px 16px rgba(0,0,0,.35);}
+.btn-ghost{background:transparent; border:1px solid rgba(255,255,255,.3); color:var(--ink); box-shadow:none;}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+
+/* ===== MASCOT ===== */
+.mascot{position:relative; width:64px; height:88px; margin:0 auto; transform:scale(1.3); transform-origin:center bottom;}
+.mascot.hero{
+  position:absolute; right:50%; top:8px; transform:translateX(50%) scale(2); transform-origin:center top;
+  z-index:75; animation:hero-bob 2.6s ease-in-out infinite; filter:drop-shadow(0 14px 18px rgba(0,0,0,.55));
+  pointer-events:none;
+}
+@keyframes hero-bob{0%,100%{transform:translateX(50%) scale(2) rotate(-2deg) translateY(0);} 50%{transform:translateX(50%) scale(2) rotate(2deg) translateY(8px);}}
+.mascot .body{
+  position:absolute; inset:0; border-radius:50% 50% 46% 46% / 60% 60% 40% 40%;
+  background:linear-gradient(160deg,#ffb199,#e8664a 70%);
+  box-shadow:inset -6px -8px 14px rgba(0,0,0,.25), inset 6px 6px 10px rgba(255,255,255,.25);
+}
+.mascot .eye{position:absolute; top:26px; width:16px; height:16px; background:#fff; border-radius:50%; box-shadow:0 0 0 2px #1a1030;}
+.mascot .eye::after{content:'';position:absolute; inset:4px; background:#1a1030; border-radius:50%;}
+.mascot .eye.l{right:14px;} .mascot .eye.r{right:34px;}
+.mascot .antenna{position:absolute; top:-14px; right:26px; width:6px; height:16px; background:#7c8; border-radius:3px;}
+.mascot .antenna::after{content:'';position:absolute; top:-9px; right:-3px; width:12px; height:12px; border-radius:50%; background:var(--pink); box-shadow:0 0 10px var(--pink); animation:blink 1.1s infinite;}
+@keyframes blink{50%{opacity:.3;}}
+.mascot .accessory{position:absolute; top:6px; right:4px; font-size:20px;}
+.mascot.wobble{animation:wobble .5s ease;}
+@keyframes wobble{0%,100%{transform:rotate(0);}25%{transform:rotate(-8deg);}75%{transform:rotate(8deg);}}
+.mascot.dizzy .eye::after{animation:spin 0.6s linear infinite;}
+
+/* ===== TOAST / SPEECH BUBBLE ===== */
+#toast-layer{position:absolute; inset:0; z-index:60; pointer-events:none;}
+.toast{
+  position:absolute; max-width:78%; padding:10px 14px; border-radius:14px; font-size:.85rem;
+  background:#fff; color:#1a1030; box-shadow:0 8px 20px rgba(0,0,0,.4);
+  animation:toast-in .25s ease, toast-out .3s ease 2.4s forwards;
+}
+.toast.bad{background:#fff1f1; border:2px solid var(--danger);}
+.toast.good{background:#f0fff4; border:2px solid var(--good);}
+@keyframes toast-in{from{transform:scale(.6) translateY(10px); opacity:0;} to{transform:scale(1) translateY(0); opacity:1;}}
+@keyframes toast-out{to{opacity:0; transform:translateY(-8px);}}
+
+/* ===== CONFETTI ===== */
+.confetti{position:absolute; width:8px; height:8px; border-radius:2px; z-index:65; pointer-events:none; animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(120px) rotate(320deg); opacity:0;}}
+
+/* ===== MENU ===== */
+#menu-view{gap:18px;}
+#menu-title{font-size:1.5rem; line-height:1.3; background:linear-gradient(90deg,var(--tps),var(--mis),var(--ess-gold)); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 0 12px rgba(150,120,255,.4));}
+#menu-tagline{color:var(--ink-dim); font-size:.82rem; max-width:320px;}
+#menu-credit{color:var(--ink-dim); font-size:.68rem; opacity:.7; max-width:300px;}
+#hero-mascot-slot{position:relative; height:0;}
+
+/* ===== MAP ===== */
+#map-view{justify-content:flex-start; padding-top:56px; overflow-y:auto; gap:14px;}
+.map-track{display:flex; flex-direction:column; gap:16px; width:100%; max-width:420px; padding-bottom:20px;}
+.node-btn{
+  display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px; text-align:right;
+  border:2px solid rgba(255,255,255,.15); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  color:var(--ink); position:relative;
+}
+.node-btn:nth-child(even){align-self:flex-end;}
+.node-btn:nth-child(odd){align-self:flex-start;}
+.node-btn .icon{font-size:1.8rem; width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.3); flex:none;}
+.node-btn .txt{display:flex; flex-direction:column; gap:2px; text-align:right;}
+.node-btn .txt b{font-size:.92rem;}
+.node-btn .txt small{color:var(--ink-dim); font-size:.72rem;}
+.node-btn .stars{font-size:.75rem; color:var(--warn); letter-spacing:2px;}
+.node-btn.locked{opacity:.4; filter:grayscale(1);}
+.node-btn.boss{border-color:var(--ess-gold);}
+
+/* ===== DEFINITION CARD MODAL ===== */
+#modal-root{position:absolute; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; background:rgba(3,5,14,.72); backdrop-filter:blur(2px);}
+.def-card{width:min(88%,380px); padding:20px; display:flex; flex-direction:column; gap:10px; text-align:right;}
+.def-head{display:flex; align-items:center; gap:10px; border-bottom:2px solid rgba(255,255,255,.15); padding-bottom:10px;}
+.def-head .badge{font-size:1.6rem; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;}
+.def-head b{font-size:1.05rem;}
+.def-head small{color:var(--ink-dim); font-size:.72rem;}
+.def-body{font-size:.86rem; line-height:1.55; color:var(--ink);}
+.def-ex{font-size:.78rem; color:var(--ink-dim); background:rgba(255,255,255,.05); border-radius:10px; padding:8px 10px;}
+.def-slang{display:none; font-size:.78rem; color:var(--pink); background:rgba(244,114,182,.08); border-radius:10px; padding:8px 10px;}
+.def-slang.show{display:block;}
+.tag-not-exam{align-self:flex-start; font-size:.7rem; padding:3px 8px; border-radius:6px; background:repeating-linear-gradient(45deg,#facc15,#facc15 6px,#111 6px,#111 12px); color:#111;}
+
+/* ===== TWO-DOORS / RECIPE / LEVER shared elements ===== */
+.scenario-box{width:min(90%,380px); padding:16px; font-size:.86rem; line-height:1.5;}
+.door-row{display:flex; gap:14px;}
+.door{flex:1; padding:16px 10px; border-radius:14px; font-size:.95rem; border:2px solid rgba(255,255,255,.15);}
+.door.mis{background:linear-gradient(180deg, rgba(56,189,248,.18), rgba(56,189,248,.04)); border-color:var(--mis);}
+.door.ess{background:linear-gradient(180deg, rgba(167,139,250,.2), rgba(167,139,250,.05)); border-color:var(--ess);}
+
+/* ===== ITEM CARD (recipes / bonus / doors reasons) ===== */
+.opt-card{width:100%; max-width:340px; padding:12px 14px; border-radius:12px; font-size:.82rem; text-align:right; border:2px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05); color:var(--ink);}
+.opt-card.correct{border-color:var(--good); background:rgba(74,222,128,.15);}
+.opt-card.wrong{border-color:var(--danger); background:rgba(248,113,113,.15);}
+
+/* ===== LEVERS ===== */
+.lever-row{display:flex; gap:26px; align-items:flex-end; height:220px;}
+.lever-col{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.lever-track{position:relative; width:44px; height:180px; border-radius:22px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); touch-action:none;}
+.lever-handle{position:absolute; right:2px; left:2px; height:34px; border-radius:16px; background:linear-gradient(180deg,#fff,#c9d2f5); bottom:2px; box-shadow:0 3px 10px rgba(0,0,0,.4); cursor:grab;}
+.lever-fill{position:absolute; right:0; left:0; bottom:0; border-radius:0 0 20px 20px; opacity:.5;}
+
+/* ===== MIS CRAFT ===== */
+.pot{width:120px; height:100px; border-radius:16px 16px 40px 40px; background:radial-gradient(ellipse at top, #2b3560, #131a34); border:3px solid rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size:2rem; margin:6px auto;}
+.pot.hot{box-shadow:0 0 30px var(--mis);}
+.craft-cards{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+.craft-card{padding:10px 12px; border-radius:12px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); font-size:.8rem; touch-action:none; user-select:none;}
+
+/* ===== CANVAS STAGES ===== */
+canvas#game-canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none;}
+.rush-bins{position:absolute; bottom:10px; right:8px; left:8px; display:flex; gap:6px; z-index:20;}
+.bin-btn{flex:1; padding:10px 4px; border-radius:12px; font-size:.72rem; border:2px solid rgba(255,255,255,.25); color:#04101f;}
+.bin-tps{background:linear-gradient(180deg,var(--tps),var(--tps-d)); color:#022;}
+.bin-mis{background:linear-gradient(180deg,var(--mis),var(--mis-d)); color:#012;}
+.bin-ess{background:linear-gradient(180deg,var(--ess),var(--ess-d)); color:#fff;}
+.bin-trash{background:linear-gradient(180deg,var(--trash),var(--trash-d)); color:#fff;}
+
+/* ===== BOSS ===== */
+.boss-wrap{width:100%; height:100%; display:flex; flex-direction:column; padding:52px 12px 12px; gap:10px;}
+.boss-top{display:flex; flex-direction:column; align-items:center; gap:6px;}
+.boss-avatar{font-size:2.6rem;}
+.hpbar{width:min(90%,340px); height:14px; border-radius:8px; background:rgba(255,255,255,.15); overflow:hidden; border:1px solid rgba(255,255,255,.3);}
+.hpbar > i{display:block; height:100%; background:linear-gradient(90deg,var(--danger),var(--warn)); transition:width .3s;}
+.timerbar{width:100%; height:6px; border-radius:4px; background:rgba(255,255,255,.15); overflow:hidden;}
+.timerbar > i{display:block; height:100%; background:var(--warn); transition:width linear;}
+.q-panel{flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:12px; font-size:.84rem; line-height:1.5;}
+.q-stem{white-space:pre-line;}
+.q-opt{width:100%; text-align:right; padding:10px 12px; border-radius:10px; font-size:.8rem; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:var(--ink);}
+.q-opt.correct{border-color:var(--good); background:rgba(74,222,128,.2);}
+.q-opt.wrong{border-color:var(--danger); background:rgba(248,113,113,.2);}
+.explain-box{font-size:.78rem; background:rgba(255,255,255,.06); border-radius:10px; padding:10px; border-right:3px solid var(--ess-gold);}
+
+/* ===== RESULTS ===== */
+.stars-row{font-size:1.6rem; letter-spacing:6px; color:var(--warn);}
+.confuse-row{display:flex; justify-content:space-between; font-size:.78rem; width:min(90%,320px); border-bottom:1px dashed rgba(255,255,255,.15); padding:4px 0;}
+
+@media (max-width:420px){
+  :root{font-size:15px;}
+  .lever-row{gap:16px;}
+}
+</style>
+</head>
+<body>
+<div id="cabinet">
+  <div id="hero-mascot-slot"></div>
+  <div id="marquee"></div>
+  <div id="screen-wrap">
+    <div id="screen">
+      <div id="hud">
+        <div class="hud-chip" id="lives-chip"></div>
+        <div class="hud-chip pixel" id="score-chip">0</div>
+        <div class="hud-chip pixel" id="combo-chip">🔥 ×1</div>
+        <button id="music-btn">🔊</button>
+        <button id="pause-btn">⏸</button>
+      </div>
+      <canvas id="game-canvas"></canvas>
+      <div id="stage-root"></div>
+      <div id="toast-layer"></div>
+      <div id="modal-root" class="hidden"></div>
+    </div>
+    <div id="vignette"></div>
+    <div id="crt"></div>
+  </div>
+</div>
+<script>
+'use strict';
+
+/* ============================================================
+   CONTENT DATA — verified against the course chapter (TPS/MIS/ESS)
+   ============================================================ */
+const DEFS = {
+  tps:{ key:'tps', heName:'TPS — מערכת עיבוד תנועות', enName:'Transaction Processing System', color:'var(--tps)', icon:'🧾',
+    def:`מערכת מידע שתפקידה לתעד (לרשום) עסקאות ואירועים באופן מלא, מדויק, מהיר ובזמן אמת. המערכת אוספת, שומרת ומאפשרת שליפה של נתוני עסקה ספציפית — אך אינה מפיקה דוחות או ניתוחים ניהוליים. משרתת בעיקר את הדרג התפעולי בארגון.`,
+    example:`למשל: קופה רושמת בסופרמרקט, שעון נוכחות, מערכת זימון תורים, שערי כניסה ויציאה, מערכת עו״ש בבנק.`,
+    slang:`יא חופר? TPS = הרובוט שרושם כל דבר שקורה, בלי לחשוב עליו יותר מדי.` },
+  mis:{ key:'mis', heName:'MIS — מערכת לניהול ביניים', enName:'Management Information System', color:'var(--mis)', icon:'📊',
+    def:`מערכת מידע שלוקחת את הנתונים המפורטים שנאספו במערכות TPS, מעבדת אותם (סיכומים, חתכים, ניתוחים בסיסיים) ומפיקה מהם דוחות ניהוליים המסייעים למנהלי ומנהלות ביניים לקבל החלטות שוטפות, לטווח קצר.`,
+    example:`למשל: דוח מלאי, דוח תקני כוח אדם וחריגות שכר, דוח תקציבי, המלצות מותאמות אישית באפליקציית סטרימינג.`,
+    slang:`יא חופר? MIS = הרובוט שלוקח את מה ש-TPS רשם, ומכין ממנו תמצית שמנהלים באמת יקראו.` },
+  ess:{ key:'ess', heName:'ESS — מערכת לניהול בכיר/אסטרטגי', enName:'Executive Support System', color:'var(--ess-gold)', icon:'🔭',
+    def:`מערכת מידע המיועדת להנהלה הבכירה, המשלבת מידע פנימי (מ-TPS ו-MIS) יחד עם מידע חיצוני (שוק, מתחרים, סביבה כלכלית) לתמיכה בהחלטות אסטרטגיות משמעותיות וארוכות טווח, המשפיעות על הארגון כולו. מציגה מידע בעיקר בכלים חזותיים (גרפים, דשבורדים), לאו דווקא בטבלאות מפורטות.`,
+    example:`למשל: מעבר Apple ממעבדי Intel למעבדי M1 משלה, השקת קטגוריית מוצר חדשה, כניסה לשוק בינלאומי חדש.`,
+    slang:`יא חופר? ESS = הרובוט שמסתכל גם פנימה וגם החוצה, ועוזר להנהלה להחליט לאן החברה הולכת בעוד חמש שנים.` },
+};
+
+const TPS_ITEMS = [
+  {label:'קופה רושמת בסופרמרקט', icon:'🛒'}, {label:'מערכת זימון תורים', icon:'📅'},
+  {label:'שעון נוכחות', icon:'⏱️'}, {label:'שער כניסה ויציאה', icon:'🚪'},
+  {label:'מערכת עו״ש בבנק', icon:'🏦'}, {label:'הזמנת פיצה בוולט', icon:'🍕'},
+  {label:'תשלום בביט', icon:'💸'}, {label:'אפליקציית Health בשעון חכם', icon:'⌚'},
+  {label:'הורדת אפליקציה מה-App Store', icon:'📲'}, {label:'הזמנה מ-Shein', icon:'📦'},
+];
+const MIS_ITEMS = [
+  {label:'דוח ניהול מלאי', icon:'📊'}, {label:'דוח תקני כוח אדם', icon:'🧑‍💼'},
+  {label:'דוח תקציבי', icon:'💰'}, {label:'המלצות מוזיקה בספוטיפיי', icon:'🎧'},
+  {label:'ניהול מלאי אחרי השקת אייפון', icon:'📱'}, {label:'דוח שביעות רצון לקוחות', icon:'📋'},
+];
+const ESS_ITEMS = [
+  {label:'מעבר Apple מ-Intel ל-M1', icon:'🧠'}, {label:'השקת Vision Pro', icon:'🥽'},
+  {label:'כניסה לשוק בינלאומי חדש', icon:'🌍'}, {label:'קופות שירות עצמי במרכולים', icon:'🤖'},
+  {label:'דשבורד מכירות עולמי', icon:'📈'}, {label:'ניתוח מיזוג ורכישה', icon:'🤝'},
+];
+const JOKE_ITEMS = [
+  {label:'מערכת נקניק', icon:'🌭'}, {label:'מערכת חימום נקניק', icon:'🔥'},
+  {label:'נקניק תה', icon:'🍵'}, {label:'מערכת KFC', icon:'🍗'}, {label:'מערכת PQQ', icon:'❓'},
+];
+
+const MIS_RECIPES = [
+  {parts:'יומן מכירות + כרטיסי מלאי', correct:'דוח מלאי', wrong:['דוח תקציבי','דוח תקני כוח אדם']},
+  {parts:'נתוני האזנה + היסטוריית פלייליסטים', correct:'המלצות האזנה מותאמות אישית', wrong:['דוח מלאי','דוח תקציבי']},
+  {parts:'נתוני מכירה שוטפים + ביקוש אחרי השקה', correct:'תחזית ביקוש וניהול מלאי', wrong:['דוח תקני כוח אדם','ניתוח שוק בינלאומי']},
+  {parts:'נתוני נוכחות + תקני כוח אדם', correct:'דוח תקני כוח אדם וחריגות שכר', wrong:['דוח מלאי','המלצות האזנה מותאמות אישית']},
+  {parts:'נתוני הכנסות + הוצאות בפועל', correct:'דוח תקציבי', wrong:['דוח תקני כוח אדם','ניתוח שוק בינלאומי']},
+  {parts:'פניות ותלונות לקוחות', correct:'דוח שביעות רצון לקוחות', wrong:['דוח מלאי','דוח תקציבי']},
+];
+
+const ESS_SCENARIOS = [
+  {text:'Apple שוקלת לעבור ממעבדי Intel למעבדי M1 משלה — החלטה שתשנה את כל תהליכי הייצור לשנים קדימה.', internal:'ביצועי מכירות וניסיון ייצור פנימי', external:'יכולות ספקים (TSMC), מגמות שוק ומתחרים'},
+  {text:'הנהלת רשת שיווק שוקלת להטמיע קופות שירות עצמי בכל הסניפים.', internal:'נתוני תפעול וכוח אדם קיימים', external:'מגמות טכנולוגיה ותחרות בענף הקמעונאות'},
+  {text:'חברת עוגות שוקלת כניסה לשוק בינלאומי חדש.', internal:'ניסיון ומוצרים קיימים', external:'מחקרי שוק ותרבות צריכה במדינת היעד'},
+  {text:'חברת דגים משומרים שוקלת להתפתח לתחום המסעדנות.', internal:'היקף מכירות בתחום הקיים', external:'מגמות שוק המסעדנות ומאגרי מידע חיצוניים'},
+  {text:'חברת תעופה שוקלת להוסיף יעדים חדשים למפת הטיסות שלה.', internal:'רווחיות ותפוסת טיסות קיימות', external:'ביקוש תיירותי ותחרות ביעד'},
+  {text:'Apple שוקלת להשיק קטגוריית מוצר חדשה לגמרי — משקפי מציאות מעורבת.', internal:'ניסיון פיתוח וייצור פנימי', external:'טעמי צרכנים ומיפוי מתחרים חדשים'},
+];
+
+const DOOR_SCENARIOS = [
+  {text:'מנהלת מבקשת דוח המפרט את הפריטים שנמכרו בהיקף הגבוה ביותר בחודש האחרון, כדי להחליט על מבצע לחודש הבא.', correct:'MIS', reasonCorrect:'החלטה שוטפת לטווח קצר (מבצע לחודש אחד) — לא אסטרטגית.', reasonWrong:'כל דוח על מכירות הוא אוטומטית ESS.'},
+  {text:'מנהלת חשבונות מפיקה מהמערכת דוחות היקפי מלאי, פריטים נמכרים ויתרות לקוחות מדי חודש.', correct:'MIS', reasonCorrect:'דוחות ניהוליים שוטפים, ללא שילוב מידע חיצוני.', reasonWrong:'כל דוח שמופק ממערכת הוא ESS כי הוא "ניהולי".'},
+  {text:'חברה ששוקלת כניסה לתחום פעילות חדש משתמשת במערכת שמנתחת מכירות קיימות ומשלבת מאגרי מידע חיצוניים בתשלום, ומפיקה דיווחים גרפיים על מגמות השוק.', correct:'ESS', reasonCorrect:'שילוב מידע פנימי וחיצוני לצורך החלטה אסטרטגית ארוכת טווח.', reasonWrong:'יש כאן "דיווחים" ולכן זו תמיד MIS.'},
+  {text:'״מערכת לניהול מלאי״ — נשמעת חשובה מאוד לתפקוד הארגון.', correct:'MIS', reasonCorrect:'ניהול מלאי הוא פעילות פנימית ושוטפת — ברירת המחדל היא MIS, אלא אם נאמר במפורש שמדובר בהחלטה אסטרטגית עם מידע חיצוני.', reasonWrong:'כל מה שחשוב לתפקוד הארגון הוא אוטומטית אסטרטגי (ESS).'},
+  {text:'מערכת שמציגה למנהלים בכירים לוח מחוונים (דשבורד) גרפי ותמציתי של מכירות עולמיות בזמן אמת, ללא טבלאות מפורטות.', correct:'ESS', reasonCorrect:'הצגה גרפית ותמציתית להנהלה הבכירה — גם ללא טבלה מפורטת.', reasonWrong:'בלי טבלה מפורטת, זו לא באמת מערכת מידע רצינית.'},
+  {text:'מערכת שמפיקה דוח מפורט וארוך על שעות העבודה של כל עובד ועובדת בחודש שעבר.', correct:'MIS', reasonCorrect:'דוח מפורט הוא עדיין MIS — הפירוט אינו הקריטריון המכריע, אלא אופק ההחלטה.', reasonWrong:'דוח כל כך מפורט חייב להיות ESS.'},
+  {text:'הנהלה בכירה דנה בהשלכות מיזוג עם חברה מתחרה, על בסיס ניתוח פיננסי פנימי וניתוח שוק חיצוני.', correct:'ESS', reasonCorrect:'החלטה אסטרטגית משמעותית שמשלבת מידע פנימי וחיצוני.', reasonWrong:'מיזוגים הם עניין כספי בלבד, ולכן שייכים ל-MIS.'},
+  {text:'מנהל משמרת מקבל מדי שבוע דוח קצר שמראה לו כמה מוצרים נמכרו בסניף שלו השבוע.', correct:'MIS', reasonCorrect:'מנהל ביניים (משמרת), החלטה שוטפת ומחלקתית.', reasonWrong:'כל מה שמגיע לאיזשהו מנהל, בכל דרג, הוא MIS.'},
+];
+
+/* Boss question bank — every item verified against the source chapter's stated or directly-derivable answer. */
+const BOSS_BANK = {
+  tps:[
+    {stem:`שלוש טענות:\n1) מערכת TPS מאפשרת החלפה ותיעוד ישיר של אינפורמציה בין צדדים.\n2) מערכת TPS היא מערכת ניהולית שמסייעת לדרג הניהולי בקבלת החלטות.\n3) מערכת MIS דואגת לתיעוד תקין של כל עסקה בבסיס נתונים ארגוני.\nאיזו טענה נכונה?`,
+     options:['טענה 1 בלבד','טענה 2 בלבד','טענות 1 ו-2','טענות 1 ו-3','כל הטענות נכונות'], correct:0,
+     explain:'טענה 1 נכונה: תיעוד והחלפת מידע בין צדדים הם בדיוק הגדרת TPS. טענה 2 שגויה: TPS אינה מערכת ניהולית. טענה 3 שגויה: MIS לא עוסקת בתיעוד אלא בהפקת דוחות ניהוליים.'},
+    {stem:'מערכת TPS רלוונטית, בין היתר, ליישומים הבאים:', options:['תיעוד, מעקב ובקרה אחר נתוני עסקאות','מיזעור טעויות בתהליך התיעוד','שמירה על מהימנות המידע','שמירה על שלמות המידע','כל התשובות נכונות'], correct:4,
+     explain:'כל האפשרויות נכונות — אלו ערכי הליבה של מערכת תיעוד: דיוק, מהימנות ושלמות המידע.'},
+    {stem:'על מנת שמערכת TPS תפעל באופן ראוי, עליה בעיקר:', options:['להיות יצירתית וחדשנית בכלי ניתוח נתונים','לאפשר קליטה מהירה ויעילה של נתוני העסקאות','ליצור מוצרים ושירותים חדשים','להתבסס תמיד על כלי בינה מלאכותית (AI) עדכניים','כל יתר התשובות שגויות'], correct:1,
+     explain:'עיקר ההדגש בהגדרת TPS הוא תיעוד/קליטה/שמירה יעילים ומהירים של נתוני עסקאות — לא חדשנות אנליטית או AI.'},
+    {stem:'מערכת TPS מיועדת בראש ובראשונה עבור:', options:['ביצוע אנליטיקות מתוחכמות לשיפור החלטות','שיפור ההתנהלות העסקית וקביעת אסטרטגיה ארוכת טווח','תיעוד נתוני עסקאות, לרבות עיבוד בסיסי ויכולת הצגה','כל התשובות הקודמות נכונות','כל יתר התשובות שגויות'], correct:2,
+     explain:'TPS מתמקדת בתיעוד עסקאות ועיבוד בסיסי (כמו הצגת סכום לתשלום) — לא באנליטיקה מתוחכמת או אסטרטגיה.'},
+    {stem:'אחד האתגרים הניצבים בפני מערכות TPS מודרניות הוא בעיקר:', options:['הצורך להשתמש תמיד בבינה מלאכותית (AI)','העלייה בהיקף העסקאות והמסחר המקוון, הדורשת יישומים עתירי נתונים','הצורך להכשיר עובדים להקליד נתונים','הצורך לפרש נתונים כבסיס להחלטות אסטרטגיות','כל התשובות נכונות'], correct:1,
+     explain:'האתגר המרכזי הוא היקף העסקאות העצום בעידן המסחר המקוון — לא AI, לא הקלדה, ולא החלטות אסטרטגיות (זה תפקיד ESS).'},
+    {stem:'מי מבין הפעולות הבאות איננו מהווה מטרה של מערכת TPS?', options:['קליטה/רישום נתוני עסקאות ואירועים ספציפיים','עיבוד בסיסי של נתוני עסקאות ספציפיים','יכולת להציג/לשלוף נתוני עסקה ספציפית','הגדרת מטרות לדרג ניהול הביניים בחברה','כל הפעולות לעיל צפויות להתבצע ע״י TPS'], correct:3,
+     explain:'הגדרת מטרות לדרג ניהול הביניים היא תפקיד MIS, לא TPS.'},
+    {stem:'סמנו את הטענה הנכונה לגבי מערכת TPS:', options:['נקראת גם מערכת לעיבוד תנועות','מהווה סוג של מערכת לניהול בכיר','מרכזת רק מידע שנוצר מחוץ לארגון','מערכת לניהול כלל התהליך הארגוני היא דוגמה ל-TPS','כל הטענות האחרות שגויות'], correct:0,
+     explain:'TPS = Transaction Processing System = מערכת עיבוד תנועות. זו בדיוק ההגדרה.'},
+    {stem:'בהתאם להגדרות שנלמדו, מערכת זימון תורים לקופת חולים היא מערכת מסוג:', options:['TPS','MIS','ESS','כל התשובות נכונות','סוג המערכת לא מתאים לאף קבוצה'], correct:0,
+     explain:'זימון תורים הוא רישום ותיעוד מפורט של כל תור — הגדרה קלאסית של TPS.'},
+    {stem:'סמנו את הטענה הנכונה:', options:['באמצעות TPS אפשר לדעת מהו היקף מכירות המתחרים החיצוניים','TPS אינה יכולה לבצע מעקב אחר ביצוע עסקאות ספציפיות','באמצעות TPS אפשר לגשת לנתוני עסקה ספציפית ולבחון את נתוניה','TPS מיועדת בעיקר לדרג הניהולי בחברה','כל יתר התשובות שגויות'], correct:2,
+     explain:'TPS מאפשרת שליפה ובחינה של נתוני עסקה ספציפית (כמו קבלה) — זה בדיוק ייעודה.'},
+  ],
+  mis:[
+    {stem:'בהגדרה הבסיסית ביותר, מערכת TPS היא:', options:['מערכת תפעול הייצור','מערכת עיבוד תנועות','מערכת חיזוי עסקאות','מערכת ניהול כוח אדם','כל יתר התשובות שגויות'], correct:1,
+     explain:'TPS = מערכת עיבוד תנועות, ההגדרה הבסיסית ביותר שלה.'},
+    {stem:`שלוש טענות:\n1) מערכת MIS היא מערכת שהתוצרים שלה נקבעים ע״י צרכי ההנהלה הבכירה.\n2) מערכת TPS מתמקדת בניתוח מקיף של מידע מתוך הארגון ומחוצה לו, ומייצרת דיווחים שמסייעים לקבלת החלטות.\n3) מערכת ESS מתבססת על מידע פנימי וגם חיצוני, כתשתית להחלטות בעלות ערך אסטרטגי.\nאיזו טענה נכונה?`,
+     options:['טענות 1 ו-2','טענה 3 בלבד','טענות 2 ו-3','טענות 1 ו-3','כל הטענות נכונות'], correct:1,
+     explain:'טענה 1 שגויה: MIS מיועדת לדרג הביניים, לא להנהלה הבכירה. טענה 2 שגויה: זה תיאור ESS, לא TPS. טענה 3 נכונה בהגדרה.'},
+    {stem:'E-nessa נתבקשה ע״י המנהלת להוציא דוח המפרט את הפריטים שנמכרו בהיקף הגבוה ביותר בחודש האחרון, כדי להחליט על מבצע לחודש הבא. הדוח יישלף ממערכת:', options:['TPS','MIS','ESS','אין אף תשובה נכונה','שילוב של כל השלוש'], correct:1,
+     explain:'זהו דוח ניהולי מעובד, לא תיעוד גולמי (לכן לא TPS). ההחלטה לטווח קצר (מבצע לחודש אחד) ולא אסטרטגית — לכן MIS ולא ESS.'},
+    {stem:'עדי מזר, מנהלת חשבונות בכירה, מקלידה מדי חודש חשבוניות וקבלות לתיעוד נאות של העסקאות, והמערכת גם מפיקה דוחות ניהוליים כגון היקפי מלאי וסוגי הפריטים הנמכרים ביותר. ניתן לטעון שעדי פועלת במערכת:', options:['TPS שמשולבת ב-MIS','ESS שמשולבת ב-TPS','ESS שמשולבת ב-MIS','TPS בלבד','MIS בלבד'], correct:0,
+     explain:'יש כאן גם תיעוד (TPS) וגם הפקת דוחות ניהוליים שוטפים (MIS) — ללא מידע חיצוני או משמעות אסטרטגית, כך שאין כאן ESS.'},
+    {stem:'סמנו את הטענה הנכונה:', options:['כאשר מעוניינים להפיק דוח ניהולי, נשתמש בתוצרים הישירים של TPS','מערכת לניהול חימומי נקניק נקראת גם ESS','מערכת MIS נועדה לתמוך בפעילות היומיומית ולבצע מעקב אחר עסקאות בודדות','כאשר מעוניינים להפיק דוח ניהולי, נשתמש במערכת MIS','כל התשובות נכונות'], correct:3,
+     explain:'דיווחים ניהוליים הם תוצר קלאסי של MIS. שאר האפשרויות שגויות (או אבסורדיות בכוונה — מעקב אחר עסקאות בודדות זה תפקיד TPS, לא MIS).'},
+    {stem:'סמנו את הטענה הנכונה:', options:['מערכת MIS מיועדת לדרגים אסטרטגיים','מערכת ESS חייבת להתקיים בכל ארגון, גם בארגון קטן מאוד','מערכת TPS עוסקת בתיעוד מפורט של מידע ועסקאות','יש יותר מתשובה נכונה אחת','כל הטענות שגויות'], correct:2,
+     explain:'MIS מיועדת לדרג הביניים, לא האסטרטגי. ESS רלוונטית בעיקר לארגונים שמקבלים החלטות אסטרטגיות, לא לכל עסק קטן. הטענה הנכונה היחידה: TPS עוסקת בתיעוד מפורט.'},
+    {stem:`שלוש טענות:\n1) התפיסה של MIS היא לשרת מנהלים מכל הדרגים בקבלת החלטות אסטרטגיות.\n2) שילוב מידע פנימי וחיצוני מאפיין מערכות ESS.\n3) מערכות ניהול שכר שמפיקות דיווחים למנהלי משמרות הן דוגמאות ל-MIS.\nאיזו טענה נכונה?`,
+     options:['טענות 2 ו-3','טענות 1 ו-3','כל הטענות נכונות','טענה 1 בלבד','טענה 3 בלבד'], correct:0,
+     explain:'טענה 1 שגויה — זה תיאור ESS, לא MIS. טענות 2 ו-3 נכונות.'},
+  ],
+  ess:[
+    {stem:'סמנו את הטענה הנכונה לגבי מערכת ESS:', options:['מיועדת למנהלי ביניים, כגון מנהלי מחלקות ומוצרים','מתמקדת בהצגה מפורטת מאוד באמצעות טבלה לפעילות ספציפית','עושה שימוש בכלים פשוטים מאוד, ללא עיבוד מידע משמעותי','מיועדת לניהול בכיר','שמה דגש על ניתוח אסטרטגי לצרכי הדרג התפעולי, לפעילות יומיומית'], correct:3,
+     explain:'ESS מיועדת בהגדרה לניהול בכיר/אסטרטגי — לא למנהלי ביניים או לדרג התפעולי, ואינה מוגבלת לטבלאות פשוטות.'},
+    {stem:'מערכת שמסייעת לקבלת החלטות אסטרטגיות היא:', options:['מערכת MIS','מערכת ESS','מערכת TPS','מערכת KFC','מערכת נקניק'], correct:1,
+     explain:'ESS, דרך שילוב נתונים פנימיים וחיצוניים, מיועדת לתמוך בהחלטות אסטרטגיות מורכבות.'},
+    {stem:'שניר בראמי בע״מ, חברה למכירת דגים משומרים, שוקלת להתפתח לתחום המסעדנות. היא רכשה מערכת משוכללת שמנתחת את היקף מכירותיה הקיים, משלבת נתונים ממקורות חיצוניים (כולל מאגרי מידע בתשלום), ומפיקה דיווחים גרפיים על מגמות שוק המסעדנות. מדובר במערכת מסוג:', options:['TPS','MIS','ESS','נקניק תה','אין אף תשובה נכונה'], correct:2,
+     explain:'שילוב מידע פנימי וחיצוני, דיווחים גרפיים ותמציתיים, ותמיכה בהחלטה אסטרטגית (כניסה לתחום חדש) — כל אלה מצביעים במובהק על ESS.'},
+    {stem:'כאשר חברת Apple שקלה להשיק את ה-Vision Pro (קטגוריית מוצר חדשה לגמרי עבורה), סביר להניח שהמערכת המרכזית שעליה התבססה החלטתה היא:', options:['TPS','MIS','ESS','אף מערכת אינה נדרשת','מערכת נקניק'], correct:2,
+     explain:'החלטה על השקת קטגוריית מוצר חדשה לגמרי היא החלטה אסטרטגית מובהקת, הדורשת שילוב מידע פנימי וחיצוני — זהו תפקידה של ESS.'},
+    {stem:'החלטה של מרכז אקדמי על פתיחת תוכנית לימודים חדשה בהנדסה, הדורשת היערכות מוסדית מקיפה (תשתיות, מרצים, תקציב), נשענת בעיקר על מערכת מסוג:', options:['TPS','MIS','ESS','אין צורך במערכת מידע כלל','נקניק תה'], correct:2,
+     explain:'זו החלטה אסטרטגית ארוכת טווח שדורשת ניתוח מלא של מידע מהמוסד וגם מחוצה לו (מוסדות מתחרים, נרשמים) — בדיוק תפקידה של ESS.'},
+    {stem:'מבין המערכות הבאות, איזו משלבת מידע פנימי וחיצוני כדי לתמוך בקבלת החלטות?', options:['MIS','ESS','TPS','כל המערכות עושות זאת, בהגדרה','כל יתר התשובות שגויות'], correct:1,
+     explain:'שילוב מידע פנימי וחיצוני הוא בדיוק המאפיין הייחודי של ESS.'},
+    {stem:'מבין המערכות הבאות, איזו מהן תסווג כמערכת ESS?', options:['מערכת לניהול מלאי','מערכת לניהול נוכחות','מערכת לניתוח נתוני שוק משולבים לשם דיון בהשקת מוצר חדש','מערכת לניהול כניסה ויציאה משערי מוסד אקדמי','מערכת לניהול צי הרכב של החברה'], correct:2,
+     explain:'הייחוד המרכזי של ESS הוא שילוב נתונים (פנימיים וחיצוניים) והחשיבות האסטרטגית כבסיס להחלטה משמעותית. שאר האפשרויות הן דוגמאות ל-TPS/MIS.'},
+  ],
+  claims:[
+    {stem:`שלושה היגדים:\n1) מערכת TPS מיועדת ליצור דוחות לניהול שוטף בהתבסס על מידע פנימי.\n2) מערכת ESS היא מערכת לתיעוד מפורט של כל נתון וכל עסקה בתחומה.\n3) דוגמה למערכת MIS היא מערכת ניהול שכר עובדים שתוצריה מיועדים למנהלי משמרות וצוותים.\nאיזו תשובה משקפת נכונה את ההיגדים?`,
+     options:['היגד 3 בלבד נכון','היגד 1 בלבד נכון','היגד 2 בלבד נכון','היגדים 2 ו-3 נכונים','כל ההיגדים נכונים'], correct:0,
+     explain:'היגד 1 שגוי: TPS מיועדת לתיעוד, לא להפקת דוחות ניהוליים. היגד 2 שגוי: זה תיאור TPS, לא ESS. היגד 3 נכון: ניהול שכר למנהלי משמרות הוא דוגמה קלאסית ל-MIS.'},
+    {stem:`דרור כץ שוקל להטמיע מערכת בעסק ייצור ושיווק עוגות:\n1) מערכת שקולטת ומתעדת נתוני הזמנה, תשלום, אזור מגורים ומועד משלוח היא MIS, כי היא מנהלת את אספקת המוצרים בזמן.\n2) מערכת שמפיקה פירוט של סוגי העוגות שנמכרו בהיקפים המשמעותיים ביותר בתקופה האחרונה היא MIS.\n3) מערכת שמאפשרת לשלוף דוח ניהולי המציג חוסרים במלאי חומרי גלם למנהל המחסן היא TPS.\nאיזו טענה נכונה?`,
+     options:['טענה 1 בלבד','טענה 2 בלבד','טענה 3 בלבד','טענות 1 ו-2','נקניק'], correct:1,
+     explain:'טענה 1 שגויה: קליטה ותיעוד פרטי הזמנה היא תיעוד TPS, לא דוח ניהולי. טענה 2 נכונה: הפקת פירוט המוצרים הנמכרים ביותר היא תפקיד קלאסי של MIS. טענה 3 שגויה: הפקת "דוח ניהולי" מטה את הכף ל-MIS, לא TPS.'},
+    {stem:`שלוש טענות:\n1) מערכות TPS שואבות נתונים ממערכות ESS.\n2) מערכת שיכולה לכלול, בין היתר, "מידע שקשור למחקרי שוק, דוחות כספיים והיזון חוזר מלקוחות וספקים" היא מערכת ESS.\n3) מערכות MIS שואבות נתונים מ-TPS, והן מתאימות לדרג הניהולי הכולל מנכ״ליות, סמנכ״לים ובעלי תפקידים ניהוליים בכירים.\nאיזו טענה נכונה?`,
+     options:['טענה 1 בלבד','טענות 1 ו-2','טענות 2 ו-3','טענה 2 בלבד','כל הטענות שגויות'], correct:3,
+     explain:'טענה 1 שגויה: הכיוון הפוך — TPS הוא המקור, ו-ESS שואבת ממנו (עם MIS ומידע חיצוני), לא להיפך. טענה 2 נכונה: זה בדיוק סוג המידע המשולב שמאפיין ESS. טענה 3 שגויה בחלקה: MIS אכן שואבת מ-TPS, אך היא מתאימה לדרג הביניים — לא לדרג הבכיר (מנכ״ל/סמנכ״ל), שהוא קהל היעד של ESS.'},
+    {stem:`״דינמיקת נקניק בע״מ״ מפעילה שלוש מערכות: אחת לרישום מדויק של כל עסקה, שנייה שמעבדת נתונים לדוחות ניהוליים למנהלי ביניים, ושלישית שמשלבת מידע פנימי וחיצוני להנהלה הבכירה.\n1) המערכת הראשונה (הרישום) משמשת בעיקר לקבלת החלטות ניהוליות.\n2) בהחלטה על הרחבה לשווקים בינלאומיים, החברה מסתמכת בעיקר על המערכת שמעבדת מידע פנימי בלבד.\n3) המערכת שמספקת לראשי מחלקות דיווחים על ביצועי עובדים נחשבת לכלי מרכזי להחלטות אסטרטגיות ברמה הארגונית.\nאיזה היגד/ים נכון/ים?`,
+     options:['כל ההיגדים שגויים','היגד 1 בלבד','היגד 2 בלבד','היגד 3 בלבד','היגדים 2 ו-3'], correct:0,
+     explain:'היגד 1 מתאר TPS אך מייחס לו תפקיד ניהולי — שגוי. היגד 2 מתאר החלטה אסטרטגית (שוק בינלאומי) אך מייחס לה בסיס פנימי בלבד — שגוי, כי זה בדיוק תפקיד ESS עם מידע גם חיצוני. היגד 3 מתאר MIS (ראשי מחלקות) אך מייחס לו החלטות אסטרטגיות — שגוי. כל ההיגדים שגויים.'},
+    {stem:`שלוש טענות:\n1) תיעוד מידע בזמן אמת הוא מאפיין של מערכות MIS.\n2) שילוב מידע פנימי וחיצוני מאפיין מערכות ESS.\n3) מערכת רישום נוכחות בעבודה היא דוגמה למערכת TPS.\nאיזו טענה נכונה?`,
+     options:['טענות 1 ו-3','טענה 1 בלבד','טענות 2 ו-3','טענה 2 בלבד','כל הטענות נכונות'], correct:2,
+     explain:'טענה 1 שגויה: תיעוד בזמן אמת מאפיין TPS, לא MIS. טענה 2 נכונה: שילוב פנימי+חיצוני הוא בדיוק ESS. טענה 3 נכונה: רישום נוכחות הוא דוגמה קלאסית ל-TPS.'},
+    {stem:`שלוש טענות:\n1) מערכות העוסקות בעיבוד נתונים בסיסי, אחסון ובקרה על עסקאות בודדות הן מערכות MIS.\n2) מערכת שהוסבר לגביה כי "מאפשרת החלפה ותיעוד של מידע בין החברה לבין הצד המעורב במערכת" היא מערכת ESS.\n3) מערכות ESS כוללות טכנולוגיות שיודעות להתממשק למאגרי מידע חיצוניים, לרשת ולספקי מידע בתשלום, כבסיס לאיסוף נתונים.\nאיזו טענה נכונה?`,
+     options:['כל הטענות שגויות','טענה 1 בלבד','טענה 2 בלבד','טענה 3 בלבד','טענות 1 ו-3'], correct:3,
+     explain:'טענה 1 שגויה: עיבוד בסיסי, אחסון ובקרה על עסקאות בודדות מתאר TPS, לא MIS. טענה 2 שגויה: "החלפת ותיעוד מידע בין צדדים" מתאר TPS, לא ESS. טענה 3 נכונה: זו בדיוק הדרך שבה ESS אוספת מידע חיצוני.'},
+  ],
+  advanced:[
+    {stem:'סדרו נכון את זרימת המידע בארגון, מהבסיסי לאסטרטגי ביותר:\n(א) קופה רושמת כל מכירה בסניף.\n(ב) דוח שבועי למנהל הסניף על הפריטים הנמכרים ביותר.\n(ג) דשבורד להנהלה הבכירה המשלב את נתוני כל הסניפים עם ניתוח מגמות צריכה ארציות, לקראת החלטה על פתיחת רשת סניפים חדשה.',
+     options:['א ← ב ← ג','ג ← ב ← א','ב ← א ← ג','א ← ג ← ב','שלוש הפעילויות קורות תמיד בו-זמנית, ללא סדר משמעותי'], correct:0,
+     explain:'זו בדיוק זרימת המידע שנלמדה: TPS (א, תיעוד מכירה בודדת) → MIS (ב, עיבוד לדוח ניהולי שוטף לסניף) → ESS (ג, שילוב מידע פנימי מכל הסניפים עם מידע חיצוני, לקראת החלטה אסטרטגית).'},
+    {stem:'מערכת מציגה לצוות מכירות אזורי גרף יחיד שמסכם את מכירות החודש האחרון מול יעד המכירות שהוגדר להם. איזו מהטענות הבאות נכונה?',
+     options:['זו בהכרח ESS, כי המידע מוצג כגרף ולא כטבלה','זו בהכרח ESS, כי יש בה גם מרכיב פנימי (מכירות) וגם "חיצוני" (היעד)','זו כנראה MIS — הקהל הוא צוות אזורי וההחלטה שוטפת וטווח-קצר','אי אפשר לדעת בלי לבדוק אילו כלי ניתוח משמשים במערכת','זו TPS, כי היא מציגה נתוני מכירות'], correct:2,
+     explain:'קהל היעד (צוות אזורי, לא הנהלה בכירה) ואופק ההחלטה (שוטף, טווח קצר) הם הקריטריונים הקובעים — לא עצם השימוש בגרף. יעד מכירות פנימי אינו "מידע חיצוני" במובן של שוק/מתחרים/סביבה כלכלית. לכן זו MIS.'},
+    {stem:'מערכת שעון נוכחות במפעל רושמת כל כניסה ויציאה של עובד בזמן אמת, ובנוסף מפיקה אוטומטית בסוף כל חודש דוח חריגות שעות נוספות למנהלי המחלקות. הדרך הנכונה ביותר לתאר מערכת זו:',
+     options:['TPS בלבד, כי היא מבוססת על רישום','MIS בלבד, כי היא מפיקה דוח לניהול','מערכת משולבת TPS+MIS — הרישום בזמן אמת הוא TPS, והפקת הדוח החודשי היא MIS','ESS, כי מדובר בכלל עובדי המפעל','אי אפשר לסווג מערכת שמבצעת יותר מפעולה אחת'], correct:2,
+     explain:'כפי שנלמד, מערכות רבות בעולם האמיתי הן "משולבות": הרישום המפורט בזמן אמת הוא רכיב TPS, וההפקה התקופתית של דוח ניהולי (חריגות שעות נוספות) היא רכיב MIS על גבי אותה מערכת.'},
+    {stem:'אחד מהמשפטים הבאים שגוי. איזה מהם?',
+     options:['TPS היא הבסיס למידע שממנו ניזונות גם MIS וגם ESS','ESS יכולה להתבסס גם על נתונים שכבר עברו עיבוד ב-MIS, ולא רק על TPS גולמי','ככל שהחברה קטנה יותר, כך גובר הצורך שלה במערכת ESS מורכבת','מערכת MIS יכולה לשמש גם כשלב ביניים שמזין נתונים למערכת ESS','מטרת התיעוד ב-TPS היא לשמור על דיוק, מהימנות ושלמות המידע'], correct:2,
+     explain:'המשפט השגוי: ההפך הוא הנכון — ככל שהחברה גדולה יותר ומקבלת החלטות אסטרטגיות מורכבות יותר, כך גובר הצורך במערכת ESS; לעסק קטן מאוד פחות סביר שתידרש מערכת כזו. שאר הטענות נכונות: TPS היא הבסיס למידע, ESS יכולה להתבסס גם על תוצרי MIS שמשמשת ביניים, ו-TPS שומרת על דיוק/מהימנות/שלמות.'},
+    {stem:'בית חולים מפעיל שלוש מערכות:\n(1) מערכת קבלת חולים הרושמת כל אשפוז ושחרור.\n(2) מערכת המפיקה למנהלי המחלקות דוח יומי על תפוסת מיטות ותורים.\n(3) מערכת המשלבת את נתוני התפוסה הפנימיים עם תחזיות דמוגרפיות אזוריות, לקראת החלטת הדירקטוריון על פתיחת אגף חדש.\nההתאמה הנכונה היא:',
+     options:['1=TPS, 2=MIS, 3=ESS','1=MIS, 2=TPS, 3=ESS','1=TPS, 2=ESS, 3=MIS','1=ESS, 2=MIS, 3=TPS','כל השלוש הן MIS, כי כולן קשורות לניהול בית החולים'], correct:0,
+     explain:'(1) רישום כל אשפוז/שחרור בזמן אמת = TPS. (2) דוח יומי שוטף למנהלי מחלקות = MIS. (3) שילוב מידע פנימי עם תחזיות דמוגרפיות חיצוניות לקראת החלטת דירקטוריון אסטרטגית = ESS.'},
+    {stem:'מדוע, על פי הנלמד, פחות סביר שנמצא מערכת ESS אצל בעל/ת מכולת שכונתית קטנה, לעומת רשת קמעונאות ארצית?',
+     options:['כי לבעלי מכולות קטנות אין גישה למחשבים','כי מכולת קטנה אינה מקבלת החלטות אסטרטגיות מורכבות שדורשות שילוב מידע פנימי וחיצוני רחב','כי החוק אוסר על עסקים קטנים להשתמש ב-ESS','כי ESS מיועדת רק לתחום הקמעונאות','כי מכולת קטנה משתמשת רק במידע חיצוני, ללא מידע פנימי כלל'], correct:1,
+     explain:'ESS רלוונטית להחלטות אסטרטגיות משמעותיות וארוכות-טווח (כניסה לשווקים חדשים, שינויי מוצר גדולים וכו׳). לעסק קטן מאוד פשוט אין בדרך כלל את סוג ההחלטות המורכבות שמצדיק מערכת כזו — לא מדובר במגבלה טכנית או חוקית.'},
+    {stem:'מנהל מחלקה מקבל מדי שבוע מ-MIS דוח על היקף המכירות. הוא שם לב שההיקף יורד באופן עקבי כבר שלושה חודשים, ורוצה להבין האם זו מגמת שוק כללית או בעיה פנימית בלבד — לקראת הצעה להנהלה הבכירה לשינוי אסטרטגי. לאיזו מערכת סביר שיפנה בשלב הבא?',
+     options:['TPS, כדי לתעד את הירידה במכירות','MIS נוסף — הוא כבר קיבל דוח MIS ואין צורך בעוד מידע','ESS — נדרש שילוב בין מידע פנימי (מכירות) למידע חיצוני (מגמות שוק) לקראת שיקול אסטרטגי','אין מערכת מתאימה למצב הזה','TPS ו-MIS יחד, ללא כל צורך במידע חיצוני'], correct:2,
+     explain:'ברגע שהצורך עובר מ"מה קרה החודש" (MIS) ל"האם זו מגמת שוק חיצונית, כבסיס להחלטה אסטרטגית להנהלה הבכירה" — נדרש שילוב מידע פנימי וחיצוני, בדיוק תפקידה של ESS.'},
+    {stem:'קופאית בסופרמרקט רואה על צג הקופה גרף עוגה קטן שמראה לה כמה מהמוצרים שסרקה היום היו במבצע. עצם העובדה שהמידע מוצג כגרף:',
+     options:['הופכת את המערכת ל-ESS, כי ESS משתמשת בכלים גרפיים','הופכת את המערכת ל-MIS, כי MIS תמיד מוצגת גרפית','אינה קובעת דבר לגבי הסיווג — גם TPS יכולה להציג נתונים בצורה חזותית פשוטה, מבלי שזה הופך אותה ל-MIS או ESS','מוכיחה שמדובר במערכת משולבת TPS+MIS+ESS','אינה אפשרית טכנית במערכת TPS'], correct:2,
+     explain:'אופן ההצגה (גרף, טבלה, מספר בודד) אינו הקריטריון המכריע לסיווג מערכת. הקריטריון האמיתי הוא תפקיד המערכת (תיעוד מול דוח ניהולי מול תמיכה אסטרטגית), קהל היעד, ואופק ההחלטה. תצוגה גרפית פשוטה בקופה עדיין TPS.'},
+  ],
+};
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; }
+function rand(a,b){ return a + Math.random()*(b-a); }
+function randInt(a,b){ return Math.floor(rand(a,b+1)); }
+function pick(arr){ return arr[randInt(0,arr.length-1)]; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=randInt(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function nl2br(s){ return escapeHtml(s).replace(/\n/g,'<br>'); }
+
+const SAVE_KEY = 'confusedArcadeSave_v1';
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(raw) return Object.assign(defaultSave(), JSON.parse(raw));
+  }catch(e){}
+  return defaultSave();
+}
+function defaultSave(){
+  return {
+    version:1,
+    nodeStars:{tps:0,mis:0,ess:0,doors:0,rush:0,bonus:0},
+    nodeUnlocked:{tps:true,mis:false,ess:false,doors:false,rush:false,bonus:false,boss:false},
+    bossCleared:false, highScore:0, totalScore:0,
+    confusion:{}, satchel:[], freePlayUnlocked:false, musicMuted:false,
+  };
+}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} }
+let SAVE = loadSave();
+
+function noteConfusion(pairKey){
+  SAVE.confusion[pairKey] = (SAVE.confusion[pairKey]||0) + 1;
+}
+function pairKey(a,b){ return [a,b].sort().join('↔'); }
+
+/* ============================================================
+   AUDIO — Web Audio API oscillator beeps only, no external files
+   ============================================================ */
+let ACTX = null;
+function ensureAudio(){ if(!ACTX){ try{ ACTX = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(ACTX && ACTX.state==='suspended') ACTX.resume(); }
+function beep(freq=440, dur=.12, type='square', gain=.06, delay=0){
+  if(!ACTX) return;
+  const t0 = ACTX.currentTime + delay;
+  const osc = ACTX.createOscillator(); const g = ACTX.createGain();
+  osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(gain, t0+.01);
+  g.gain.exponentialRampToValueAtTime(.0001, t0+dur);
+  osc.connect(g); g.connect(ACTX.destination);
+  osc.start(t0); osc.stop(t0+dur+.02);
+}
+const SFX = {
+  correct(){ beep(660,.08,'square',.05); beep(880,.1,'square',.06,.07); },
+  wrong(){ beep(180,.2,'sawtooth',.07); beep(120,.25,'sawtooth',.06,.08); },
+  combo(){ beep(520,.06,'square',.05); beep(660,.06,'square',.05,.06); beep(880,.08,'square',.06,.12); },
+  select(){ beep(400,.05,'triangle',.04); },
+  cash(){ beep(1200,.04,'square',.04); beep(1600,.06,'square',.05,.04); },
+  printer(){ beep(300,.03,'square',.03); beep(320,.03,'square',.03,.05); beep(300,.03,'square',.03,.1); },
+  scope(){ beep(200,.2,'sine',.05); beep(400,.15,'sine',.05,.1); },
+  victory(){ [523,659,784,1047].forEach((f,i)=>beep(f,.18,'square',.06,i*.14)); },
+  boom(){ beep(90,.3,'sawtooth',.08); },
+  jingle(){ [392,440,392,330,392,494,440].forEach((f,i)=>beep(f,.12,'triangle',.045,i*.11)); },
+};
+
+/* ============================================================
+   BACKGROUND MUSIC — procedural, tempo rises with progress
+   ============================================================ */
+const MUSIC_BASSLINE = [110.00,130.81,164.81,146.83,110.00,98.00,164.81,146.83];
+const MUSIC = { timer:null, step:0, intensity:0, enabled:!SAVE.musicMuted };
+function musicTick(){
+  if(!MUSIC.enabled || !ACTX){ MUSIC.timer = setTimeout(musicTick, 200); return; }
+  const freq = MUSIC_BASSLINE[MUSIC.step % MUSIC_BASSLINE.length];
+  beep(freq, 0.1, 'triangle', 0.028);
+  if(MUSIC.step % 2===0) beep(freq*2, 0.05, 'square', 0.012, 0.02);
+  if(MUSIC.step % 8===0) beep(55, 0.12, 'sine', 0.03);
+  MUSIC.step++;
+  const bpm = 108 + MUSIC.intensity*16;
+  const stepMs = 60000/bpm/2;
+  MUSIC.timer = setTimeout(musicTick, stepMs);
+}
+function startMusic(intensity){
+  if(intensity!==undefined) MUSIC.intensity = intensity;
+  if(MUSIC.timer) return;
+  ensureAudio();
+  MUSIC.step = 0;
+  musicTick();
+}
+function stopMusic(){
+  if(MUSIC.timer){ clearTimeout(MUSIC.timer); MUSIC.timer=null; }
+}
+function setMusicIntensity(level){ MUSIC.intensity = level; }
+function toggleMusicMute(){
+  MUSIC.enabled = !MUSIC.enabled;
+  SAVE.musicMuted = !MUSIC.enabled;
+  persist();
+  renderMusicBtn();
+}
+function renderMusicBtn(){
+  const b = $('#music-btn'); if(b) b.textContent = MUSIC.enabled? '🔊' : '🔇';
+}
+
+/* ============================================================
+   MASCOT + TOAST
+   ============================================================ */
+function mascotInnerHTML(accessory){
+  return `<div class="body"></div><div class="eye l"></div><div class="eye r"></div><div class="antenna"></div><div class="accessory">${accessory||''}</div>`;
+}
+function mascotHTML(accessory){
+  return `<div class="mascot">${mascotInnerHTML(accessory)}</div>`;
+}
+function showToast(msg, mood){
+  const layer = $('#toast-layer');
+  const t = el('div', 'toast '+(mood==='bad'?'bad':mood==='good'?'good':''), escapeHtml(msg));
+  const x = rand(10,55), y = rand(10,55);
+  t.style.right = x+'%'; t.style.top = y+'%';
+  layer.appendChild(t);
+  setTimeout(()=>t.remove(), 2900);
+}
+function mascotConfused(msg){
+  SFX.wrong();
+  showToast('המבולבלים מבולבל! '+msg, 'bad');
+}
+function mascotHappy(msg){
+  showToast(msg||'יש!', 'good');
+}
+
+/* ============================================================
+   CONFETTI / SCREEN BURST
+   ============================================================ */
+const CONFETTI_COLORS = ['#22d3a8','#38bdf8','#a78bfa','#fbbf24','#f472b6','#4ade80'];
+function burstConfetti(cx, cy, n){
+  const layer = $('#screen');
+  n = n || 18;
+  for(let i=0;i<n;i++){
+    const isSausage = Math.random()<0.22;
+    const c = el('div','confetti', isSausage?'🌭':'');
+    if(isSausage){ c.style.background='transparent'; c.style.fontSize='14px'; c.style.lineHeight='8px'; }
+    else c.style.background = pick(CONFETTI_COLORS);
+    c.style.right = cx + rand(-10,10) + 'px';
+    c.style.top = cy + rand(-10,10) + 'px';
+    c.style.animationDuration = rand(.6,1.1)+'s';
+    layer.appendChild(c);
+    setTimeout(()=>c.remove(), 1200);
+  }
+}
+function confusedBurst(){
+  SFX.combo();
+  burstConfetti(innerWidthOfScreen()/2, 80, 26);
+}
+function innerWidthOfScreen(){ return $('#screen').clientWidth; }
+
+/* ============================================================
+   HUD
+   ============================================================ */
+const HUD = { lives:3, maxLives:3, score:0, combo:0, comboMult:1 };
+function hudReset(lives){
+  HUD.lives = lives===undefined?3:lives; HUD.maxLives = HUD.lives; HUD.combo=0; HUD.comboMult=1;
+  $('#hud').style.display='flex';
+  renderHud();
+}
+function renderHud(){
+  const hearts = '❤️'.repeat(Math.max(0,HUD.lives)) + '🖤'.repeat(Math.max(0,HUD.maxLives-HUD.lives));
+  $('#lives-chip').innerHTML = `<span class="heart">${hearts}</span>`;
+  $('#score-chip').textContent = '★ '+HUD.score;
+  const comboChip = $('#combo-chip');
+  if(HUD.comboMult>1){ comboChip.classList.add('show'); comboChip.textContent = '🔥 ×'+HUD.comboMult; }
+  else comboChip.classList.remove('show');
+}
+function hudAddScore(pts){
+  HUD.score += Math.round(pts*HUD.comboMult);
+  SAVE.totalScore += Math.round(pts*HUD.comboMult);
+  if(SAVE.totalScore > SAVE.highScore) SAVE.highScore = SAVE.totalScore;
+  renderHud();
+}
+function hudCorrect(basePts){
+  HUD.combo++; HUD.comboMult = HUD.combo>=15?5:HUD.combo>=10?4:HUD.combo>=6?3:HUD.combo>=3?2:1;
+  hudAddScore(basePts);
+  if(HUD.combo>0 && HUD.combo%8===0) confusedBurst();
+  renderHud();
+}
+function hudWrong(loseLife){
+  HUD.combo=0; HUD.comboMult=1;
+  if(loseLife!==false){ HUD.lives = Math.max(0,HUD.lives-1); }
+  renderHud();
+  return HUD.lives<=0;
+}
+function hudHalfWrong(){
+  HUD.combo=0; HUD.comboMult=1;
+  HUD.lives = Math.max(0, HUD.lives - 0.5);
+  renderHud();
+  return HUD.lives<=0;
+}
+
+/* ============================================================
+   SCREEN / MODAL PLUMBING
+   ============================================================ */
+let currentTeardown = null;
+function gotoScreen(renderFn){
+  if(currentTeardown){ try{ currentTeardown(); }catch(e){} currentTeardown=null; }
+  const root = $('#stage-root');
+  root.innerHTML='';
+  const ctx = $('#game-canvas').getContext('2d');
+  ctx.clearRect(0,0,9999,9999);
+  $('#game-canvas').style.display='none';
+  closeModal();
+  $('#hero-mascot-slot').innerHTML='';
+  const teardown = renderFn(root);
+  if(typeof teardown === 'function') currentTeardown = teardown;
+}
+function showHeroMascot(accessory){
+  $('#hero-mascot-slot').innerHTML = `<div class="mascot hero">${mascotInnerHTML(accessory||'🌭')}</div>`;
+}
+function closeModal(){ const m=$('#modal-root'); m.classList.add('hidden'); m.innerHTML=''; }
+function openModal(html){
+  const m = $('#modal-root'); m.innerHTML = html; m.classList.remove('hidden'); return m;
+}
+
+function showDefCard(keys, onContinue){
+  keys = Array.isArray(keys)?keys:[keys];
+  keys.forEach(k=>{ if(!SAVE.satchel.includes(k)) SAVE.satchel.push(k); });
+  persist();
+  const cardsHtml = keys.map(k=>{
+    const d = DEFS[k];
+    return `<div class="def-card panel">
+      <div class="def-head"><div class="badge" style="background:${d.color};color:#04101f;">${d.icon}</div>
+        <div><b style="color:${d.color}">${d.heName}</b><br><small>${d.enName}</small></div></div>
+      <div class="def-body">${nl2br(d.def)}</div>
+      <div class="def-ex">${nl2br(d.example)}</div>
+      <div class="def-slang" id="slang-${k}">${nl2br(d.slang)}</div>
+      <button class="btn btn-ghost" data-slang="${k}">יא חופר? (תמצית בסלנג)</button>
+    </div>`;
+  }).join('');
+  const m = openModal(`<div style="display:flex;flex-direction:column;gap:10px;max-height:92%;overflow-y:auto;align-items:center;">
+      ${cardsHtml}
+      <button class="btn btn-primary" id="def-continue">בואו נשחק! →</button>
+    </div>`);
+  m.querySelectorAll('[data-slang]').forEach(b=>b.addEventListener('click',()=>{
+    $('#slang-'+b.dataset.slang).classList.toggle('show');
+  }));
+  $('#def-continue').addEventListener('click', ()=>{ closeModal(); onContinue(); });
+}
+
+/* ============================================================
+   NODES / FLOW CONTROL
+   ============================================================ */
+const NODE_ORDER = ['tps','mis','ess','doors','rush'];
+const NODES = [
+  {key:'tps', title:'קופת המהירות', subtitle:'TPS — חתכו נכון, מהר', icon:'🧾', defKeys:['tps'], run:(r,d)=>runTpsSlice(r,d)},
+  {key:'mis', title:'קלחת הדוחות', subtitle:'MIS — הרכיבו את הדוח הנכון', icon:'📊', defKeys:['mis'], run:(r,d)=>runMisCraft(r,d)},
+  {key:'ess', title:'חדר המנופים האסטרטגי', subtitle:'ESS — משכו את שני המנופים יחד', icon:'🔭', defKeys:['ess'], run:(r,d)=>runEssLevers(r,d)},
+  {key:'doors', title:'שתי הדלתות', subtitle:'MIS או ESS? ההבדל העדין ביותר', icon:'🚪', defKeys:['mis','ess'], run:(r,d)=>runTwoDoors(r,d)},
+  {key:'rush', title:'מסלול המיון המטורף', subtitle:'הכול, מהר, עכשיו — כולל פח אשפה', icon:'⚡', defKeys:['tps','mis','ess'], run:(r,d)=>runSortRush(r,d,false)},
+  {key:'bonus', title:'שיר הנקניק המבלבל', subtitle:'בונוס — לא לבחינה!', icon:'🌭', defKeys:null, run:(r,d)=>runBonusInterlude(r,d), optional:true},
+  {key:'boss', title:'קרב הבוס: המבחן האמריקאי', subtitle:'5 שלבים, כולל סיבוב מומחים', icon:'👹', defKeys:null, run:(r,d)=>runBoss(r,d), boss:true},
+];
+function nodeByKey(k){ return NODES.find(n=>n.key===k); }
+
+function unlockAfter(key){
+  const idx = NODE_ORDER.indexOf(key);
+  if(idx>=0 && idx+1<NODE_ORDER.length) SAVE.nodeUnlocked[NODE_ORDER[idx+1]] = true;
+  if(key==='rush') SAVE.nodeUnlocked.bonus = true;
+  const allCore = NODE_ORDER.every(k=>(SAVE.nodeStars[k]||0)>0);
+  if(allCore) SAVE.nodeUnlocked.boss = true;
+}
+
+const MUSIC_LEVELS = {tps:0, mis:1, ess:2, doors:2, rush:3, bonus:1};
+function startNode(node){
+  if(node.key==='boss' && !SAVE.nodeUnlocked.boss) return;
+  if(!node.boss) hudReset(3);
+  const launch = ()=>{
+    if(!node.boss) startMusic(MUSIC_LEVELS[node.key] ?? 0);
+    gotoScreen(root => node.run(root, result=>finishNode(node, result)));
+  };
+  if(node.defKeys && node.defKeys.length) showDefCard(node.defKeys, launch);
+  else launch();
+}
+
+function finishNode(node, result){
+  result = result || {};
+  if(node.key==='bonus'){
+    persist(); renderMap(); return;
+  }
+  if(!node.boss){
+    SAVE.nodeStars[node.key] = Math.max(SAVE.nodeStars[node.key]||0, result.stars||0);
+    unlockAfter(node.key);
+    persist();
+    showStageSummary(node, result);
+  } else {
+    SAVE.bossCleared = SAVE.bossCleared || !!result.won;
+    SAVE.freePlayUnlocked = SAVE.freePlayUnlocked || !!result.won;
+    persist();
+    showBossResults(result);
+  }
+}
+
+function starsHtml(n){
+  n = Math.round(n||0);
+  return '★★★'.slice(0,n) + '☆☆☆'.slice(0, 3-n);
+}
+
+function showStageSummary(node, result){
+  gotoScreen(root=>{
+    const acc = result.accuracy!==undefined ? Math.round(result.accuracy*100) : null;
+    root.appendChild(el('div','stage-view', `
+      ${mascotHTML(node.icon)}
+      <h2 class="stage-title">שלב הושלם: ${node.title}</h2>
+      <div class="stars-row">${starsHtml(result.stars)}</div>
+      ${acc!==null?`<div class="stage-sub">דיוק: ${acc}%</div>`:''}
+      <div class="panel" style="padding:12px 16px;max-width:320px;font-size:.8rem;color:var(--pink);">
+        ${escapeHtml(result.tldr||'יא חופר? עברתם את השלב, קדימה הלאה!')}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-good" id="btn-again">שחקו שוב</button>
+        <button class="btn btn-primary" id="btn-map">חזרה למפה</button>
+      </div>
+    `));
+    $('#btn-again').addEventListener('click', ()=>startNode(node));
+    $('#btn-map').addEventListener('click', renderMap);
+  });
+}
+
+/* ============================================================
+   MENU
+   ============================================================ */
+function renderMenu(){
+  $('#hud').style.display='none';
+  stopMusic();
+  gotoScreen(root=>{
+    root.appendChild(el('div','stage-view','', ));
+    const v = root.querySelector('.stage-view');
+    v.id='menu-view';
+    v.style.paddingTop='175px';
+    v.innerHTML = `
+      <h1 id="menu-title">ארקייד המבולבלים<br>קרב המערכות</h1>
+      <p id="menu-tagline">TPS • MIS • ESS — שלוש שניות למיין, לפני שהמבולבלים שר לכם שיר על נקניק.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-start">${SAVE.totalScore>0?'המשך משחק':'התחילו לשחק'}</button>
+        <button class="btn btn-ghost" id="btn-satchel">🎒 ילקוט הידע</button>
+      </div>
+      ${SAVE.freePlayUnlocked?'<button class="btn btn-warn" id="btn-free">⚡ מצב חופשי</button>':''}
+      <p class="stage-sub" style="max-width:300px;">שיא נוכחי: ${SAVE.highScore} נקודות</p>
+      <p id="menu-credit">מבוסס על מחברת הקורס ״מבוא למערכות מידע״ | ד״ר שי צבאן</p>
+    `;
+    showHeroMascot('🌭');
+    $('#btn-start').addEventListener('click', ()=>{ ensureAudio(); renderMap(); });
+    $('#btn-satchel').addEventListener('click', ()=>{ ensureAudio(); showSatchel(renderMenu); });
+    const freeBtn = $('#btn-free'); if(freeBtn) freeBtn.addEventListener('click', ()=>{ ensureAudio(); startFreePlay(); });
+  });
+}
+
+function showSatchel(onClose){
+  const items = SAVE.satchel.length ? SAVE.satchel.map(k=>{
+    const d=DEFS[k]; return `<div class="opt-card" style="border-color:${d.color}"><b style="color:${d.color}">${d.icon} ${d.heName}</b><br>${nl2br(d.def)}</div>`;
+  }).join('') : '<p class="stage-sub">עוד לא אספתם הגדרות — התחילו לשחק!</p>';
+  const m = openModal(`<div class="panel" style="width:min(90%,380px);max-height:82%;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+    <h3>🎒 ילקוט הידע</h3>${items}
+    <button class="btn btn-primary" id="satchel-close">סגירה</button>
+  </div>`);
+  $('#satchel-close').addEventListener('click', ()=>{ closeModal(); if(onClose) onClose(); });
+}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+function renderMap(){
+  $('#hud').style.display='none';
+  stopMusic();
+  gotoScreen(root=>{
+    const wrap = el('div','stage-view');
+    wrap.id='map-view';
+    wrap.innerHTML = `<h2 class="stage-title">מפת הארקייד</h2><div class="map-track" id="map-track"></div>`;
+    root.appendChild(wrap);
+    const track = wrap.querySelector('#map-track');
+    NODES.forEach(node=>{
+      const unlocked = SAVE.nodeUnlocked[node.key];
+      const stars = SAVE.nodeStars[node.key]||0;
+      const btn = el('button','node-btn'+(unlocked?'':' locked')+(node.boss?' boss':''), `
+        <div class="icon" style="color:${node.boss?'var(--ess-gold)':'#fff'}">${unlocked?node.icon:'🔒'}</div>
+        <div class="txt"><b>${node.title}</b><small>${node.subtitle}</small>
+        ${(!node.boss && !node.optional)?`<span class="stars">${starsHtml(stars)}</span>`:''}
+        </div>`);
+      if(unlocked) btn.addEventListener('click', ()=>{ ensureAudio(); startNode(node); });
+      track.appendChild(btn);
+    });
+    const backBtn = el('button','btn btn-ghost', '⟵ תפריט ראשי');
+    backBtn.style.marginTop='10px';
+    backBtn.addEventListener('click', renderMenu);
+    wrap.appendChild(backBtn);
+  });
+}
+
+/* ============================================================
+   STAGE 1 — TPS SLICE (Canvas, Fruit-Ninja style)
+   ============================================================ */
+function distToSegment(px,py,x1,y1,x2,y2){
+  const dx=x2-x1, dy=y2-y1; const lenSq=dx*dx+dy*dy;
+  let t = lenSq ? ((px-x1)*dx+(py-y1)*dy)/lenSq : 0;
+  t = clamp(t,0,1);
+  const cx=x1+t*dx, cy=y1+t*dy;
+  return Math.hypot(px-cx, py-cy);
+}
+function runTpsSlice(root, onDone){
+  const header = el('div','stage-view');
+  header.style.pointerEvents='none'; header.style.justifyContent='flex-start'; header.style.paddingTop='46px';
+  header.innerHTML = `<div class="panel" style="padding:6px 12px;font-size:.75rem;">✂️ חתכו רק פריטי <b style="color:var(--tps)">תיעוד (TPS)</b> • הימנעו מפצצות MIS/ESS</div>`;
+  root.appendChild(header);
+
+  const canvas = $('#game-canvas');
+  canvas.style.display='block';
+  const screenEl = $('#screen');
+  function resize(){ canvas.width = screenEl.clientWidth; canvas.height = screenEl.clientHeight; }
+  resize();
+  const ctx = canvas.getContext('2d');
+
+  const TOTAL = 20;
+  const COMBINED_LABEL = 'מערכת נוכחות שגם מפיקה דוח כ״א (משולבת)';
+  let spawned=0, correct=0, wrong=0, missed=0, ended=false;
+  let items=[]; let trail=[]; let lastSpawn=0; let startTime=performance.now();
+
+  function spawnItem(){
+    spawned++;
+    let kind, label, icon, combined=false;
+    const roll = Math.random();
+    if(spawned===7){ kind='tps'; label=COMBINED_LABEL; icon='🧾'; combined=true; }
+    else if(roll<0.62){ kind='tps'; const it=pick(TPS_ITEMS); label=it.label; icon=it.icon; }
+    else { kind='bomb'; const it = Math.random()<0.5?pick(MIS_ITEMS):pick(ESS_ITEMS); label=it.label; icon=it.icon; }
+    const speed = rand(70,110) + Math.min(70, spawned*3);
+    items.push({
+      x:canvas.width+40, y:rand(80,canvas.height-120), vx:-speed, vy:rand(-14,14),
+      r:34, label, icon, kind, combined, sliced:false, dead:false,
+    });
+  }
+
+  function resolveHit(item, correctSlice){
+    item.sliced=true;
+    if(correctSlice){
+      correct++;
+      hudCorrect(item.combined?20:10);
+      SFX.cash();
+      burstConfetti(canvas.width-((canvas.width-item.x)||0), item.y, item.combined?26:12);
+      if(item.combined) mascotHappy('מערכת משולבת: גם תיעוד (TPS) וגם דוח (MIS)! בונוס!');
+    } else {
+      wrong++;
+      const isEnd = hudWrong(true);
+      mascotConfused(`״${item.label}״ הוא/היא MIS/ESS — לא תיעוד עסקה בזמן אמת.`);
+      if(isEnd) finish();
+    }
+  }
+
+  function onPointerMove(e){
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX-rect.left), y=(e.clientY-rect.top);
+    trail.push({x,y,t:performance.now()});
+    if(trail.length>14) trail.shift();
+    if(trail.length>=2 && e.buttons!==0 || (e.pointerType==='touch')){
+      const p0=trail[trail.length-2], p1=trail[trail.length-1];
+      if(p0){
+        items.forEach(it=>{
+          if(it.sliced||it.dead) return;
+          const d = distToSegment(it.x,it.y,p0.x,p0.y,p1.x,p1.y);
+          if(d < it.r){ resolveHit(it, it.kind==='tps'); }
+        });
+      }
+    }
+  }
+  function onPointerDown(e){ ensureAudio(); trail=[{x:e.offsetX,y:e.offsetY,t:performance.now()}]; }
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointermove', onPointerMove);
+
+  let raf=null; let lastFrameTime=null;
+  function frame(now){
+    if(ended) return;
+    if(lastFrameTime===null) lastFrameTime = now;
+    const dt = clamp(now-lastFrameTime, 0, 48);
+    lastFrameTime = now;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // trail
+    if(trail.length>1){
+      ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=4; ctx.lineCap='round';
+      ctx.beginPath();
+      trail.forEach((p,i)=>{ if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); });
+      ctx.stroke();
+    }
+    trail = trail.filter(p=>now-p.t<160);
+
+    if(now-lastSpawn > Math.max(430, 950-spawned*22) && spawned<TOTAL){ spawnItem(); lastSpawn=now; }
+
+    items.forEach(it=>{
+      if(it.dead) return;
+      if(!it.sliced){ it.x += it.vx*dt/1000; it.y += it.vy*dt/1000; }
+      else { it.y += 3; it.x += it.vx*dt/1000*0.4; }
+      // draw
+      ctx.save();
+      ctx.globalAlpha = it.sliced? 0.35:1;
+      ctx.beginPath(); ctx.arc(it.x,it.y,it.r,0,Math.PI*2);
+      ctx.fillStyle = it.sliced?'#333':(it.kind==='tps'?'rgba(34,211,168,.22)':'rgba(248,113,113,.22)');
+      ctx.fill();
+      ctx.lineWidth=3; ctx.strokeStyle = it.combined?'#fbbf24':(it.kind==='tps'?'#22d3a8':'#f87171');
+      ctx.stroke();
+      ctx.font='28px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#fff'; ctx.fillText(it.icon, it.x, it.y-4);
+      ctx.font='11px Arial'; ctx.fillStyle='#eef2ff';
+      wrapLabel(ctx, it.label, it.x, it.y+it.r+4, 88);
+      ctx.restore();
+      if(it.x < -60){
+        if(!it.sliced && it.kind==='tps'){ missed++; const isEnd=hudHalfWrong(); mascotConfused(`פספסתם ״${it.label}״ — זה היה תיעוד TPS אמיתי!`); if(isEnd) finish(); }
+        it.dead=true;
+      }
+    });
+    items = items.filter(it=>!it.dead);
+
+    if(spawned>=TOTAL && items.length===0 && !ended) finish();
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+
+  function wrapLabel(ctx,text,cx,cy,maxWidth){
+    const words = text.split(' '); let line=''; let lines=[];
+    words.forEach(w=>{
+      const test = line? line+' '+w : w;
+      if(ctx.measureText(test).width > maxWidth && line){ lines.push(line); line=w; } else line=test;
+    });
+    if(line) lines.push(line);
+    lines = lines.slice(0,2);
+    lines.forEach((l,i)=> ctx.fillText(l, cx, cy+i*12));
+  }
+
+  function finish(){
+    if(ended) return; ended=true;
+    cancelAnimationFrame(raf);
+    canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.removeEventListener('pointermove', onPointerMove);
+    const attempts = correct+wrong+missed;
+    const accuracy = attempts? correct/attempts : 1;
+    const stars = accuracy>=.9?3:accuracy>=.7?2:attempts?1:0;
+    onDone({accuracy, stars, tldr:`יא חופר? חתכתם ${correct} פריטי תיעוד נכונים. TPS = רק תיעוד, לא דוחות!`});
+  }
+
+  return function teardown(){
+    ended=true;
+    if(raf) cancelAnimationFrame(raf);
+    canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.removeEventListener('pointermove', onPointerMove);
+    canvas.style.display='none';
+  };
+}
+
+/* ============================================================
+   STAGE 2 — MIS CRAFT (drag ingredients into the pot)
+   ============================================================ */
+function runMisCraft(root, onDone){
+  const order = shuffle(MIS_RECIPES);
+  let idx=0, correct=0, wrong=0, attemptsOnCurrent=0, ended=false;
+  const listeners = [];
+
+  const view = el('div','stage-view');
+  root.appendChild(view);
+
+  function renderRecipe(){
+    if(idx>=order.length){ return finish(); }
+    attemptsOnCurrent=0;
+    const r = order[idx];
+    const cards = shuffle([{t:r.correct,ok:true}, {t:r.wrong[0],ok:false}, {t:r.wrong[1],ok:false}]);
+    view.innerHTML = `
+      <div class="panel" style="padding:8px 14px;font-size:.78rem;max-width:340px;">🧩 המצרכים מ-TPS: <b style="color:var(--mis)">${escapeHtml(r.parts)}</b><br><span class="stage-sub">גררו את הדוח הנכון לקלחת</span></div>
+      <div class="pot" id="pot">🍲</div>
+      <div class="craft-cards" id="craft-cards">
+        ${cards.map((c,i)=>`<div class="craft-card" data-ok="${c.ok}" id="card-${i}">${escapeHtml(c.t)}</div>`).join('')}
+      </div>
+      <div class="stage-sub">שלב ${idx+1} מתוך ${order.length}</div>
+    `;
+    const pot = view.querySelector('#pot');
+    cards.forEach((c,i)=>{
+      const cardEl = view.querySelector('#card-'+i);
+      makeDraggable(cardEl, pot, (ok)=>onDrop(ok, cardEl, r));
+    });
+  }
+
+  function makeDraggable(cardEl, pot, onDrop){
+    let dragging=false, offX=0, offY=0, startRect=null;
+    function down(e){
+      ensureAudio();
+      dragging=true; cardEl.setPointerCapture(e.pointerId);
+      startRect = cardEl.getBoundingClientRect();
+      offX = e.clientX - startRect.left; offY = e.clientY - startRect.top;
+      cardEl.style.position='fixed'; cardEl.style.zIndex=200;
+      cardEl.style.left = startRect.left+'px'; cardEl.style.top = startRect.top+'px';
+      cardEl.style.width = startRect.width+'px';
+      cardEl.__origin = {left:startRect.left, top:startRect.top};
+    }
+    function move(e){
+      if(!dragging) return;
+      cardEl.style.left = (e.clientX-offX)+'px';
+      cardEl.style.top = (e.clientY-offY)+'px';
+      const potRect = pot.getBoundingClientRect();
+      const cx=e.clientX, cy=e.clientY;
+      pot.classList.toggle('hot', cx>potRect.left&&cx<potRect.right&&cy>potRect.top&&cy<potRect.bottom);
+    }
+    function up(e){
+      if(!dragging) return; dragging=false;
+      const potRect = pot.getBoundingClientRect();
+      const cx=e.clientX, cy=e.clientY;
+      pot.classList.remove('hot');
+      const hit = cx>potRect.left&&cx<potRect.right&&cy>potRect.top&&cy<potRect.bottom;
+      if(hit){ onDrop(cardEl.dataset.ok==='true'); }
+      else{
+        cardEl.style.transition='left .25s,top .25s';
+        cardEl.style.left = cardEl.__origin.left+'px'; cardEl.style.top = cardEl.__origin.top+'px';
+        setTimeout(()=>{ cardEl.style.position=''; cardEl.style.transition=''; cardEl.style.left=''; cardEl.style.top=''; cardEl.style.width=''; },260);
+      }
+    }
+    cardEl.addEventListener('pointerdown', down);
+    cardEl.addEventListener('pointermove', move);
+    cardEl.addEventListener('pointerup', up);
+    listeners.push(()=>{ cardEl.removeEventListener('pointerdown',down); cardEl.removeEventListener('pointermove',move); cardEl.removeEventListener('pointerup',up); });
+  }
+
+  function onDrop(ok, cardEl, r){
+    attemptsOnCurrent++;
+    if(ok){
+      correct++; hudCorrect(12); SFX.printer();
+      const rect = view.querySelector('#pot').getBoundingClientRect();
+      burstConfetti(rect.left+rect.width/2, rect.top+rect.height/2, 16);
+      idx++; setTimeout(renderRecipe, 500);
+    } else {
+      const isEnd = hudHalfWrong();
+      mascotConfused(`זה לא ${r.correct} — נסו שוב, מה באמת מסכם ${r.parts}?`);
+      cardEl.style.position=''; cardEl.style.left=''; cardEl.style.top=''; cardEl.style.width='';
+      if(attemptsOnCurrent>=3 || isEnd){ wrong++; idx++; setTimeout(renderRecipe, 400); }
+      if(isEnd) finish();
+    }
+  }
+
+  function finish(){
+    if(ended) return; ended=true;
+    const total = correct+wrong;
+    const accuracy = total? correct/total : 1;
+    const stars = accuracy>=.85?3:accuracy>=.6?2:total?1:0;
+    onDone({accuracy, stars, tldr:'יא חופר? MIS לוקח מה ש-TPS אסף, ומבשל ממנו דוח שמנהלים יבינו בעשר שניות.'});
+  }
+  renderRecipe();
+  return function teardown(){ ended=true; listeners.forEach(f=>f()); };
+}
+
+/* ============================================================
+   STAGE 3 — ESS DUAL LEVERS
+   ============================================================ */
+function runEssLevers(root, onDone){
+  const order = shuffle(ESS_SCENARIOS);
+  let idx=0, correct=0, wrong=0, ended=false;
+  const listeners=[];
+  const view = el('div','stage-view'); root.appendChild(view);
+
+  function renderScenario(){
+    if(idx>=order.length) return finish();
+    const s = order[idx];
+    view.innerHTML = `
+      <div class="panel scenario-box">${escapeHtml(s.text)}</div>
+      <div class="lever-row">
+        <div class="lever-col">
+          <div class="lever-track" id="track-int"><div class="lever-fill" id="fill-int" style="background:var(--mis);height:0%"></div><div class="lever-handle" id="handle-int"></div></div>
+          <small>מידע פנימי</small>
+        </div>
+        <div class="lever-col">
+          <div class="lever-track" id="track-ext"><div class="lever-fill" id="fill-ext" style="background:var(--ess);height:0%"></div><div class="lever-handle" id="handle-ext"></div></div>
+          <small>מידע חיצוני</small>
+        </div>
+      </div>
+      <button class="btn btn-warn" id="btn-decide">קבל החלטה! ⚡</button>
+      <div class="stage-sub">שלב ${idx+1} מתוך ${order.length}</div>
+    `;
+    let vInt=0, vExt=0;
+    setupLever('track-int','handle-int','fill-int', v=>vInt=v);
+    setupLever('track-ext','handle-ext','fill-ext', v=>vExt=v);
+    const decideBtn = view.querySelector('#btn-decide');
+    function onDecide(){
+      ensureAudio();
+      const ok = vInt>=0.7 && vExt>=0.7;
+      if(ok){
+        correct++; hudCorrect(15); SFX.scope();
+        mascotHappy('שילוב מושלם של פנימי + חיצוני — החלטה אסטרטגית אמיתית!');
+      } else {
+        const isEnd = hudHalfWrong();
+        mascotConfused('״זה קצת כמו הפלאשבק שלי מהוויכוחים עם האקסית...״ — צריך למשוך את שני המנופים יחד, גם פנימי וגם חיצוני.');
+        wrong++;
+        if(isEnd){ finish(); return; }
+      }
+      idx++; setTimeout(renderScenario, ok?650:900);
+    }
+    decideBtn.addEventListener('click', onDecide);
+    listeners.push(()=>decideBtn.removeEventListener('click', onDecide));
+  }
+
+  function setupLever(trackId, handleId, fillId, onChange){
+    const track = view.querySelector('#'+trackId);
+    const handle = view.querySelector('#'+handleId);
+    const fill = view.querySelector('#'+fillId);
+    const H = 180, HANDLE_H = 34;
+    handle.style.bottom = '2px';
+    let dragging=false;
+    function setFromClientY(clientY){
+      const rect = track.getBoundingClientRect();
+      let top = clientY - rect.top - HANDLE_H/2;
+      top = clamp(top, 0, H-HANDLE_H);
+      handle.style.bottom = (H-HANDLE_H-top)+'px';
+      const v = 1 - top/(H-HANDLE_H);
+      fill.style.height = Math.round(v*100)+'%';
+      onChange(v);
+    }
+    function down(e){ ensureAudio(); dragging=true; handle.setPointerCapture(e.pointerId); setFromClientY(e.clientY); }
+    function move(e){ if(dragging) setFromClientY(e.clientY); }
+    function up(){ dragging=false; }
+    handle.addEventListener('pointerdown', down);
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+    track.addEventListener('pointerdown', e=>{ ensureAudio(); setFromClientY(e.clientY); });
+    listeners.push(()=>{ handle.removeEventListener('pointerdown',down); handle.removeEventListener('pointermove',move); handle.removeEventListener('pointerup',up); });
+  }
+
+  function finish(){
+    if(ended) return; ended=true;
+    const total = correct+wrong;
+    const accuracy = total? correct/total : 1;
+    const stars = accuracy>=.85?3:accuracy>=.6?2:total?1:0;
+    onDone({accuracy, stars, tldr:'יא חופר? ESS תמיד צריכה גם וגם: מידע פנימי + מידע חיצוני. חצי מידע = חצי החלטה.'});
+  }
+  renderScenario();
+  return function teardown(){ ended=true; listeners.forEach(f=>f()); };
+}
+
+/* ============================================================
+   STAGE 4 — TWO DOORS (MIS or ESS? the sharpest distinction)
+   ============================================================ */
+function runTwoDoors(root, onDone){
+  const order = shuffle(DOOR_SCENARIOS);
+  let idx=0, correct=0, wrong=0, ended=false;
+  const listeners=[];
+  const view = el('div','stage-view'); root.appendChild(view);
+
+  function renderScenario(){
+    if(idx>=order.length) return finish();
+    const s = order[idx];
+    view.innerHTML = `
+      <div class="panel scenario-box">${escapeHtml(s.text)}</div>
+      <div class="door-row" style="width:min(90%,340px)">
+        <button class="door mis" id="door-mis">🚪 MIS</button>
+        <button class="door ess" id="door-ess">🚪 ESS</button>
+      </div>
+      <div class="stage-sub">שלב ${idx+1} מתוך ${order.length}</div>
+    `;
+    function pickDoor(choice){
+      ensureAudio();
+      if(choice!==s.correct){
+        const isEnd = hudHalfWrong(); wrong++;
+        mascotConfused(`התשובה הנכונה היא ${s.correct}: ${s.reasonCorrect}`);
+        if(isEnd){ finish(); return; }
+        idx++; setTimeout(renderScenario, 1000);
+        return;
+      }
+      askReason(s);
+    }
+    view.querySelector('#door-mis').addEventListener('click', ()=>pickDoor('MIS'));
+    view.querySelector('#door-ess').addEventListener('click', ()=>pickDoor('ESS'));
+  }
+
+  function askReason(s){
+    const reasons = shuffle([{t:s.reasonCorrect,ok:true},{t:s.reasonWrong,ok:false}]);
+    view.innerHTML = `
+      <div class="panel scenario-box">נכון! ${s.correct} 🎯<br><small class="stage-sub">עכשיו — למה?</small></div>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px;">
+        ${reasons.map((r,i)=>`<button class="opt-card" id="reason-${i}">${escapeHtml(r.t)}</button>`).join('')}
+      </div>
+    `;
+    reasons.forEach((r,i)=>{
+      view.querySelector('#reason-'+i).addEventListener('click', (e)=>{
+        ensureAudio();
+        $$('#reason-0,#reason-1').forEach(()=>{});
+        view.querySelectorAll('.opt-card').forEach((c,ci)=> c.classList.add(reasons[ci].ok?'correct':'wrong'));
+        if(r.ok){ correct++; hudCorrect(14); SFX.scope(); mascotHappy('בדיוק! זו הסיבה האמיתית.'); }
+        else { const isEnd=hudHalfWrong(); wrong++; mascotConfused('הנימוק הנכון: '+s.reasonCorrect); if(isEnd){ setTimeout(finish, 900); return; } }
+        idx++; setTimeout(renderScenario, 1100);
+      });
+    });
+  }
+
+  function finish(){
+    if(ended) return; ended=true;
+    const total = correct+wrong;
+    const accuracy = total? correct/total : 1;
+    const stars = accuracy>=.8?3:accuracy>=.55?2:total?1:0;
+    onDone({accuracy, stars, tldr:'יא חופר? MIS מול ESS זה לא כמות הפירוט — זה אופק ההחלטה: שוטף ומחלקתי מול אסטרטגי עם מידע חיצוני.'});
+  }
+  renderScenario();
+  return function teardown(){ ended=true; listeners.forEach(f=>f()); };
+}
+
+/* ============================================================
+   STAGE 6 — BONUS INTERLUDE: שיר הנקניק המבלבל (not for the exam)
+   ============================================================ */
+function runBonusInterlude(root, onDone){
+  const pool = shuffle([
+    ...shuffle(JOKE_ITEMS).map(x=>({label:x.label, icon:x.icon, real:false})),
+    ...shuffle([...TPS_ITEMS, ...MIS_ITEMS, ...ESS_ITEMS]).slice(0,4).map(x=>({label:x.label, icon:x.icon, real:true})),
+  ]);
+  let idx=0, hits=0, ended=false; const listeners=[];
+  const view = el('div','stage-view'); root.appendChild(view);
+  view.innerHTML = `<div class="tag-not-exam">בונוס — לא לבחינה!</div>${mascotHTML('🎸')}
+    <h3 class="stage-title">שיר הנקניק המבלבל</h3>
+    <p class="stage-sub">״שלום שמי שניר, אני מוכרת שימורי דגים, אבל תכף אהיה אספית גרניט...״</p>
+    <div id="bonus-body"></div>`;
+  const body = view.querySelector('#bonus-body');
+  let timer=null;
+
+  function renderRound(){
+    if(idx>=pool.length) return finish();
+    const item = pool[idx];
+    body.innerHTML = `
+      <div class="panel" style="padding:14px 18px;font-size:1.5rem;">${item.icon} ${escapeHtml(item.label)}</div>
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn-good" id="b-real">מערכת אמיתית ✅</button>
+        <button class="btn btn-danger" id="b-fake">בדיחה של המבולבלים 🌭</button>
+      </div>`;
+    function answer(said){
+      clearTimeout(timer);
+      const ok = said===item.real;
+      if(ok){ hits++; hudAddScore(6); SFX.select(); }
+      else { SFX.jingle(); mascotConfused(item.real? `זו כן דוגמה אמיתית מהקורס!` : `זו בדיחה של המבולבלים, לא מערכת מידע אמיתית!`); }
+      if(!item.real){ showToast('🎵 שימורי דגים... אספית גרניט...', 'good'); }
+      idx++; setTimeout(renderRound, 500);
+    }
+    const rb=body.querySelector('#b-real'), fb=body.querySelector('#b-fake');
+    rb.addEventListener('click', ()=>answer(true));
+    fb.addEventListener('click', ()=>answer(false));
+    timer = setTimeout(()=>answer(null), 3200);
+  }
+
+  function finish(){
+    if(ended) return; ended=true;
+    body.innerHTML = `<div class="panel" style="padding:16px;">🎉 ${hits}/${pool.length} זיהוי נכון! חוזרים למפה...</div>`;
+    setTimeout(()=>onDone({}), 1300);
+  }
+  renderRound();
+  return function teardown(){ ended=true; clearTimeout(timer); };
+}
+
+/* ============================================================
+   STAGE 5 — מסלול המיון המטורף (rapid-fire 4-bin sorting rush)
+   ============================================================ */
+function runSortRush(root, onDone, endless){
+  const POOL = shuffle([
+    ...TPS_ITEMS.map(x=>({label:x.label,icon:x.icon,kind:'TPS'})),
+    ...MIS_ITEMS.map(x=>({label:x.label,icon:x.icon,kind:'MIS'})),
+    ...ESS_ITEMS.map(x=>({label:x.label,icon:x.icon,kind:'ESS'})),
+    ...JOKE_ITEMS.map(x=>({label:x.label,icon:x.icon,kind:'TRASH'})),
+  ]);
+  const TOTAL = endless ? Infinity : 24;
+  let round=0, correct=0, wrong=0, ended=false;
+  const listeners=[];
+
+  const header = el('div','stage-view');
+  header.style.pointerEvents='none'; header.style.justifyContent='flex-start'; header.style.paddingTop='46px';
+  header.innerHTML = `<div class="panel" style="padding:6px 12px;font-size:.75rem;">⚡ מיינו הכול, מהר: TPS · MIS · ESS · או לפח האשפה 🗑️</div>`;
+  root.appendChild(header);
+
+  const bins = el('div','rush-bins');
+  bins.innerHTML = `
+    <button class="bin-btn bin-tps" data-k="TPS">🧾 TPS</button>
+    <button class="bin-btn bin-mis" data-k="MIS">📊 MIS</button>
+    <button class="bin-btn bin-ess" data-k="ESS">🔭 ESS</button>
+    <button class="bin-btn bin-trash" data-k="TRASH">🗑️ פח</button>
+  `;
+  root.appendChild(bins);
+
+  const canvas = $('#game-canvas'); canvas.style.display='block';
+  const screenEl = $('#screen');
+  function resize(){ canvas.width=screenEl.clientWidth; canvas.height=screenEl.clientHeight; }
+  resize();
+  const ctx = canvas.getContext('2d');
+
+  let current=null, roundStart=0, timeLimit=3000, raf=null, locked=false;
+
+  function nextRound(){
+    round++;
+    if(round>TOTAL){ return finish(); }
+    current = pick(POOL);
+    roundStart = performance.now();
+    timeLimit = Math.max(endless?1000:1200, 3000 - round*75);
+    locked=false;
+  }
+
+  function onBinClick(e){
+    if(locked || !current) return;
+    const k = e.currentTarget.dataset.k;
+    locked=true;
+    const ok = k===current.kind;
+    if(ok){
+      correct++; hudCorrect(8);
+      if(current.kind==='TRASH'){ SFX.jingle(); showToast('🎵 שלום שמי שניר... אספית גרניט...', 'good'); }
+      else SFX.select();
+      burstConfetti(canvas.width/2, canvas.height*0.65, 14);
+    } else {
+      wrong++;
+      const isEnd = hudWrong(true);
+      mascotConfused(`״${current.label}״ שייך ל-${current.kind==='TRASH'?'פח (זו בדיחה!)':current.kind}, לא ל-${k}.`);
+      if(isEnd){ finish(); return; }
+    }
+    setTimeout(nextRound, 260);
+  }
+  bins.querySelectorAll('.bin-btn').forEach(b=>b.addEventListener('click', onBinClick));
+  listeners.push(()=>bins.querySelectorAll('.bin-btn').forEach(b=>b.removeEventListener('click', onBinClick)));
+
+  function frame(now){
+    if(ended) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(current && !locked){
+      const t = (now-roundStart)/timeLimit;
+      if(t>=1){
+        locked=true; wrong++;
+        const isEnd = hudWrong(true);
+        mascotConfused(`הזמן נגמר על ״${current.label}״ (${current.kind==='TRASH'?'בדיחה — שייך לפח':current.kind}).`);
+        if(isEnd){ finish(); return; }
+        setTimeout(nextRound, 260);
+      } else {
+        const y = 60 + t*(canvas.height-190);
+        const cx = canvas.width/2;
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx,y,36,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,.08)'; ctx.fill();
+        ctx.lineWidth=3; ctx.strokeStyle = t>0.7?'#f87171':'#fff'; ctx.stroke();
+        ctx.font='30px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle='#fff'; ctx.fillText(current.icon, cx, y-6);
+        ctx.font='11px Arial'; ctx.fillStyle='#eef2ff';
+        wrapLabelRush(ctx, current.label, cx, y+42, 150);
+        // timer ring
+        ctx.beginPath(); ctx.arc(cx,y,44,-Math.PI/2, -Math.PI/2+t*Math.PI*2);
+        ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.stroke();
+        ctx.restore();
+      }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function wrapLabelRush(ctx,text,cx,cy,maxWidth){
+    const words=text.split(' '); let line=''; let lines=[];
+    words.forEach(w=>{ const test=line?line+' '+w:w; if(ctx.measureText(test).width>maxWidth && line){lines.push(line); line=w;} else line=test; });
+    if(line) lines.push(line);
+    lines.slice(0,2).forEach((l,i)=>ctx.fillText(l,cx,cy+i*13));
+  }
+
+  function finish(){
+    if(ended) return; ended=true;
+    if(raf) cancelAnimationFrame(raf);
+    const total = correct+wrong;
+    const accuracy = total? correct/total : 1;
+    const stars = accuracy>=.85?3:accuracy>=.65?2:total?1:0;
+    onDone({accuracy, stars, scoreReached:HUD.score, tldr:'יא חופר? כשהראש שלכם קופץ מיד בין TPS/MIS/ESS/פח בלי לחשוב פעמיים — אתם מוכנים למבחן.'});
+  }
+  raf = requestAnimationFrame(frame);
+  nextRound();
+  return function teardown(){
+    ended=true; if(raf) cancelAnimationFrame(raf);
+    listeners.forEach(f=>f());
+    canvas.style.display='none';
+    bins.remove();
+  };
+}
+
+/* ============================================================
+   STAGE 7 — BOSS: קרב הבוס — המבחן האמריקאי
+   ============================================================ */
+const PHASE_META = [
+  {key:'tps', label:'TPS', color:'var(--tps)', bossEmoji:'🧾👹'},
+  {key:'mis', label:'MIS', color:'var(--mis)', bossEmoji:'📊👹'},
+  {key:'ess', label:'ESS', color:'var(--ess-gold)', bossEmoji:'🔭👹'},
+  {key:'claims', label:'טענות מעורבות', color:'var(--pink)', bossEmoji:'🕶️👹'},
+  {key:'advanced', label:'מומחים', color:'var(--danger)', bossEmoji:'🧠👹'},
+];
+function shuffleQuestion(q){
+  const idxs = shuffle(q.options.map((_,i)=>i));
+  return {stem:q.stem, options:idxs.map(i=>q.options[i]), correct:idxs.indexOf(q.correct), explain:q.explain};
+}
+function runBoss(root, onDone){
+  let phaseIdx=0, questions=[], qIdx=0, phaseLives=3, phaseCorrect=0;
+  let totalCorrect=0, totalWrong=0, ended=false, qTimer=null, tStart=0;
+  const TIME_LIMIT = 22000;
+  const view = el('div','boss-wrap'); root.appendChild(view);
+  hudReset(3);
+  $('#lives-chip').style.visibility='hidden';
+
+  function startPhase(){
+    const meta = PHASE_META[phaseIdx];
+    questions = shuffle(BOSS_BANK[meta.key]).map(shuffleQuestion);
+    qIdx=0; phaseLives=3; phaseCorrect=0;
+    startMusic(4 + phaseIdx);
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    if(ended) return;
+    if(qIdx>=questions.length) return phaseCleared();
+    const meta = PHASE_META[phaseIdx];
+    const q = questions[qIdx];
+    const hpFrac = Math.max(0, 1 - phaseCorrect/questions.length);
+    view.innerHTML = `
+      <div class="boss-top">
+        <div class="boss-avatar">${meta.bossEmoji}</div>
+        <div style="font-size:.75rem;color:${meta.color}">שלב בוס ${phaseIdx+1}/${PHASE_META.length} — ${meta.label}</div>
+        <div class="hpbar"><i style="width:${Math.round(hpFrac*100)}%"></i></div>
+        <div class="hud-chip" style="font-size:.7rem;">❤️×${Math.max(0,phaseLives)}</div>
+      </div>
+      <div class="timerbar"><i id="qtimer" style="width:100%"></i></div>
+      <div class="q-panel">
+        <div class="panel q-stem" style="padding:12px;">${nl2br(q.stem)}</div>
+        <div id="q-opts" style="display:flex;flex-direction:column;gap:8px;">
+          ${q.options.map((o,i)=>`<button class="q-opt" data-i="${i}">${escapeHtml(o)}</button>`).join('')}
+        </div>
+        <div id="explain-slot"></div>
+      </div>`;
+    tStart = performance.now();
+    clearInterval(qTimer);
+    qTimer = setInterval(()=>{
+      const bar = $('#qtimer'); if(!bar) return;
+      const frac = Math.max(0, 1-(performance.now()-tStart)/TIME_LIMIT);
+      bar.style.width=(frac*100)+'%';
+      if(frac<=0){ clearInterval(qTimer); answer(-1); }
+    }, 100);
+    view.querySelectorAll('.q-opt').forEach(b=>b.addEventListener('click', ()=>answer(+b.dataset.i)));
+  }
+
+  function answer(i){
+    clearInterval(qTimer); ensureAudio();
+    const q = questions[qIdx];
+    view.querySelectorAll('.q-opt').forEach(b=>b.disabled=true);
+    const ok = i===q.correct;
+    view.querySelectorAll('.q-opt').forEach((b,bi)=>{
+      if(bi===q.correct) b.classList.add('correct');
+      else if(bi===i) b.classList.add('wrong');
+    });
+    if(ok){ phaseCorrect++; totalCorrect++; hudCorrect(18); SFX.correct(); }
+    else { totalWrong++; noteConfusion(PHASE_META[phaseIdx].label); hudWrong(false); phaseLives--; SFX.wrong(); }
+    $('#explain-slot').innerHTML = `<div class="explain-box">${ok?'✅ נכון! ':'❌ '}${nl2br(q.explain)}</div>
+      <button class="btn btn-primary" id="q-continue" style="margin-top:10px;">המשך →</button>`;
+    $('#q-continue').addEventListener('click', ()=>{
+      if(phaseLives<=0){ mascotConfused('הבוס ניצח את הסבב הזה... בואו ננסה את השלב שוב!'); startPhase(); return; }
+      qIdx++; renderQuestion();
+    });
+  }
+
+  function phaseCleared(){
+    SFX.boom();
+    mascotHappy(`שלב ${PHASE_META[phaseIdx].label} של הבוס הובס!`);
+    phaseIdx++;
+    if(phaseIdx>=PHASE_META.length) return victory();
+    setTimeout(startPhase, 900);
+  }
+
+  function victory(){
+    view.innerHTML = `<div class="stage-view">
+      <div style="font-size:3rem;">🕶️💥</div>
+      <h2 class="stage-title">״רגע... הבוס הזה קצת מזכיר לי את האקסית שלי...״</h2>
+      <p class="stage-sub">המבולבלים מזהה את הבוס. תעודת ״מוכנ/ה למבחן!״ שלכם מוכנה.</p>
+      <button class="btn btn-good" id="victory-continue">קבלו את התעודה 🎓</button>
+    </div>`;
+    $('#victory-continue').addEventListener('click', ()=>finish(true));
+  }
+
+  function finish(won){
+    if(ended) return; ended=true; clearInterval(qTimer);
+    $('#lives-chip').style.visibility='';
+    stopMusic();
+    onDone({won, totalCorrect, totalWrong});
+  }
+  startPhase();
+  return function teardown(){ ended=true; clearInterval(qTimer); $('#lives-chip').style.visibility=''; stopMusic(); };
+}
+
+function showBossResults(result){
+  gotoScreen(root=>{
+    const entries = Object.entries(SAVE.confusion).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const confuseHtml = entries.length ? entries.map(([k,v])=>`<div class="confuse-row"><span>${escapeHtml(k)}</span><span>${v} טעויות</span></div>`).join('') : '<p class="stage-sub">כמעט בלי טעויות — כל הכבוד!</p>';
+    root.appendChild(el('div','stage-view', `
+      ${mascotHTML(result.won?'🎓':'🥲')}
+      <h2 class="stage-title">${result.won ? 'ניצחתם את המבחן האמריקאי!' : 'הבוס ניצח הפעם...'}</h2>
+      <p class="stage-sub">תשובות נכונות: ${result.totalCorrect} • שגויות: ${result.totalWrong}</p>
+      <div class="panel" style="padding:12px 16px;width:min(90%,320px);">
+        <b style="font-size:.8rem;">מדד הבלבול שלכם:</b>${confuseHtml}
+      </div>
+      ${result.won ? '<p class="stage-sub" style="color:var(--warn)">🔓 נפתח מצב חופשי!</p>' : ''}
+      <div class="btn-row">
+        <button class="btn btn-good" id="btn-retry-boss">קרב מחדש</button>
+        <button class="btn btn-primary" id="btn-map">חזרה למפה</button>
+      </div>
+    `));
+    $('#btn-retry-boss').addEventListener('click', ()=>startNode(nodeByKey('boss')));
+    $('#btn-map').addEventListener('click', renderMap);
+  });
+}
+
+/* ============================================================
+   FREE PLAY (endless remix of the sorting rush)
+   ============================================================ */
+function startFreePlay(){
+  hudReset(5);
+  startMusic(8);
+  gotoScreen(root => runSortRush(root, ()=>{
+    stopMusic();
+    gotoScreen(root2=>{
+      root2.appendChild(el('div','stage-view', `
+        ${mascotHTML('⚡')}
+        <h2 class="stage-title">מצב חופשי הסתיים</h2>
+        <p class="stage-sub">ניקוד: ${HUD.score}</p>
+        <div class="btn-row">
+          <button class="btn btn-good" id="fp-again">שוב!</button>
+          <button class="btn btn-primary" id="fp-menu">לתפריט</button>
+        </div>`));
+      $('#fp-again').addEventListener('click', startFreePlay);
+      $('#fp-menu').addEventListener('click', renderMenu);
+    });
+  }, true));
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+renderMusicBtn();
+$('#music-btn').addEventListener('click', ()=>{ ensureAudio(); toggleMusicMute(); });
+$('#pause-btn').addEventListener('click', ()=>{
+  ensureAudio();
+  openModal(`<div class="panel" style="padding:20px;display:flex;flex-direction:column;gap:10px;width:min(80%,300px);text-align:center;">
+    <h3>⏸ הפסקה</h3>
+    <button class="btn btn-primary" id="pm-resume">המשך משחק</button>
+    <button class="btn btn-ghost" id="pm-music">${MUSIC.enabled?'🔊 השתקת מוזיקה':'🔇 הפעלת מוזיקה'}</button>
+    <button class="btn btn-ghost" id="pm-satchel">🎒 ילקוט הידע</button>
+    <button class="btn btn-danger" id="pm-menu">יציאה לתפריט ראשי</button>
+  </div>`);
+  $('#pm-resume').addEventListener('click', closeModal);
+  $('#pm-music').addEventListener('click', ()=>{ toggleMusicMute(); closeModal(); });
+  $('#pm-satchel').addEventListener('click', ()=>showSatchel(null));
+  $('#pm-menu').addEventListener('click', ()=>{ closeModal(); renderMap(); });
+});
+
+renderMenu();
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>למידה דרך משחק · ד״ר שי צבאן · המרכז האקדמי פרס</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#003e6f; --navy-deep:#041a33; --navy-ink:#02101f; --blue:#0E1F81;
+    --sky:#4fb3e8; --sky-soft:#9ad4f5; --gold:#c9a24a; --gold-soft:#e6c77a; --mint:#2FF7BF;
+    --text:#f2f6fb; --muted:#b7c6d8; --card:rgba(255,255,255,0.05); --card-border:rgba(255,255,255,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--navy-ink);color:var(--text);font-family:'Heebo',Arial,sans-serif;overflow:hidden}
+  body{background:
+    radial-gradient(1200px 700px at 85% -10%, rgba(14,31,129,0.55), transparent 60%),
+    radial-gradient(900px 600px at 5% 110%, rgba(0,62,111,0.65), transparent 60%),
+    linear-gradient(180deg,#041a33 0%,#02101f 100%)}
+
+  /* chrome */
+  .brand{position:fixed;top:22px;left:32px;display:flex;align-items:center;gap:14px;z-index:20}
+  .brand img{height:52px;width:auto;display:block}
+  .lecturer{position:fixed;top:26px;right:36px;z-index:20;font-size:15px;color:var(--muted);letter-spacing:.2px}
+  .lecturer b{color:var(--gold-soft);font-weight:500}
+  .progress{position:fixed;top:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--sky));z-index:30;transition:width .6s ease}
+  .counter{position:fixed;bottom:22px;left:36px;font-size:14px;color:var(--muted);z-index:20;direction:ltr}
+  .nav{position:fixed;bottom:16px;right:32px;display:flex;gap:8px;z-index:20}
+  .nav button{background:var(--card);border:1px solid var(--card-border);color:var(--text);width:44px;height:44px;border-radius:12px;font-size:20px;cursor:pointer;transition:background .4s ease,transform .4s ease}
+  .nav button:hover{background:rgba(255,255,255,0.12);transform:translateY(-2px)}
+  .hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);font-size:13px;color:rgba(183,198,216,0.6);z-index:20}
+
+  /* slides */
+  .slide{position:absolute;inset:0;padding:110px 90px 90px;opacity:0;pointer-events:none;transition:opacity .7s ease,transform .7s ease;transform:translateY(10px);display:flex;flex-direction:column;justify-content:center}
+  .slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
+  .slide .inner{max-width:1500px;width:100%;margin:0 auto}
+  .kicker{display:inline-block;font-size:15px;letter-spacing:1.5px;color:var(--gold-soft);border:1px solid rgba(201,162,74,0.45);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:500}
+  h1{font-size:clamp(44px,5.6vw,84px);font-weight:900;line-height:1.08;letter-spacing:-.5px}
+  h2{font-size:clamp(34px,4vw,58px);font-weight:800;line-height:1.12;margin-bottom:18px}
+  h2 .em{color:var(--sky-soft)}
+  .lead{font-size:clamp(19px,1.6vw,26px);color:var(--muted);font-weight:300;line-height:1.55;max-width:1100px}
+  .sub{font-size:clamp(20px,2vw,30px);color:var(--muted);font-weight:300;margin-top:18px}
+  .meta{margin-top:44px;font-size:19px;color:var(--gold-soft);font-weight:400}
+  .meta span{color:var(--muted)}
+
+  /* generic blocks */
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:38px}
+  .block{background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:28px 26px;position:relative;overflow:hidden;transition:transform .5s ease,border-color .5s ease}
+  .block:hover{transform:translateY(-3px);border-color:rgba(201,162,74,0.55)}
+  .block .ic{font-size:38px;margin-bottom:14px;display:block}
+  .block h3{font-size:24px;font-weight:700;margin-bottom:10px}
+  .block p{font-size:17px;color:var(--muted);line-height:1.55;font-weight:300}
+  .block.gold{border-color:rgba(201,162,74,0.5);background:linear-gradient(160deg,rgba(201,162,74,0.10),rgba(255,255,255,0.03))}
+  .block.sky{border-color:rgba(79,179,232,0.5);background:linear-gradient(160deg,rgba(79,179,232,0.10),rgba(255,255,255,0.03))}
+  .block.mint{border-color:rgba(47,247,191,0.4);background:linear-gradient(160deg,rgba(47,247,191,0.08),rgba(255,255,255,0.03))}
+  .tag{position:absolute;top:18px;left:18px;font-size:13px;color:var(--gold-soft);background:rgba(201,162,74,0.12);border:1px solid rgba(201,162,74,0.35);padding:3px 10px;border-radius:999px;direction:ltr}
+
+  .flow{display:flex;align-items:stretch;gap:0;margin-top:40px}
+  .flow .step{flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:24px 22px;position:relative}
+  .flow .arrow{display:flex;align-items:center;padding:0 12px;font-size:34px;color:var(--gold)}
+  .flow .step .n{position:absolute;top:-14px;right:20px;background:var(--gold);color:var(--navy-ink);font-weight:800;font-size:14px;padding:3px 12px;border-radius:999px}
+  .flow .step h3{font-size:22px;font-weight:700;margin:8px 0 8px}
+  .flow .step p{font-size:16px;color:var(--muted);line-height:1.5;font-weight:300}
+
+  .bullets{list-style:none;margin-top:30px;display:grid;gap:16px}
+  .bullets li{display:flex;gap:16px;align-items:flex-start;font-size:clamp(18px,1.45vw,23px);line-height:1.5;font-weight:300}
+  .bullets li::before{content:"";flex:none;width:12px;height:12px;border-radius:50%;background:var(--gold);margin-top:14px;box-shadow:0 0 0 5px rgba(201,162,74,0.18)}
+  .bullets li b{font-weight:600;color:var(--text)}
+
+  /* game cards */
+  .type-head{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+  .type-head .badge{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:30px;font-weight:900;color:var(--navy-ink);flex:none}
+  .type-head .badge.a{background:linear-gradient(135deg,var(--gold-soft),var(--gold))}
+  .type-head .badge.b{background:linear-gradient(135deg,var(--sky-soft),var(--sky))}
+  .type-head .badge.c{background:linear-gradient(135deg,#9ffbe0,var(--mint))}
+  .type-head h2{margin:0}
+  .type-head p{color:var(--muted);font-size:18px;font-weight:300;margin-top:4px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+  .game{background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:8px;min-height:190px;transition:transform .5s ease,border-color .5s ease,background .5s ease}
+  .game:hover{transform:translateY(-4px);border-color:rgba(201,162,74,0.6);background:rgba(255,255,255,0.075)}
+  .game .course{font-size:12.5px;color:var(--sky-soft);font-weight:500;letter-spacing:.3px}
+  .game h3{font-size:19px;font-weight:700;line-height:1.25}
+  .game p{font-size:14.5px;color:var(--muted);line-height:1.5;font-weight:300;flex:1}
+  .game .foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+  .game a{color:var(--navy-ink);background:var(--gold-soft);text-decoration:none;font-weight:700;font-size:14px;padding:8px 14px;border-radius:10px;transition:background .4s ease}
+  .game a:hover{background:#fff}
+  .cert{font-size:12px;color:var(--gold-soft);border:1px solid rgba(201,162,74,0.4);padding:3px 9px;border-radius:999px}
+
+  /* index table */
+  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:15.5px}
+  th{text-align:right;color:var(--gold-soft);font-weight:600;padding:10px 12px;border-bottom:1px solid rgba(201,162,74,0.35)}
+  td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.07);color:var(--muted);font-weight:300}
+  td:first-child{color:var(--text);font-weight:500}
+  td a{color:var(--sky-soft);text-decoration:none;font-weight:500}
+  td a:hover{color:#fff;text-decoration:underline}
+  .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;font-weight:600;color:var(--navy-ink)}
+  .pill.a{background:var(--gold-soft)} .pill.b{background:var(--sky-soft)} .pill.c{background:var(--mint)}
+
+  .footer-note{margin-top:26px;font-size:15px;color:rgba(183,198,216,0.7);font-weight:300}
+  .big-num{font-size:clamp(60px,7vw,110px);font-weight:900;color:var(--gold-soft);line-height:1}
+  .stat-row{display:flex;gap:40px;margin-top:34px}
+  .stat{flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:26px}
+  .stat .big-num{font-size:clamp(46px,5vw,72px)}
+  .stat p{color:var(--muted);font-size:17px;margin-top:8px;font-weight:300}
+
+  @media (max-width:1100px){
+    .slide{padding:96px 40px 80px;overflow-y:auto;justify-content:flex-start}
+    .grid,.grid.three,.cols{grid-template-columns:repeat(2,1fr)}
+    .flow{flex-direction:column} .flow .arrow{transform:rotate(90deg);justify-content:center}
+    .brand img{height:40px}
+  }
+  @media (max-width:700px){ .grid,.grid.three,.cols{grid-template-columns:1fr} .stat-row{flex-direction:column} }
+  @media print{ .slide{position:static;opacity:1;transform:none;page-break-after:always;height:100vh} .nav,.hint,.counter,.progress{display:none} }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="brand"><img src="assets/peres-logo.png" alt="המרכז האקדמי פרס"></div>
+<div class="lecturer"><b>ד״ר שי צבאן</b> · המרכז האקדמי פרס · ספטמבר 2026</div>
+
+<!-- 1 · פתיח -->
+<section class="slide active">
+  <div class="inner">
+    <span class="kicker">מפגש סגל · חדשנות בהוראה</span>
+    <h1>למידה דרך משחק</h1>
+    <p class="sub">משחקים לימודיים שנבנו בעזרת בינה מלאכותית בקורסים שלי, מה למדנו, ולאן זה הולך</p>
+    <p class="meta">ד״ר שי צבאן <span>· מרצה בכיר, המרכז האקדמי פרס · ספטמבר 2026</span></p>
+  </div>
+</section>
+
+<!-- 2 · הבעיה -->
+<section class="slide">
+  <div class="inner">
+    <span class="kicker">הבעיה</span>
+    <h2>הקשב הוא <span class="em">המשאב הנדיר</span> בכיתה</h2>
+    <p class="lead">הכלים שעבדו פעם עובדים פחות. הסטודנט של היום מגיע עם הטלפון ביד, וכל חומר שדורש ריכוז ממושך מתחרה בו.</p>
+    <div class="cols">
+      <div class="block"><span class="ic">🎯</span><h3>סטודנטים לא ממש מתרכזים</h3><p>ריכוז מקוטע, הסחות דעת בכל רגע, וקושי להישאר עם טקסט או הרצאה לאורך זמן.</p></div>
+      <div class="block"><span class="ic">📄</span><h3>קבצים דינמיים, סיכומים ומצגות</h3><p>הפורמטים המקובלים להעברת חומר נעשו פחות אפקטיביים. הם נפתחים, נסרקים, ונסגרים.</p></div>
+      <div class="block"><span class="ic">🕹️</span><h3>מה כן תופס אותם</h3><p>אינטראקציה, ניקוד, אתגר מדורג, הומור, ותחושת התקדמות. בדיוק המנגנונים של משחק.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · עולם ה-AI -->
+<section class="slide">
+  <div class="inner">
+    <span class="kicker">מה השתנה</span>
+    <h2>בינה מלאכותית מייצרת <span class="em">משחק שלם</span> מחומר הקורס</h2>
+    <p class="lead">עד לא מזמן, משחק לימודי דרש מתכנת, מעצב ותקציב. היום מרצה יכול לתאר את המשחק במילים, לצרף את חומר המפגש, ולקבל קובץ HTML אחד שעובד בכל דפדפן.</p>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><h3>חומר הקורס</h3><p>מצגת, סיכום, קובץ אקסל של המפגש, או רשימת מושגים.</p></div>
+      <div class="arrow">←</div>
+      <div class="step"><span class="n">2</span><h3>תיאור המשחק</h3><p>סוג המשחק, רמות קושי, סגנון, הומור, דמויות מהקורס, ומה נחשב ניצחון.</p></div>
+      <div class="arrow">←</div>
+      <div class="step"><span class="n">3</span><h3>קובץ אחד</h3><p>HTML עצמאי: גרפיקה, מוזיקה, ניקוד ותעודה. ללא התקנה, ללא שרת.</p></div>
+      <div class="arrow">←</div>
+      <div class="step"><span class="n">4</span><h3>התאמה</h3><p>שינוי שאלות, רמות, או דמויות תוך דקות. כל קורס וכל מפגש מקבלים גרסה משלהם.</p></div>
+    </div>
+    <ul class="bullets" style="margin-top:34px">
+      <li><b>התאמה אישית לקורס:</b> המשחק מדבר בשפת הקורס, עם הדוגמאות והבדיחות של המרצה.</li>
+      <li><b>עלות שולית נמוכה:</b> משחק שלם בשעות, לא בשבועות. אפשר לבנות אחד לכל מפגש.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4 · שלושה סוגים -->
+<section class="slide">
+  <div class="inner">
+    <span class="kicker">מה נבנה</span>
+    <h2>שלושה סוגי משחקים, <span class="em">שלוש מטרות</span></h2>
+    <div class="cols">
+      <div class="block gold"><span class="tag">א</span><span class="ic">🍌</span><h3>משחקי תוכן מקצועיים</h3><p>המחשה ויזואלית של מושג קשה. לדוגמה: JOIN בין טבלאות במערכות מידע, שער חליפין, מודל CAPM.</p></div>
+      <div class="block sky"><span class="tag">ב</span><span class="ic">🎓</span><h3>״מיני תעודת השלמה״</h3><p>הסטודנט מסיים מסלול, מקבל תעודה על שמו, ויכול להגיש אותה כמטלה. הבננות בבינה עסקית ובמבוא למערכות מידע.</p></div>
+      <div class="block mint"><span class="tag">ג</span><span class="ic">👾</span><h3>ארקייד</h3><p>משחקי פעולה עם ניקוד, שלבים ובוסים, שהשאלות מהחומר משובצות בהם. כפי שנעשה בבינה עסקית.</p></div>
+    </div>
+    <p class="footer-note">בשקפים הבאים: דוגמאות חיות מכל סוג. כל כפתור פותח את המשחק בחלון חדש.</p>
+  </div>
+</section>
+
+<!-- 5 · סוג א -->
+<section class="slide">
+  <div class="inner">
+    <div class="type-head"><div class="badge a">א</div><div><h2>משחקי תוכן עם המחשה ויזואלית</h2><p>המטרה: להפוך מושג מופשט למשהו שרואים ומזיזים</p></div></div>
+    <div class="grid">
+      <div class="game"><span class="course">בינה עסקית · מבוא למערכות מידע</span><h3>Tableau Join Banana Lab 🍌</h3><p>15 אתגרי JOIN בין טבלאות. Inner, Left, Right ו-Full Join מומחשים עם בננות, ותעודה בסיום.</p><div class="foot"><a href="games/tableau-join-banana-lab/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game"><span class="course">בינה עסקית</span><h3>שומרי הנתונים</h3><p>מהגדרת טבלאות ל-Tableau: מפתחות, סכמות, ניקוי נתונים, ועד דשבורד שלם. משחק לימודי מורחב.</p><div class="foot"><a href="games/data-guardians-tableau/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game"><span class="course">מימון</span><h3>מודל CAPM, שיעור אינטראקטיבי</h3><p>בסגנון Brilliant: גרפים חיים שמגיבים לכל שינוי, צעד אחר צעד, עם חגיגה בסיום.</p><div class="foot"><a href="games/capm-interactive/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+      <div class="game"><span class="course">נגזרים פיננסיים</span><h3>OptionsAcademy</h3><p>סימולטור מסחר באופציות ידידותי למתחילים, עם מאמן וירטואלי שמלווה את ההחלטות.</p><div class="foot"><a href="games/options-academy/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+      <div class="game"><span class="course">מאקרו כלכלה</span><h3>האביר המוניטרי של בנק ישראל</h3><p>מדיניות מוניטרית כמסע של אביר: ריבית, אינפלציה והחלטות הבנק המרכזי.</p><div class="foot"><a href="games/boi-monetary-knight/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game"><span class="course">מאקרו כלכלה · שיעור 10</span><h3>מסיבת המט״ח של שי ואילנית</h3><p>שער חליפין, ייסוף ופיחות דרך מסיבה כלכלית עם דמויות מהקורס.</p><div class="foot"><a href="games/forex-party/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+      <div class="game"><span class="course">חשבונאות פיננסית</span><h3>אקדמיית צבאן: IAS 8 ו-IAS 10</h3><p>מודולי למידה לרואי חשבון: מדיניות חשבונאית, תיקון טעויות ואירועים לאחר תאריך הדיווח.</p><div class="foot"><a href="games/ias-academy/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game" style="justify-content:center;align-items:center;text-align:center;border-style:dashed"><p style="flex:0">המשותף: כל משחק מומחש. המושג לא מוסבר במילים, הוא נראה ומוזז על המסך.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · סוג ב -->
+<section class="slide">
+  <div class="inner">
+    <div class="type-head"><div class="badge b">ב</div><div><h2>״מיני תעודת השלמה״ שאפשר להגיש כמטלה</h2><p>המטרה: מסלול קצר, סיום מוכח, תעודה על שם הסטודנט</p></div></div>
+    <div class="grid three">
+      <div class="game"><span class="course">בינה עסקית</span><h3>BI & AI: המדריך לסטודנט המבולבל</h3><p>איך לשרוד בינה עסקית ובינה מלאכותית. מסלול קצר עם הבננות, ותעודת השלמה בסופו.</p><div class="foot"><a href="games/bi-ai-guide/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game"><span class="course">מאקרו כלכלה · שיעור 11</span><h3>מטלה להגשה אחרי שיעור 11</h3><p>משחק שהוא המטלה עצמה: הסטודנט מסיים את המסלול, מקבל תעודה, ומגיש אותה.</p><div class="foot"><a href="games/macro-lesson11-assignment/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game"><span class="course">מבוא למערכות מידע</span><h3>שאלון תרגול: מערכות ליבה ERP</h3><p>שאלון תרגול קצר על מערכות ליבה, בפורמט שמתאים להגשה אחרי המפגש.</p><div class="foot"><a href="games/erp-practice-quiz/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+    </div>
+    <ul class="bullets" style="margin-top:28px">
+      <li><b>איך זה עובד כמטלה:</b> הסטודנט מסיים, מקליד את שמו, מקבל תעודה, ומעלה צילום מסך ל-Moodle.</li>
+      <li><b>למה זה עובד:</b> יעד ברור וקצר, משוב מיידי על כל תשובה, ותוצר שאפשר להראות.</li>
+      <li><b>גם משחקי התוכן</b> מסוג א׳ (Banana Lab, שומרי הנתונים, האביר המוניטרי, IAS) מסתיימים בתעודה ויכולים לשמש כך.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7 · סוג ג -->
+<section class="slide">
+  <div class="inner">
+    <div class="type-head"><div class="badge c">ג</div><div><h2>ארקייד</h2><p>המטרה: חזרה על החומר בלי שזה ירגיש כמו חזרה על החומר</p></div></div>
+    <div class="grid">
+      <div class="game"><span class="course">בינה עסקית</span><h3>BI ARCADE 🕹️</h3><p>משחק הלמידה לבחינת הגמר: שלבים, ניקוד, ושאלות מכל חומר הקורס משובצות במשחק.</p><div class="foot"><a href="games/bi-arcade/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+      <div class="game"><span class="course">מבוא למערכות מידע</span><h3>ארקייד המבולבלים: קרב המערכות</h3><p>TPS, MIS ו-ESS כבוסים על מפת ארקייד. מצב חופשי, ובוס סופי שהוא מבחן אמריקאי.</p><div class="foot"><a href="games/mis-arcade-confused/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+      <div class="game"><span class="course">ניתוח מידע עסקי ממוחשב · מפגש 3</span><h3>אקסל בטירוף: מיון וסינון</h3><p>18 שאלות בשלוש רמות, מוזיקה, בונוס רצף, טבלאות עזר לפני כל רמה, והמרצה מתעצב בכל טעות שלישית.</p><div class="foot"><a href="games/excel-sorting-filtering/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+      <div class="game"><span class="course">מאקרו כלכלה</span><h3>שוק העבודה ועוני: ARCADE</h3><p>משחק ארקייד על שוק העבודה, אבטלה ועוני, עם ניקוד ושלבים.</p><div class="foot"><a href="games/labor-market-arcade/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+    </div>
+    <ul class="bullets" style="margin-top:28px">
+      <li><b>מה שראינו בבינה עסקית:</b> סטודנטים חוזרים למשחק כמה פעמים לפני הבחינה, בלי שמישהו ביקש.</li>
+      <li><b>ההומור הוא חלק מהמנגנון:</b> דמויות מהקורס, המרצה כדמות, ובדיחות פנימיות של הכיתה.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 8 · מגבלות -->
+<section class="slide">
+  <div class="inner">
+    <span class="kicker">בכנות</span>
+    <h2>איפה זה עומד <span class="em">היום</span></h2>
+    <div class="cols">
+      <div class="block"><span class="ic">📱</span><h3>לא מותאם למובייל</h3><p>המשחקים נבנו למסך מחשב. בטלפון חלקם עובדים חלקית וחלקם לא. זו המגבלה המרכזית כרגע.</p></div>
+      <div class="block"><span class="ic">🧊</span><h3>העבודה סטטית</h3><p>מאגר שאלות קבוע, ללא התאמה לרמת הסטודנט תוך כדי משחק, וללא שמירת התקדמות בין כניסות.</p></div>
+      <div class="block"><span class="ic">📊</span><h3>אין עדיין נתונים שיטתיים</h3><p>יש רשמים מהכיתה, אבל אין עדיין מדידה של שימוש בפועל או של השפעה על הישגים.</p></div>
+    </div>
+    <p class="footer-note">כל משחק הוא קובץ עצמאי. זה יתרון בהפצה, אבל פירושו שכל שיפור צריך להיעשות בכל משחק בנפרד.</p>
+  </div>
+</section>
+
+<!-- 9 · הפיילוט -->
+<section class="slide">
+  <div class="inner">
+    <span class="kicker">הצעד הבא</span>
+    <h2>פיילוט רחב בסמסטר א׳, <span class="em">עם נתונים</span></h2>
+    <p class="lead">מעבר מהתנסות של מרצה אחד לבדיקה מסודרת: מה הסטודנטים עושים עם המשחקים בפועל, והאם זה משפר משהו.</p>
+    <div class="cols">
+      <div class="block gold"><span class="ic">🧪</span><h3>היקף</h3><p>הרחבה לכמה קורסים ומפגשים, עם משחק מכל אחד משלושת הסוגים, כדי להשוות ביניהם.</p></div>
+      <div class="block sky"><span class="ic">📈</span><h3>איסוף נתונים על שימוש</h3><p>כניסות, שיעור סיום, זמן משחק, מספר ניסיונות, ומתי לאורך הסמסטר משחקים.</p></div>
+      <div class="block mint"><span class="ic">✅</span><h3>בדיקת אפקטיביות</h3><p>קשר בין שימוש להישגים בבחינה, השוואה לחומר בפורמט רגיל, וסקר עמדות סטודנטים.</p></div>
+    </div>
+    <ul class="bullets" style="margin-top:30px">
+      <li><b>במקביל:</b> התאמה למובייל, ומעבר משאלות קבועות למשחקים שמתאימים את עצמם לרמת הסטודנט.</li>
+      <li><b>התוצר:</b> תשתית שמרצים אחרים במרכז יוכלו להשתמש בה, ותוצאות שאפשר לפרסם.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 10 · אינדקס -->
+<section class="slide">
+  <div class="inner">
+    <span class="kicker">כל הקישורים</span>
+    <h2>המשחקים במקום אחד</h2>
+    <table>
+      <thead><tr><th>משחק</th><th>קורס</th><th>סוג</th><th>קישור</th></tr></thead>
+      <tbody>
+        <tr><td>Tableau Join Banana Lab</td><td>בינה עסקית · מבוא למערכות מידע</td><td><span class="pill a">א</span></td><td><a href="games/tableau-join-banana-lab/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>שומרי הנתונים: מהגדרת טבלאות ל-Tableau</td><td>בינה עסקית</td><td><span class="pill a">א</span></td><td><a href="games/data-guardians-tableau/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>מודל CAPM, שיעור אינטראקטיבי</td><td>מימון</td><td><span class="pill a">א</span></td><td><a href="games/capm-interactive/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>OptionsAcademy</td><td>נגזרים פיננסיים</td><td><span class="pill a">א</span></td><td><a href="games/options-academy/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>האביר המוניטרי של בנק ישראל</td><td>מאקרו כלכלה</td><td><span class="pill a">א</span></td><td><a href="games/boi-monetary-knight/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>מסיבת המט״ח של שי ואילנית</td><td>מאקרו כלכלה</td><td><span class="pill a">א</span></td><td><a href="games/forex-party/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>אקדמיית צבאן: IAS 8 ו-IAS 10</td><td>חשבונאות פיננסית</td><td><span class="pill a">א</span></td><td><a href="games/ias-academy/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>BI & AI: המדריך לסטודנט המבולבל</td><td>בינה עסקית</td><td><span class="pill b">ב</span></td><td><a href="games/bi-ai-guide/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>מטלה להגשה אחרי שיעור 11</td><td>מאקרו כלכלה</td><td><span class="pill b">ב</span></td><td><a href="games/macro-lesson11-assignment/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>שאלון תרגול: מערכות ליבה ERP</td><td>מבוא למערכות מידע</td><td><span class="pill b">ב</span></td><td><a href="games/erp-practice-quiz/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>BI ARCADE</td><td>בינה עסקית</td><td><span class="pill c">ג</span></td><td><a href="games/bi-arcade/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>ארקייד המבולבלים: קרב המערכות</td><td>מבוא למערכות מידע</td><td><span class="pill c">ג</span></td><td><a href="games/mis-arcade-confused/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>אקסל בטירוף: מיון וסינון</td><td>ניתוח מידע עסקי ממוחשב</td><td><span class="pill c">ג</span></td><td><a href="games/excel-sorting-filtering/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+        <tr><td>שוק העבודה ועוני: ARCADE</td><td>מאקרו כלכלה</td><td><span class="pill c">ג</span></td><td><a href="games/labor-market-arcade/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
+      </tbody>
+    </table>
+    <p class="footer-note">תודה. שאלות, רעיונות, ומרצים שרוצים להצטרף לפיילוט: shay.tsaban@gmail.com</p>
+  </div>
+</section>
+
+<div class="counter" id="counter">1 / 10</div>
+<div class="nav"><button id="prev" title="הקודם">→</button><button id="next" title="הבא">←</button></div>
+<div class="hint">חצים או רווח למעבר בין שקפים · Esc לשקף הראשון</div>
+
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=Math.min(Math.max(parseInt(location.hash.slice(1))||1,1),slides.length)-1;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  function show(n){
+    i=(n+slides.length)%slides.length;
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    counter.textContent=(i+1)+' / '+slides.length;
+    progress.style.width=((i+1)/slides.length*100)+'%';
+    history.replaceState(null,'','#'+(i+1));
+  }
+  document.getElementById('next').onclick=()=>show(i+1);
+  document.getElementById('prev').onclick=()=>show(i-1);
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT')return;
+    if(['ArrowLeft','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();show(i+1);}
+    else if(['ArrowRight','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(i-1);}
+    else if(e.key==='Escape'){show(0);}
+    else if(e.key==='End'){show(slides.length-1);}
+  });
+  show(i);
+})();
+</script>
+</body>
+</html>

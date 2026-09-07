@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מטלה להגשה - שיעור 11</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/rubik@5.0.0/index.min.css" rel="stylesheet">
+<style>
+  * { font-family: 'Rubik', sans-serif; }
+  body { background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%); min-height: 100vh; }
+  .card { background: white; border-radius: 1.5rem; box-shadow: 0 10px 40px rgba(30, 58, 138, 0.08); }
+  .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); transition: all 0.3s; cursor: pointer; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); }
+  .option-btn { transition: all 0.2s; border: 2px solid #e5e7eb; cursor: pointer; }
+  .option-btn:hover:not(:disabled) { border-color: #2563eb; background: #eff6ff; }
+  .option-correct { background: #dcfce7 !important; border-color: #16a34a !important; }
+  .option-wrong { background: #fee2e2 !important; border-color: #dc2626 !important; }
+  .formula-box { background: linear-gradient(135deg, #fefce8, #fef9c3); border-right: 4px solid #ca8a04; }
+  .hint-box { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-right: 4px solid #0284c7; }
+  .answer-box { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-right: 4px solid #16a34a; }
+  .step-box { background: #ffffff; border-right: 3px solid #3b82f6; padding: 12px 16px; margin: 8px 0; border-radius: 8px; }
+  .progress-bar { background: linear-gradient(90deg, #2563eb, #7c3aed); transition: width 0.5s ease; }
+  .fade-in { animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .q-dot { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .q-dot.current { background: #2563eb; transform: scale(1.3); }
+  .q-dot.correct { background: #16a34a; }
+  .q-dot.wrong { background: #dc2626; }
+  .q-dot.skipped { background: #f59e0b; }
+  .topic-chip { background: #eff6ff; color: #1e40af; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; }
+  .certificate { background: #fffbeb; border: 8px double #b45309; }
+  .math { font-family: 'Cambria Math', 'Times New Roman', serif; font-size: 1.05em; direction: ltr; display: inline-block; }
+  button:not(:disabled) { cursor: pointer; }
+  button:disabled { opacity: 0.5; cursor: not-allowed !important; }
+</style>
+</head>
+<body class="p-4 md:p-8">
+<div class="max-w-5xl mx-auto">
+
+<div id="welcome-screen" class="card p-8 md:p-12 fade-in">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3">מטלה להגשה לאחר שיעור 11</h1>
+    <p class="text-xl text-blue-700 font-semibold">שיווי משקל משולב: שוק המוצרים ושוק הכסף</p>
+    <div class="mt-4 inline-block bg-red-50 border-2 border-red-300 rounded-xl px-6 py-3">
+      <p class="text-red-800 font-bold">📅 תאריך אחרון להגשה: 18.6.2026</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center mb-8 bg-blue-50 border-2 border-blue-200 rounded-3xl p-6 text-center shadow-sm">
+    <img src="dr_tzaban_correct.png" class="w-36 h-36 rounded-full border-4 border-blue-400 shadow-md object-cover" alt="ד״ר שי צבאן">
+    <h3 class="text-xl font-bold text-blue-900 mt-2">פותח ע״י ד"ר שי צבאן</h3>
+    <div class="mt-4 p-3 bg-red-50 border-r-4 border-red-500 rounded-xl text-red-800 font-semibold text-sm max-w-lg shadow-inner">
+      🚨 <strong>פנייה דחופה לליליאן:</strong> ליליאן, נא לבצע בקרת איכות דחוף! ד"ר צבאן כבר רעב ועסוק באכילת נקניקיות, המטלה חייבת לעבור אישור מיידי! 🌭⚠️
+    </div>
+  </div>
+
+  <div class="bg-amber-50 border-r-4 border-amber-400 p-4 rounded-lg mb-6">
+    <h3 class="font-bold text-amber-900 mb-2">⚠️ הוראות חשובות</h3>
+    <ul class="text-sm text-amber-800 space-y-1">
+      <li>• המטלה כוללת 20 שאלות רב-ברירה</li>
+      <li>• ציון 60 ומעלה יאפשר הורדת תעודת הגשה (PDF)</li>
+      <li>• דילוג על שאלה יפחית את מלוא הניקוד</li>
+      <li>• מקסימום 8 דילוגים מותרים</li>
+    </ul>
+  </div>
+
+  <div class="space-y-4">
+    <input type="text" id="student-name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="שם מלא">
+    <input type="email" id="student-email" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="כתובת דוא״ל">
+    <div id="form-error" class="hidden bg-red-50 text-red-700 p-3 rounded-xl text-sm"></div>
+    <button type="button" onclick="handleStart()" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-lg">התחל את המטלה ←</button>
+  </div>
+</div>
+
+<div id="formulas-screen" class="card p-8 fade-in hidden">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">📐 ריכוז נוסחאות</h2>
+    <button onclick="startQuiz()" class="btn-primary text-white px-6 py-2 rounded-xl font-bold">התחל שאלון ←</button>
+  </div>
+  <div class="space-y-4" id="formulas-list"></div>
+</div>
+
+<div id="quiz-screen" class="hidden">
+  <div class="card p-6 mb-4">
+    <div class="flex justify-between items-center mb-3">
+      <span class="font-bold" id="student-greeting"></span>
+      <div class="flex items-center gap-4">
+        <span class="bg-red-50 text-red-700 px-3 py-1 rounded-full text-sm font-bold">ניקוד נוכחי: <span id="current-score">100</span></span>
+        <span class="text-sm">שאלה <span id="q-current">1</span> מתוך <span id="q-total">20</span></span>
+      </div>
+    </div>
+    <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+      <div id="progress-bar" class="progress-bar h-3 rounded-full" style="width: 5%"></div>
+    </div>
+    <!-- Dots Container for Visual Question Navigation Status -->
+    <div id="dots-container" class="flex flex-wrap gap-2 justify-center mt-4"></div>
+  </div>
+
+  <div class="card p-8" id="question-card">
+    <div id="q-topic" class="topic-chip mb-4"></div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6" id="q-text"></h2>
+    <div class="space-y-3" id="options-container"></div>
+
+    <div id="feedback-container" class="hidden mt-6"></div>
+    <div id="hint-container" class="hidden mt-6">
+      <div class="hint-box p-5 rounded-xl">
+        <h3 class="font-bold text-blue-900 mb-2">💡 רמז</h3>
+        <p class="text-blue-800" id="hint-text"></p>
+      </div>
+    </div>
+    <div id="answer-container" class="hidden mt-6">
+      <div class="answer-box p-5 rounded-xl">
+        <h3 class="font-bold text-green-900 mb-3">✅ פתרון מלא</h3>
+        <div class="text-green-900" id="answer-text"></div>
+      </div>
+    </div>
+
+    <div class="mt-8 space-y-3">
+      <div class="flex gap-2">
+        <button type="button" onclick="showHint()" id="hint-btn" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-5 py-3 rounded-xl border-2 border-blue-200 flex-1">💡 רמז</button>
+        <button type="button" onclick="showAnswer()" id="answer-btn" class="bg-green-50 hover:bg-green-100 text-green-700 font-semibold px-5 py-3 rounded-xl border-2 border-green-200 flex-1">🔍 הצג פתרון</button>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="doSkipQuestion()" id="skip-btn" class="bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold px-5 py-3 rounded-xl border-2 border-amber-200 flex-1">⏭ דלג על שאלה</button>
+        <button type="button" onclick="nextQuestion()" id="next-btn" class="btn-primary text-white font-bold px-8 py-3 rounded-xl flex-1 hidden">המשך →</button>
+      </div>
+    </div>
+    <div class="text-xs text-gray-500 mt-4 text-center">
+      דילוגים שנותרו: <span id="skips-left" class="font-bold">8</span>
+    </div>
+  </div>
+</div>
+
+<div id="finish-screen" class="card p-8 md:p-12 fade-in hidden">
+  <div class="text-center">
+    <div class="text-6xl mb-4" id="result-emoji">🎉</div>
+    <h2 class="text-3xl font-bold text-gray-800 mb-2" id="result-title"></h2>
+    <div class="card p-6 bg-gradient-to-br from-blue-50 to-purple-50 mb-6 inline-block">
+      <div class="text-5xl font-bold text-blue-600 mb-2"><span id="final-score">0</span>/100</div>
+    </div>
+    <div id="certificate-section" class="hidden">
+      <div class="certificate p-6 rounded-xl mb-4">
+        <h3 class="text-2xl font-bold text-amber-900 mb-2">🏆 זכאות לתעודה!</h3>
+        <p class="text-sm text-amber-700 mt-2 font-semibold">⚠️ יש להגיש תעודה זו במערכת - חתומה ע"י ד"ר שי צבאן</p>
+      </div>
+      <button onclick="downloadCertificate()" class="btn-primary text-white font-bold px-8 py-4 rounded-xl text-lg">📥 הורד תעודה (PDF)</button>
+    </div>
+    <div id="fail-section" class="hidden bg-red-50 p-6 rounded-xl">
+      <p class="text-red-800">לא השגת את הציון המינימלי (60).</p>
+      <button onclick="location.reload()" class="btn-primary text-white font-bold px-8 py-3 rounded-xl mt-4">🔄 נסה שוב</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// נתונים
+const formulas = [
+  { title: 'ביקוש מצרפי', formula: 'AD = C + I + G' },
+  { title: 'צריכה פרטית', formula: 'C = C₀ + MPC × (Y - T)' },
+  { title: 'השקעה', formula: 'I = I₀ + MPI × Y' },
+  { title: 'מכפיל קיינסיאני', formula: 'K = 1 / (1 - (MPC + MPI))' },
+  { title: 'תוצר שיווי משקל', formula: 'Y* = AD₀ × K' },
+  { title: 'עירוי חיצוני במערכת הבנקאות', formula: 'ΔM = עירוי חיצוני × (1 / R)' },
+  { title: 'עירוי פנימי במערכת הבנקאות', formula: 'ΔM = עירוי פנימי × (1 / R - 1)' }
+];
+
+const questions = [
+  { 
+    topic: 'מכפיל', 
+    q: 'במשק סגור ללא ממשלה, נתונים הנטייה השולית לצרוך (MPC = 0.8) והנטייה השולית להשקיע (MPI = 0.1). מהו ערכו של המכפיל הקיינסיאני של התוצר (K) במשק זה?', 
+    options: ['4', '5', '10', '2.5'], 
+    correct: 2, 
+    hint: 'השתמש בנוסחת המכפיל: K = 1 / (1 - MPE) כאשר MPE = MPC + MPI.', 
+    answer: 'הנטייה השולית להוציא (MPE) היא 0.8 + 0.1 = 0.9. מכאן שהมכפיל הקיינסיאני הוא: K = 1 / (1 - 0.9) = 10.' 
+  },
+  { 
+    topic: 'תוצר', 
+    q: 'נתונה פונקציית צריכה פרטית C = 500 + 0.75Y, פונקציית השקעה אוטונומית I = 300, וצריכה ציבורית G = 200. בהנחה שאין מיסים, מהו תוצר שיווי המשקל (Y*) במשק זה?', 
+    options: ['3000', '4000', '5000', '2500'], 
+    correct: 1, 
+    hint: 'חשב את הביקוש המצרפי האוטונומי (AD₀) ואת המכפיל הפשוט (K).', 
+    answer: 'הביקוש המצרפי האוטונומי הוא AD₀ = 500 + 300 + 200 = 1000. המכפיל הוא K = 1 / (1 - 0.75) = 4. לפיכך, תוצר שיווי המשקל הוא Y* = AD₀ × K = 1000 × 4 = 4000.' 
+  },
+  { 
+    topic: 'פער דפלציוני', 
+    q: 'משק סגור מצוי באבטלה ובפער דפלציוני (פער ביקוש מצרפי) של 200. הנטייה השולית לצרוך מההכנסה הפנויה היא MPC = 0.6. מהו השינוי הנדרש ברמת הצריכה הציבורית (G) כדי לסגור את הפער ולהביא את המשק לשיווי משקל בתעסוקה מלאה?', 
+    options: ['120', '200', '333', '500'], 
+    correct: 1, 
+    hint: 'שינוי ברכיב ביקוש אוטונומי ישיר כמו G שווה בדיוק לגודל פער הביקוש המצרפי.', 
+    answer: 'פער דפלציוני (או פער ביקוש מצרפי) מוגדר כתוספת הנדרשת לביקוש המצרפי האוטונומי על מנת להגיע לתעסוקה מלאה. לכן, הגדלת הצריכה הציבורית האוטונומית (ΔG) צריכה להיות שווה בדיוק לגודל הפער, כלומר ΔG = 200.' 
+  },
+  { 
+    topic: 'מיסים', 
+    q: 'משק סגור מצוי בפער דפלציוני של 300. נתונה נטייה שולית לצרוך של MPC = 0.75. מהו גובה הפחתת המיסים הקבועים (ΔT-) הנדרשת כדי לסגור פער זה ולהביא את המשק לתעסוקה מלאה?', 
+    options: ['400', '300', '225', '100'], 
+    correct: 0, 
+    hint: 'השפעת הפחתת המיסים על הביקוש המצרפי האוטונומי היא בעלת מקדם של MPC- כפול השינוי במס.', 
+    answer: 'כדי לסגור פער דפלציוני של 300, יש להגדיל את הביקוש המצרפי האוטונומי ב-300. מכיוון שהשפעת המיסים היא עקיפה דרך הצריכה הפרטית: MPC × ΔT = -300- ולכן ΔT = -300 / 0.75 = -400 (כלומר, הפחתה של 400).' 
+  },
+  { 
+    topic: 'פער אינפלציוני', 
+    q: 'משק מצוי בשיווי משקל בתעסוקה מלאה, אך הביקוש המצרפי גבוה מהתוצר המקסימלי ונוצר פער אינפלציוני של 150. מהו השינוי הנדרש בצריכה הציבורית (G) כדי לבטל את עודף הביקוש ללא שינוי ברמת המיסים?', 
+    options: ['150', '112', '600', '100'], 
+    correct: 0, 
+    hint: 'סגירת פער אינפלציוני באמצעות כלי פיסקלי ישיר מחייבת צמצום של הביקוש האוטונומי בגודל הפער.', 
+    answer: 'כדי לחסל פער אינפלציוני (עודף ביקוש) של 150, יש להקטין רכיב אוטונומי ישיר בגובה הפער עצמו. לכן הקיצוץ הנדרש הוא ΔG = -150.' 
+  },
+  { 
+    topic: 'צריכה עם שוק כסף', 
+    q: 'הממשלה מחליטה להפחית מיסים קבועים ב-400 יחידות, כאשר MPC = 0.75. בניתוח הכולל את השפעת שוק הכסף (עליית ריבית), הצריכה הפרטית תקבע ברמה שהיא:', 
+    options: ['תגדל בדיוק ב-300', 'תגדל בפחות מ-300', 'תגדל ביותר מ-300', 'לא ניתן לקבוע ללא מידע נוסף'], 
+    correct: 1, 
+    hint: 'עליית התוצר מגדילה את הביקוש לכסף בשוק הכסף, מה שמוביל לעליית הריבית ולירידה מסוימת בהשקעות ובצריכה (אפקט הדחיקה).', 
+    answer: 'אילו שוק הכסף לא היה משפיע, גידול ההכנסה הפנויה ב-400 היה מגדיל את הצריכה הפרטית ב-400 × 0.75 = 300. עם זאת, שילוב שוק הכסף גורר עליית ריבית (אפקט הדחיקה) שממתנת את עליית התוצר ולכן הצריכה הפרטית תגדל בפחות מ-300.' 
+  },
+  { 
+    topic: 'אבטלה ושוק הכסף', 
+    q: 'משק מצוי בשיווי משקל באבטלה עם שוק כסף פעיל. לאחרונה החליטה הממשלה להגדיל את הצריכה הציבורית. הבנק המרכזי מעוניין למנוע את השינוי הצפוי בריבית ולכן עליו:', 
+    options: ['להעלות את יחס הרזרבה', 'להוריד את יחס הרזרבה', 'לבצע עירוי פנימי שלילי', 'לבצע עירוי חיצוני שלילי'], 
+    correct: 1, 
+    hint: 'עלייה בביקוש בשוק המוצרים (G גדל) יוצרת עלייה בביקוש לכסף ובריבית. כדי לנטרל את עליית הריבית יש להגדיל את היצע הכסף.', 
+    answer: 'התשובה הנכונה – ב.<br><br>עלייה בביקוש בשוק המוצרים (G גדל) יוצרת עלייה בביקוש לכסף ובריבית. כדי לנטרל את עליית הריבית יש להגדיל את היצע הכסף, ומבין כל הפעולות שהוצעו – רק הורדת יחס הרזרבה תאפשר זאת.<br><br>הסבר מפורט:<br>הגדלת הצריכה הציבורית (מדיניות פיסקלית מרחיבה) מביאה לגידול בתוצר (Y↑) ולכן הביקוש לכסף גדל והריבית עולה. כדי למנוע את עליית הריבית, על הבנק המרכזי לנקוט במדיניות מוניטרית מרחיבה שתגדיל את היצע הכסף. מבין האפשרויות, רק הורדת יחס הרזרבה (ב) מגדילה את היצע הכסף בכך שהיא מאפשרת לבנקים להלוות יותר ומורידה את הריבית חזרה.' 
+  },
+  { 
+    topic: 'עירוי משולב', 
+    q: 'במשק שבו יחס הרזרבה הנדרש הוא R = 0.1 ואין דליפת מזומן, הציבור משך 200 מיליון ש"ח מחשבונות העו"ש (עירוי פנימי שלילי), ובמקביל ביצע הבנק המרכזי עירוי חיצוני חיובי של 200 מיליון ש"ח. כיצד תשתנה כמות הכסף במשק?', 
+    options: ['תגדל ב-200 מיליון ש"ח', 'תקטן ב-200 מיליון ש"ח', 'לא תשתנה', 'תגדל ב-2000 מיליון ש"ח'], 
+    correct: 0, 
+    hint: 'השפעת עירוי חיצוני היא עירוי × (1/R) והשפעת עירוי פנימי (מזומן שיוצא) היא עירוי × (1/R - 1).', 
+    answer: 'השפעת העירוי החיצוני החיובי: 200 × 10 = +2000. השפעת העירוי הפנימי השלילי (משיכת מזומן): 200 × (10 - 1) = -1800. השינוי המשולב: 2000 - 1800 = +200 מיליון ש"ח.' 
+  },
+  { 
+    topic: 'שינוי בתמהיל התוצר', 
+    q: 'במשק סגור עם שוק כסף פעיל קיים פער דפלציוני. הממשלה מעוניינת לסגור את הפער על ידי הגדלת הצריכה הציבורית ומימונה על ידי הטלת מסים נוספים באותו הסכום. סמנו את הטענה הנכונה המשקפת את התוצאה של האירוע:', 
+    options: [
+      'התוצר יגדל, הצריכה הציבורית תגדל, לא ניתן לדעת מה יקרה לצריכה הפרטית ולהשקעה', 
+      'התוצר יגדל, הצריכה הפרטית תקטן ולא ניתן לדעת מה יקרה להשקעה', 
+      'התוצר לא ישתנה, הצריכה הפרטית וההשקעה יקטנו בגובה העליה בצריכה הציבורית', 
+      'התוצר לא ישתנה, הצריכה הפרטית תקטן בגובה העליה בצריכה הציבורית ולא יחול שינוי בהשקעה'
+    ], 
+    correct: 0, 
+    hint: 'הממשלה מגדילה צריכה ציבורית ומממנת זאת על ידי מס (תקציב מאוזן) בשילוב שוק כסף פעיל.', 
+    answer: 'התשובה הנכונה – א.<br><br>הממשלה נוקטת במדיניות של תקציב מאוזן (הגדלת G ומס באותו סכום) במשק באבטלה. במצב זה התוצר יגדל (השפעה חיובית של מכפיל תקציב מאוזן). עם זאת, גידול התוצר מעלה את הביקוש לכסף והריבית עולה.<br><br>על הצריכה הפרטית (C) וההשקעות (I) פועלים כעת שני כוחות מנוגדים: עליית התוצר (השפעה חיובית) לעומת עליית הריבית (השפעה שלילית). לכן, לא ניתן לדעת בוודאות מה יקרה להן בסוף התהליך.' 
+  },
+  { 
+    topic: 'קיצוץ בתקציב', 
+    q: 'במשק הנמצא בשיווי משקל באבטלה עם שוק כסף הממשלה מעוניינת לבצע קיצוץ בתקציב ולכן צמצמה את הצריכה הציבורית. לפיכך:', 
+    options: [
+      'ייתכן שהצריכה הפרטית וההשקעה יגדלו', 
+      'לא ייתכן שהצריכה הפרטית תשתנה', 
+      'הצריכה הפרטית וההשקעה יקטנו בוודאות', 
+      'ייתכן שהתוצר והצריכה הציבורית יגדלו'
+    ], 
+    correct: 0, 
+    hint: 'קיצוץ בצריכה הציבורית (G קטן) מקטין את התוצר ומביא לירידת ריבית שמגרה צריכה והשקעות.', 
+    answer: 'התשובה הנכונה – א.<br><br>תהליך ההשפעה:<br>צמצום הצריכה הציבורית (G↓) מביא לירידת התוצר (Y↓). ירידת התוצר מקטינה את הביקוש לכסף ומביאה לירידה בריבית (r↓).<br>ירידת הריבית מעודדת ותומכת בעליית הצריכה הפרטית (C↑) וההשקעות (I↑), וזו השפעה הפוכה לירידה הראשונית שנגרמה כתוצאה מירידת התוצר. כתוצאה משני הכוחות המנוגדים, לא ניתן לדעת בוודאות מה יקרה ל-C ול-I, ולכן ייתכן שהן יגדלו בסופו של דבר.' 
+  },
+  { 
+    topic: 'אבטלה עם ערכים מספריים', 
+    q: 'במשק הנמצא בשיווי משקל באבטלה, שורר פער דפלציוני בגודל של 90. הממשלה הפחיתה מסים ב-120 וידוע שהנטייה השולית לצרוך היא 0.75. סמנו את הטענה הנכונה:', 
+    options: [
+      'אם שוק הכסף פעיל, הפער הדפלציוני ייסגר', 
+      'אם שוק הכסף פעיל, הפער הדפלציוני לא ייסגר', 
+      'לא משנה אם שוק הכסף פעיל או לא, הפער הדפלציוני ייסגר', 
+      'לא משנה אם שוק הכסף פעיל או לא, הפער הדפלציוני לא ייסגר'
+    ], 
+    correct: 1, 
+    hint: 'בדוק תחילה האם הפחתת המס מספיקה לסגירת הפער בעולם ללא שוק כסף לפי הנוסחה ΔT = ΔAD / MPC.', 
+    answer: 'התשובה הנכונה – ב.<br><br>ללא שוק כסף פעיל, הפחתת מס ב-120 מגדילה את הביקוש המצרפי האוטונומי בדיוק ב-90 (120 × 0.75 = 90), מה שמספיק בדיוק לסגירת הפער הדפלציוני.<br><br>עם זאת, כאשר שוק הכסף פעיל, הגדלת הביקושים והתוצר תגרור עליית ריבית (אפקט הדחיקה) שתצנן את הצריכה וההשקעות ותמנע מהביקוש לגדול במלוא ה-90. לכן הפער הדפלציוני לא ייסגר לחלוטין וידרש קיצוץ מס עמוק יותר כדי לסגור אותו.' 
+  },
+  { 
+    topic: 'החזקת מזומן', 
+    q: 'במשק הנמצא באבטלה, הציבור החליט להגדיל את כמות המזומן שבידו. כתוצאה מכך:', 
+    options: [
+      'לא ניתן לדעת אם הצריכה הפרטית וההשקעה יגדלו', 
+      'הצריכה הפרטית וההשקעה יגדלו', 
+      'הצריכה הפרטית וההשקעה יקטנו', 
+      'הצריכה הפרטית וההשקעה לא ישתנו'
+    ], 
+    correct: 2, 
+    hint: 'הגדלת כמות המזומן בידי הציבור מפחיתה את רזרבות הבנקים ומקטינה את היצע הכסף.', 
+    answer: 'התשובה הנכונה – ג.<br><br>הגדלת המזומן שבידי הציבור מקטינה את רזרבות הבנקים המסחריים ומצמצמת את היצע הכסף (MS↓). ירידה זו בהיצע הכסף מעלה את הריבית (r↑), מה שמוביל בוודאות לירידה בצריכה הפרטית (C↓) ובהשקעות (I↓).' 
+  },
+  { 
+    topic: 'תעסוקה מלאה ומלחמה', 
+    q: 'במשק הנמצא בתעסוקה מלאה פרצה לפתע מלחמה וכתוצאה מכך גדלו הוצאותיה של הממשלה. לפיכך:', 
+    options: [
+      'הריבית תעלה, הצריכה הפרטית וההשקעה יקטנו בדיוק בסכום העלייה בצריכה הציבורית', 
+      'הריבית תעלה, הצריכה הציבורית תקטן', 
+      'הריבית תישאר ללא שינוי, הצריכה הפרטית וההשקעה יקטנו בדיוק בסכום הגידול בצריכה הציבורית', 
+      'הריבית תישאר ללא שינוי, הצריכה הציבורית תקטן'
+    ], 
+    correct: 0, 
+    hint: 'בתעסוקה מלאה לא ניתן להגדיל את התוצר. כל עלייה בביקוש הממשלתי (G↑) מחייבת ירידה זהה ברכיבים אחרים.', 
+    answer: 'התשובה הנכונה – א.<br><br>המשק נמצא בתעסוקה מלאה ולכן התוצר קבוע בתוצר המקסימלי (Y = Y_F) ולא יכול לעלות. הגדלת הצריכה הציבורית (G↑) יוצרת עודף ביקוש בשוק המוצרים, שמביא לעליית ריבית חדה ולעליית מחירים המקטינה את היצע הכסף הריאלי. עליית הריבית תגרום לירידה בצריכה הפרטית (C↓) ובהשקעות (I↓) בדיוק בסכום שבו גדלה הצריכה הציבורית, עד שעודף הביקוש יתקזז לאפס.' 
+  },
+  { 
+    topic: 'תעסוקה מלאה והורדת רזרבה', 
+    q: 'במשק הנמצא בתעסוקה מלאה החליט הבנק המרכזי להוריד את יחס הרזרבה. כתוצאה:', 
+    options: [
+      'הריבית תרד והמחירים יעלו', 
+      'הריבית תישאר ללא שינוי והמחירים יעלו', 
+      'הריבית תרד אך הצריכה הפרטית וההשקעה יגדלו', 
+      'הריבית תישאר ללא שינוי אך הצריכה הפרטית וההשקעה יגדלו'
+    ], 
+    correct: 1, 
+    hint: 'הקטנת יחס הרזרבה מגדילה את היצע הכסף, מורידה ריבית ומייצרת אינפלציה, שמחזירה את היצע הכסף הריאלי למצבו המקורי.', 
+    answer: 'התשובה הנכונה – ב.<br><br>הקטנת יחס הרזרבה מאפשרת לבנקים להעניק יותר הלוואות ומגדילה את היצע הכסף (MS↑) מה שמוריד את הריבית ומעודד ביקושים לצריכה והשקעות. מאחר שהמשק בתעסוקה מלאה, עודף הביקוש גורר עליית מחירים (P↑). עליית המחירים מקטינה את היצע הכסף הריאלי (MS/P↓) ומעלה את הריבית חזרה לנקודת המוצא. לכן הריבית תישאר ללא שינוי והמחירים יעלו.' 
+  },
+  { 
+    topic: 'פער אינפלציוני', 
+    q: 'לאחרונה אנו עדים להיווצרותו של פער אינפלציוני. בכדי למנוע את עליית המחירים, על הבנק המרכזי:', 
+    options: [
+      'לבצע עירוי חיצוני חיובי', 
+      'לבצע עירוי פנימי שלילי', 
+      'להפחית מחירים', 
+      'להעלות את יחס הרזרבה'
+    ], 
+    correct: 3, 
+    hint: 'פער אינפלציוני נובע מעודף ביקוש מצרפי. יש לבחור בכלי מוניטרי שיקרר את הביקושים.', 
+    answer: 'התשובה הנכונה: ד.<br><br>פער אינפלציוני משמעותו עודף ביקוש בשוק המוצרים. על מנת למנוע עליית מחירים, על הבנק המרכזי להקטין את היצע הכסף (מדיניות מוניטרית מצמצמת) כדי להעלות את הריבית ולקרר את הביקושים. מבין האפשרויות, העלאת יחס הרזרבה (ד) תקטין את היצע הכסף ותעלה את הריבית. (עירוי פנימי הוא החלטה של הציבור, והבנק המרכזי לא קובע מחירים ישירות).' 
+  },
+  { 
+    topic: 'אבטלה - כמותית', 
+    q: 'במשק סגור הנמצא באבטלה ובו שוק הכסף פעיל, ידוע כי הנטיה השולית לצרוך היא 0.75, והנטיה השולית להשקיע היא 0. הממשלה ביצעה הרחבה פיסקאלית תוך שמירה על תקציב מאוזן בסך 500. כתוצאה מכך:', 
+    options: [
+      'התוצר יגדל ב-500, ההשקעה והצריכה הפרטית לא ישתנו', 
+      'התוצר יגדל בפחות מ-500, ההשקעה תקטן וכך גם הצריכה הפרטית', 
+      'התוצר יגדל אך לא ניתן לדעת בכמה, לא ניתן לדעת מה יקרה להשקעה ולצריכה הפרטית', 
+      'התוצר יגדל ב-2,000 בדיוק'
+    ], 
+    correct: 1, 
+    hint: 'חשב תחילה את השינוי הצפוי בתוצר ללא שוק כסף, ולאחר מכן התחשב באפקט עליית הריבית בשוק הכסף.', 
+    answer: 'התשובה הנכונה: ב.<br><br>בעולם ללא שוק כסף, המכפיל של תקציב מאוזן הוא 1, ולכן התוצר היה עולה בדיוק בגובה ההרחבה (500).<br>עם זאת, במודל המשולב עם שוק כסף פעיל, עליית התוצר מגדילה את הביקוש לכסף ומביאה לעליית הריבית. עליית הריבית פוגעת בצריכה הפרטית (C) ובהשקעות (I), וכך ממתנת את עליית התוצר כך שהוא יגדל בפחות מ-500.' 
+  },
+  { 
+    topic: 'תעסוקה מלאה - כמותית', 
+    q: 'במשק סגור עם שוק כסף פעיל הנמצא בתעסוקה מלאה ידוע כי הנטייה השולית לצרוך היא 0.75, הנטייה השולית להשקיע היא 0.05. הממשלה הפחיתה מיסים בסך 400. כתוצאה מכך:', 
+    options: [
+      'הצריכה הפרטית במשק תגדל ב-300', 
+      'הצריכה הפרטית לא תשתנה', 
+      'ההשקעה במשק תגדל בפחות מ-75', 
+      'ההשקעה במשק תקטן בפחות מ-300'
+    ], 
+    correct: 3, 
+    hint: 'בתעסוקה מלאה התוצר קבוע. הפחתת מיסים מגדילה את הצריכה אך מעלה ריבית שמקטינה את ההשקעה.', 
+    answer: 'התשובה הנכונה: ד.<br><br>ללא שוק כסף, הפחתת מסים ב-400 הייתה מגדילה את הצריכה הפרטית ב-300 (400 × 0.75).<br>בעולם עם שוק כסף בתעסוקה מלאה (התוצר קבוע), העלייה בביקושים מעלה את הריבית. עליית הריבית פוגעת בצריכה הפרטית ומקזזת חלק מהעלייה (הצריכה תגדל בפחות מ-300). מכיוון שהתוצר והצריכה הציבורית (G) קבועים, הירידה בהשקעה תהיה שווה בדיוק לעלייה הממשית בצריכה הפרטית, ולכן ההשקעה תקטן בפחות מ-300.' 
+  },
+  { 
+    topic: 'גודל פער', 
+    q: 'תוצר התעסוקה המלאה (הפוטנציאלי) של המשק הוא Yf = 5000, תוצר שיווי המשקל הנוכחי הוא Y* = 4200, ומכפיל התוצר הוא K = 4. מהו גודלו של הפער הדפלציוני במשק זה?', 
+    options: ['800', '200', '3200', '100'], 
+    correct: 1, 
+    hint: 'הפער הדפלציוני מוגדר כפער בביקוש המצרפי: פער = (Yf - Y*) / K.', 
+    answer: 'פער התוצר הוא 5000 - 4200 = 800. מכיוון שתוצר שיווי המשקל גדל פי המכפיל, הפער הדפלציוני (פער הביקוש המצרפי) הוא פער התוצר חלקי המכפיל: 800 / 4 = 200.' 
+  },
+  { 
+    topic: 'תקציב מאוזן', 
+    q: 'הממשלה מחליטה להגדיל את הצריכה הציבורית ב-300 מיליון ש"ח ולממן זאת במלואו באמצעות הגדלת מיסים קבועים (ΔG = ΔT = 300). בהנחה ש-MPC = 0.8, מה יהיה השינוי בתוצר שיווי המשקל לפי משפט האבלמו (מכפיל תקציב מאוזן)?', 
+    options: ['יגדל ב-300 מיליון ש"ח', 'לא ישתנה', 'יגדל ב-1500 מיליון ש"ח', 'יקטן ב-300 מיליון ש"ח'], 
+    correct: 0, 
+    hint: 'מכפיל תקציב מאוזן (האבלמו) שווה תמיד ל-1, ללא קשר לנטייה השולית לצרוך.', 
+    answer: 'לפי משפט האבלמו, מכפיל תקציב מאוזן שווה ל-1. לכן התוצר יגדל בדיוק בגובה השינוי הממשלתי: ΔY = ΔG = 300 מיליון ש"ח.' 
+  },
+  { 
+    topic: 'אפקט דחיקה', 
+    q: 'מדיניות פיסקלית מרחיבה מביאה לגידול בתוצר של 500 יחידות במודל קיינסיאני פשוט (ללא שוק כסף). מה יקרה לגידול בתוצר תחת מודל IS-LM המשלב את שוק הכסף (השפעת עליית הריבית)?', 
+    options: ['התוצר יגדל ב-500', 'התוצר יגדל ביותר מ-500', 'התוצר יגדל בפחות מ-500', 'התוצר יקטן'], 
+    correct: 2, 
+    hint: 'הריבית העולה בשוק הכסף מביאה לצמצום בהשקעות הפרטיות ופוגעת בחלק מעליית התוצר (אפקט הדחיקה).', 
+    answer: 'עליית התוצר גורמת לעליית ריבית בשוק הכסף, אשר מדכאת השקעות פרטיות (אפקט הדחיקה). לכן, הגידול הסופי בתוצר יהיה נמוך יותר בהשוואה למודל הפשוט, כלומר פחות מ-500.' 
+  }
+];
+
+let state = { name: '', email: '', currentQ: 0, answers: new Array(20).fill(null), skipsUsed: 0, maxSkips: 8, answered: false };
+
+function showScreen(id) {
+  ['welcome-screen', 'formulas-screen', 'quiz-screen', 'finish-screen'].forEach(s => {
+    document.getElementById(s).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function handleStart() {
+  const name = document.getElementById('student-name').value.trim();
+  const email = document.getElementById('student-email').value.trim();
+  if (!name || !email) {
+    document.getElementById('form-error').textContent = '⚠️ נא למלא את כל השדות';
+    document.getElementById('form-error').classList.remove('hidden');
+    return;
+  }
+  state.name = name;
+  state.email = email;
+  renderFormulas();
+  showScreen('formulas-screen');
+}
+
+function renderFormulas() {
+  document.getElementById('formulas-list').innerHTML = formulas.map((f, i) => `
+    <div class="formula-box p-5 rounded-xl">
+      <h3 class="font-bold">${i + 1}. ${f.title}</h3>
+      <div class="text-xl font-mono font-bold text-amber-800 my-2" dir="ltr" style="text-align: right;">${f.formula}</div>
+    </div>
+  `).join('');
+}
+
+function startQuiz() {
+  showScreen('quiz-screen');
+  document.getElementById('student-greeting').textContent = '👋 שלום ' + state.name;
+  renderQuestion();
+}
+
+function updateLiveScore() {
+  let wrongCount = 0;
+  let skipCount = 0;
+  state.answers.forEach(a => {
+    if (a === 'wrong') wrongCount++;
+    else if (a === 'skipped') skipCount++;
+  });
+  const liveScore = 100 - (skipCount * 5) - (wrongCount * 5);
+  document.getElementById('current-score').textContent = liveScore;
+}
+
+function renderDots() {
+  const dotsContainer = document.getElementById('dots-container');
+  dotsContainer.innerHTML = questions.map((_, idx) => {
+    let status = '';
+    if (idx === state.currentQ) {
+      status = 'current';
+    } else if (state.answers[idx] === 'correct') {
+      status = 'correct';
+    } else if (state.answers[idx] === 'wrong') {
+      status = 'wrong';
+    } else if (state.answers[idx] === 'skipped') {
+      status = 'skipped';
+    }
+    return `<div class="q-dot ${status}"></div>`;
+  }).join('');
+}
+
+function renderQuestion() {
+  const q = questions[state.currentQ];
+  state.answered = false;
+  document.getElementById('q-current').textContent = state.currentQ + 1;
+  document.getElementById('q-topic').textContent = q.topic;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('progress-bar').style.width = ((state.currentQ + 1) / 20 * 100) + '%';
+  document.getElementById('skips-left').textContent = state.maxSkips - state.skipsUsed;
+  document.getElementById('hint-container').classList.add('hidden');
+  document.getElementById('answer-container').classList.add('hidden');
+  document.getElementById('feedback-container').classList.add('hidden');
+  document.getElementById('next-btn').classList.add('hidden');
+  document.getElementById('skip-btn').classList.remove('hidden');
+  document.getElementById('hint-btn').disabled = false;
+  document.getElementById('answer-btn').disabled = false;
+  document.getElementById('skip-btn').disabled = state.skipsUsed >= state.maxSkips;
+  document.getElementById('hint-text').textContent = q.hint;
+  document.getElementById('answer-text').innerHTML = '<div class="step-box">' + q.answer + '</div>';
+
+  updateLiveScore();
+  renderDots();
+
+  const letters = ['א', 'ב', 'ג', 'ד'];
+  document.getElementById('options-container').innerHTML = q.options.map((opt, i) => `
+    <button type="button" class="option-btn w-full text-right p-4 rounded-xl bg-white flex items-center gap-4" onclick="selectAnswer(${i})">
+      <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold">${letters[i]}</div>
+      <div class="flex-1">${opt}</div>
+    </button>
+  `).join('');
+}
+
+function selectAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = questions[state.currentQ];
+  const btns = document.querySelectorAll('#options-container button');
+  btns.forEach(b => b.disabled = true);
+  btns[q.correct].classList.add('option-correct');
+  
+  if (idx === q.correct) {
+    state.answers[state.currentQ] = 'correct';
+    document.getElementById('feedback-container').innerHTML = `
+      <div class="bg-green-50 border-2 border-green-500 p-4 rounded-xl flex flex-col md:flex-row items-center gap-4 fade-in">
+        <img src="dr_tzaban_correct.png" class="w-24 h-24 rounded-full border-4 border-green-400 shadow-md object-cover" alt="ד״ר צבאן מרוצה">
+        <div class="text-center md:text-right">
+          <p class="font-bold text-green-800 text-lg">🎉 ד"ר צבאן אומר: נכון מאוד! כל הכבוד!</p>
+          <p class="text-sm text-green-700 mt-1">ביצוע מעולה של הניתוח המקרו-כלכלי. הציון נשמר!</p>
+        </div>
+      </div>
+    `;
+  } else {
+    state.answers[state.currentQ] = 'wrong';
+    btns[idx].classList.add('option-wrong');
+    document.getElementById('feedback-container').innerHTML = `
+      <div class="bg-red-50 border-2 border-red-500 p-4 rounded-xl flex flex-col md:flex-row items-center gap-4 fade-in">
+        <img src="dr_tzaban_wrong.png" class="w-24 h-24 rounded-full border-4 border-red-400 shadow-md object-cover" alt="ד״ר צבאן כועס">
+        <div class="text-center md:text-right">
+          <p class="font-bold text-red-800 text-lg">🤬 ד"ר צבאן צועק: שגוי לחלוטין! הלך התוצר!</p>
+          <p class="text-sm text-red-700 mt-1">מה זה הניתוח הזה?! ירדו 5 נקודות מהציון המקסימלי.</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  updateLiveScore();
+  renderDots();
+  document.getElementById('feedback-container').classList.remove('hidden');
+  document.getElementById('next-btn').classList.remove('hidden');
+  document.getElementById('skip-btn').classList.add('hidden');
+}
+
+function showHint() {
+  document.getElementById('hint-container').classList.remove('hidden');
+  document.getElementById('hint-btn').disabled = true;
+}
+
+function showAnswer() {
+  document.getElementById('answer-container').classList.remove('hidden');
+  document.getElementById('answer-btn').disabled = true;
+}
+
+function doSkipQuestion() {
+  console.log('SKIP BUTTON CLICKED');
+  console.log('state.answered:', state.answered);
+  console.log('state.skipsUsed:', state.skipsUsed);
+  
+  if (state.answered) {
+    alert('כבר ענית! לחץ "המשך"');
+    return;
+  }
+  
+  if (state.skipsUsed >= state.maxSkips) {
+    alert('נגמרו הדילוגים!');
+    return;
+  }
+  
+  if (!confirm('דילוג יפחית את מלוא הניקוד. להמשיך?')) {
+    return;
+  }
+  
+  console.log('SKIPPING QUESTION');
+  state.skipsUsed++;
+  state.answers[state.currentQ] = 'skipped';
+  state.answered = true;
+  
+  updateLiveScore();
+  
+  if (state.currentQ < 19) {
+    state.currentQ++;
+    renderQuestion();
+    window.scrollTo(0, 0);
+  } else {
+    finishQuiz();
+  }
+}
+
+function nextQuestion() {
+  if (state.currentQ < 19) {
+    state.currentQ++;
+    renderQuestion();
+    window.scrollTo(0, 0);
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  showScreen('finish-screen');
+  let correct = 0, wrong = 0, skip = 0;
+  state.answers.forEach(a => {
+    if (a === 'correct') correct++;
+    else if (a === 'wrong') wrong++;
+    else if (a === 'skipped') skip++;
+  });
+  const score = Math.round(correct * 5);
+  document.getElementById('final-score').textContent = score;
+  
+  if (score >= 60) {
+    document.getElementById('result-title').textContent = 'כל הכבוד!';
+    document.getElementById('certificate-section').classList.remove('hidden');
+  } else {
+    document.getElementById('result-title').textContent = 'נסה שוב';
+    document.getElementById('fail-section').classList.remove('hidden');
+  }
+}
+
+function downloadCertificate() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const score = document.getElementById('final-score').textContent;
+  
+  doc.setFillColor(255, 251, 235);
+  doc.rect(0, 0, 297, 210, 'F');
+  doc.setDrawColor(180, 83, 9);
+  doc.setLineWidth(1.5);
+  doc.rect(15, 15, 267, 180);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(38);
+  doc.text('Certificate of Completion', 148.5, 40, { align: 'center' });
+  doc.setFontSize(28);
+  doc.text(state.name, 148.5, 75, { align: 'center' });
+  doc.setFontSize(18);
+  doc.text('Final Grade: ' + score + '/100', 148.5, 148, { align: 'center' });
+  doc.setFontSize(16);
+  doc.text('Dr. Shay Tzaban', 148.5, 185, { align: 'center' });
+  
+  doc.save('Certificate_' + state.name.replace(/\s+/g, '_') + '.pdf');
+}
+
+console.log('Script loaded');
+</script>
+</body>
+</html>

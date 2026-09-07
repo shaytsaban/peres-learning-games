@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אקדמיית צבאן — IAS 8 ו‑IAS 10 | מערכת למידה לרואי חשבון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#1e293b; --primary-light:#475569;
+  --teal:#0f766e;    --amber:#d97706;
+  --red:#991b1b;     --danger:#b91c1c;
+  --success:#0f766e; --bg:#f4f4f5;
+  --card:#ffffff;    --border:#e4e4e7;
+  --shadow:0 10px 30px -10px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:#18181b;line-height:1.85;overflow-x:hidden}
+
+/* ─── ONBOARDING ──────────────────────────────── */
+#onboarding{
+  position:fixed;inset:0;
+  background:radial-gradient(circle at 40% 30%,#1e3a5f,#0f172a);
+  z-index:1000;display:flex;justify-content:center;align-items:center;
+  padding:20px;overflow-y:auto;color:#fff;
+}
+.ob-card{
+  background:rgba(255,255,255,.04);backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.10);border-radius:24px;
+  padding:44px 40px;width:100%;max-width:620px;text-align:center;
+  box-shadow:0 30px 70px rgba(0,0,0,.6);
+}
+.ob-card h1{font-family:'Frank Ruhl Libre',serif;font-size:2.8rem;color:var(--amber);margin-bottom:8px}
+.ob-card .sub{color:#94a3b8;margin-bottom:28px;font-size:1.05rem}
+.inp-g{margin-bottom:18px;text-align:right}
+.inp-g label{display:block;font-weight:600;color:#e2e8f0;margin-bottom:6px}
+.inp-g input{width:100%;padding:13px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.28);color:#fff;font-size:1rem;font-family:'Heebo',sans-serif}
+.inp-g input:focus{outline:2px solid var(--amber);border-color:transparent}
+.track-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+@media(max-width:580px){.track-grid{grid-template-columns:1fr}}
+.track-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:22px 16px;cursor:pointer;transition:all .2s}
+.track-card:hover{background:var(--teal);border-color:#fff;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.track-card h3{font-family:'Frank Ruhl Libre',serif;font-size:1.4rem;color:var(--amber);margin-bottom:6px}
+.track-card p{font-size:.9rem;color:#cbd5e1}
+
+/* ─── TOP BAR ──────────────────────────────────── */
+.top-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--primary);color:#fff;
+  padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
+  box-shadow:var(--shadow);
+}
+.logo{font-family:'Frank Ruhl Libre',serif;font-size:1.55rem;font-weight:900;color:var(--amber)}
+.stats{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.stat-pill{background:rgba(255,255,255,.09);padding:5px 13px;border-radius:99px;font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.hint-btn{cursor:pointer;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:4px;padding:2px 8px;font-size:.8rem;margin-right:6px}
+.hint-btn:hover{background:rgba(255,255,255,.15)}
+.nav-sel{background:var(--bg);color:#18181b;border:1px solid var(--border);padding:7px 11px;border-radius:8px;font-weight:600;cursor:pointer;max-width:240px;font-family:'Heebo',sans-serif}
+.reset-btn{background:var(--danger);color:#fff;border:none;padding:7px 13px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Heebo',sans-serif}
+
+/* ─── ASSISTANT ─────────────────────────────────── */
+.avatar{
+  position:fixed;bottom:28px;left:28px;width:90px;height:90px;
+  border-radius:50%;border:3px solid var(--amber);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  cursor:grab;z-index:500;
+  background:url('./avatar.png') center/cover;
+  transition:transform .15s;
+}
+.avatar:active{cursor:grabbing;transform:scale(.94)}
+.dlg{
+  position:fixed;bottom:130px;left:28px;width:310px;
+  background:#fff;border-radius:14px;padding:18px;
+  box-shadow:0 15px 40px rgba(0,0,0,.18);border:1px solid var(--border);
+  z-index:500;display:none;
+}
+.dlg::after{
+  content:'';position:absolute;bottom:-9px;left:34px;
+  border:9px solid transparent;border-top-color:#fff;
+}
+.dlg p{font-size:.95rem;margin-bottom:10px;line-height:1.5}
+.dlg-close{float:left;background:var(--primary-light);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.82rem;font-weight:700;cursor:pointer}
+
+/* ─── MAIN LAYOUT ───────────────────────────────── */
+.wrap{max-width:980px;margin:36px auto 120px;padding:0 22px}
+.slide{display:none;animation:fadeIn .35s ease}
+.slide.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.card{background:var(--card);border-radius:20px;padding:42px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:28px}
+.card h2{font-family:'Frank Ruhl Libre',serif;font-size:2.15rem;color:var(--primary);margin-bottom:18px;border-bottom:2px solid var(--amber);padding-bottom:10px}
+.card h3{font-family:'Frank Ruhl Libre',serif;font-size:1.4rem;color:#1e293b;margin:26px 0 10px}
+.card p{margin-bottom:13px}
+.kicker{color:var(--amber);font-weight:800;text-transform:uppercase;font-size:.83rem;letter-spacing:.1em;margin-bottom:6px}
+.card ul,.card ol{margin:10px 0 16px;padding-right:22px}
+.card li{margin:5px 0}
+
+/* Callout / Quote */
+.qblock{background:#f1f5f9;border-right:4px solid var(--teal);padding:16px 20px;border-radius:6px;margin:16px 0;font-size:.96rem;line-height:1.7}
+.qblock strong{color:#0f4c40}
+.callout{border:1px solid var(--border);background:#fff;border-radius:12px;padding:16px 20px;margin:16px 0;box-shadow:var(--shadow)}
+.callout.tip{border-right:5px solid var(--amber)}
+.callout.trap{border-right:5px solid var(--red)}
+.callout.key{border-right:5px solid var(--teal)}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);font-size:.95rem}
+.tbl th,.tbl td{padding:13px 16px;border-bottom:1px solid var(--border);text-align:right;vertical-align:top}
+.tbl th{background:var(--primary);color:#fff;font-weight:700}
+.tbl tr:last-child td{border-bottom:none}
+.tbl-z tr:nth-child(even) td{background:#f8fafc}
+
+/* Flowchart */
+.flow{display:flex;flex-direction:column;align-items:center;gap:18px;margin:26px 0}
+.flow-q{background:var(--primary);color:#fff;border-radius:12px;padding:14px 22px;text-align:center;font-weight:700;max-width:520px;cursor:pointer;transition:opacity .2s}
+.flow-q:hover{opacity:.9}
+.flow-n{background:var(--bg);border:2px solid var(--teal);border-radius:10px;padding:13px 20px;text-align:center;font-weight:600;max-width:520px;cursor:pointer;transition:all .18s}
+.flow-n:hover{background:#e6fffa;transform:translateY(-2px)}
+.flow-arr{width:2px;height:22px;background:var(--teal)}
+.flow-arms{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;width:100%}
+.flow-arm{flex:1;min-width:220px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.flow-label{font-size:.78rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.leaf{padding:12px 18px;border-radius:10px;color:#fff;font-weight:700;text-align:center;width:100%;font-size:.93rem}
+.leaf.g{background:var(--success)}.leaf.r{background:var(--red)}.leaf.b{background:#2563eb}.leaf.a{background:var(--amber)}
+.flow-info{margin-top:14px;background:#e6fffa;border:1px solid var(--teal);border-radius:10px;padding:14px;font-weight:600;display:none;text-align:center}
+
+/* Q&A interactive */
+.qa-box{background:#faf8f5;border-right:6px solid var(--amber);padding:24px;border-radius:12px;margin-top:22px}
+.qa-box p{margin-bottom:6px}
+.opts{display:flex;flex-direction:column;gap:11px;margin-top:16px}
+.opt{background:#fff;border:2px solid var(--border);padding:14px 20px;border-radius:10px;text-align:right;font-size:1rem;font-weight:600;cursor:pointer;transition:all .18s;font-family:'Heebo',sans-serif;width:100%}
+.opt:hover:not([disabled]){border-color:var(--teal);background:#f0fdfa}
+.opt.correct{border-color:var(--success)!important;background:#f0fdf4;color:#115e59}
+.opt.wrong{border-color:var(--danger)!important;background:#fef2f2;color:#991b1b}
+.fb{margin-top:16px;padding:15px 18px;border-radius:10px;display:none;line-height:1.6;font-size:.97rem}
+.fb.ok{background:#f0fdf4;border:1px solid var(--success);color:#115e59;display:block}
+.fb.err{background:#fef2f2;border:1px solid var(--danger);color:#991b1b;display:block}
+
+/* Exam */
+.submit-exam{width:100%;margin-top:28px;padding:15px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--teal),#0d9488);color:#fff;font-size:1.1rem;font-weight:800;cursor:pointer;font-family:'Heebo',sans-serif;box-shadow:0 4px 15px rgba(13,148,136,.35);transition:transform .18s}
+.submit-exam:hover{transform:translateY(-2px)}
+
+/* Nav */
+.nav-row{display:flex;justify-content:space-between;margin-top:28px}
+.nav-btn{padding:12px 26px;border-radius:10px;font-weight:700;cursor:pointer;border:none;font-size:1rem;font-family:'Heebo',sans-serif;transition:opacity .18s}
+.nav-btn:hover{opacity:.85}
+.nav-btn.prev{background:var(--border);color:#18181b}
+.nav-btn.next{background:var(--teal);color:#fff}
+
+/* ─── GAME ───────────────────────────────────────── */
+#game-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.96);
+  z-index:2000;display:none;justify-content:center;align-items:center;
+  flex-direction:column;color:#fff;padding:20px;
+}
+.game-header{max-width:600px;text-align:center;margin-bottom:18px}
+.game-header h2{font-family:'Frank Ruhl Libre',serif;font-size:2rem;color:var(--amber);margin-bottom:8px}
+#game-canvas{display:block;border-radius:12px;border:4px solid var(--amber)}
+
+/* ─── CERTIFICATE ────────────────────────────────── */
+#cert-wrap{display:none;margin:30px auto;max-width:800px}
+.cert{background:#fff;padding:60px;border:14px double var(--primary);text-align:center;color:#1e293b;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.cert h1{font-family:'Frank Ruhl Libre',serif;font-size:2.9rem;color:var(--primary);margin-bottom:8px}
+.cert .cert-sub{font-size:1.15rem;text-transform:uppercase;letter-spacing:3px;color:var(--amber);margin-bottom:38px}
+.cert .recipient{font-size:2.2rem;font-weight:900;border-bottom:2px solid #cbd5e1;display:inline-block;padding:0 30px;margin-bottom:28px}
+.cert .body{font-size:1.1rem;max-width:580px;margin:0 auto 44px;line-height:1.9}
+.cert .grade{font-size:1.4rem;font-weight:800;color:var(--teal);margin-bottom:40px}
+.cert-sigs{display:flex;justify-content:space-around;margin-top:40px}
+.sig-name{font-family:'Frank Ruhl Libre',serif;font-style:italic;font-size:1.45rem;color:#475569;border-bottom:1px solid #cbd5e1;padding-bottom:8px;margin-bottom:5px}
+.print-btn{margin-top:36px;padding:13px 26px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Heebo',sans-serif;font-size:1rem}
+
+/* ─── PRINT ──────────────────────────────────────── */
+@media print{
+  body *{visibility:hidden}
+  #cert-wrap,#cert-wrap *{visibility:visible}
+  #cert-wrap{position:absolute;left:0;top:0;width:100%;margin:0}
+  .cert{border:none;box-shadow:none;padding:20px}
+  .print-btn,.avatar,.dlg,.top-bar,#game-overlay,#onboarding{display:none!important}
+}
+
+/* progress bar */
+.progress-bar-wrap{height:6px;background:#e2e8f0;border-radius:99px;margin-bottom:30px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:99px;transition:width .4s}
+</style>
+</head>
+<body>
+
+<!-- ═══ ONBOARDING ═══ -->
+<div id="onboarding">
+  <div class="ob-card">
+    <h1>אקדמיית צבאן</h1>
+    <p class="sub">מערכת למידה אינטראקטיבית לרואי חשבון — IAS 8 ו‑IAS 10 ברמת מועצה</p>
+    <div class="inp-g"><label for="sn">שם מלא:</label><input id="sn" type="text" placeholder="ישראל ישראלי"></div>
+    <div class="inp-g"><label for="se">כתובת אימייל:</label><input id="se" type="email" placeholder="example@email.com"></div>
+    <p style="margin-top:22px;font-weight:700;color:#e2e8f0">בחרו מסלול לימוד:</p>
+    <div class="track-grid">
+      <div class="track-card" onclick="startCourse('ias8')">
+        <h3>IAS 8</h3>
+        <p>מדיניות חשבונאית, אומדנים וטעויות</p>
+      </div>
+      <div class="track-card" onclick="startCourse('ias10')">
+        <h3>IAS 10</h3>
+        <p>אירועים לאחר תקופת הדיווח</p>
+      </div>
+      <div class="track-card" onclick="startCourse('combined')">
+        <h3>משולב</h3>
+        <p>האינטגרציה המלאה · מבחן ברמת מועצה</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PACMAN GAME ═══ -->
+<div id="game-overlay">
+  <div class="game-header">
+    <h2>🚨 אזלו המשאבים!</h2>
+    <p>עליך לנצח את מיני-משחק "פק-צבאן" כדי להמשיך ללמוד.</p>
+    <p>השתמש בחצי המקלדת לאסוף מטבעות התקינה — הימנע מרוחות הרפאים של ד"ר צבאן!</p>
+  </div>
+  <canvas id="game-canvas" width="640" height="420"></canvas>
+</div>
+
+<!-- ═══ VIRTUAL ASSISTANT ═══ -->
+<div class="avatar" id="avatar" onclick="toggleDlg()"></div>
+<div class="dlg" id="dlg">
+  <p id="dlg-text">שלום! אני ד"ר צבאן. לחצו עלי בכל עת לקבלת טיפ חשבונאי.</p>
+  <button class="dlg-close" onclick="closeDlg()">סגור</button>
+</div>
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="top-bar">
+  <div class="logo" id="logo-txt">IAS CPA Academy</div>
+  <div class="stats">
+    <div class="stat-pill">חיים: <span id="lf-disp">❤️❤️❤️</span></div>
+    <div class="stat-pill">רמזים: <span id="ht-disp">3</span> <button class="hint-btn" onclick="useHint()">השתמש</button></div>
+    <select class="nav-sel" id="nav-sel" onchange="jumpTo(this.value)"></select>
+    <button class="reset-btn" onclick="resetApp()">איפוס</button>
+  </div>
+</div>
+
+<!-- ═══ CONTENT WRAPPER ═══ -->
+<div class="wrap" id="wrap">
+  <div class="progress-bar-wrap"><div class="progress-bar" id="pbar" style="width:0%"></div></div>
+  <div id="slides-root"></div>
+  <div class="nav-row">
+    <button class="nav-btn prev" id="prev-btn" onclick="go(-1)">→ הקודם</button>
+    <button class="nav-btn next" id="next-btn" onclick="go(1)">הבא ←</button>
+  </div>
+</div>
+
+<!-- ═══ CERTIFICATE ═══ -->
+<div class="wrap" id="cert-wrap">
+  <div class="cert">
+    <h1>תעודת גמר</h1>
+    <div class="cert-sub">Certificate of Completion</div>
+    <div class="recipient" id="cert-name"></div>
+    <div class="body" id="cert-body"></div>
+    <div class="grade" id="cert-grade"></div>
+    <div class="cert-sigs">
+      <div>
+        <div class="sig-name">Dr. Shay Tzaban</div>
+        <div>ד"ר שי צבאן</div>
+        <div style="font-size:.82rem;color:#64748b">מומחה לכלכלת האושר ולתקינה חשבונאית</div>
+      </div>
+    </div>
+    <button class="print-btn" onclick="window.print()">הדפסה / שמירה כ‑PDF</button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════ */
+let studentName='', studentEmail='', track='', curSlide=0;
+let lifelines=3, hints=3, examAnswers={};
+const ADVICE=[
+  'מדיניות מיושמת למפרע; אומדן מיושם מכאן ולהבא — אל תבלבלו!',
+  'ניתן לשנות מדיניות רק כאשר התקן מחייב זאת או שהמידע הופך רלוונטי ומהימן יותר.',
+  'אירוע מחייב התאמה = נסיבות שהתקיימו לפני 31.12 שהמידע המאוחר רק מאיר אותן.',
+  'טעות מתרחשת כאשר מידע שהיה זמין בשעתו לא שומש כהלכה. זאת בניגוד לאומדן, שם מדובר במידע חדש.',
+  'הכרזת דיבידנד לאחר תקופת הדיווח לעולם אינה מהווה התחייבות ביום המאזן.',
+  'אם הנחת העסק החי קורסת בחלון הזמן — כל הדוחות מוצגים מחדש על בסיס ערכי מימוש.',
+  'תיקון טעות לעולם אינו עובר דרך דוח רווח והפסד השוטף — אלא מתקן את יתרת הפתיחה.',
+  'שינוי שיטת פחת = שינוי אומדן. שינוי מודל מדידה (עלות ↔ שווי הוגן) = שינוי מדיניות.',
+];
+
+/* ════════════════════════════════════════════════
+   CURRICULUM  — IAS 8
+════════════════════════════════════════════════ */
+const ias8Slides=[
+{k:'מבוא',t:'IAS 8 — מפת הדרכים',c:`
+<p>IAS 8 מסדיר שלוש קטגוריות המשפיעות על האופן שבו נמדד ומוצג מידע פיננסי:</p>
+<table class="tbl tbl-z"><thead><tr><th>קטגוריה</th><th>הגדרה</th><th>טיפול</th><th>מבחן המפתח</th></tr></thead>
+<tbody>
+<tr><td><strong>מדיניות חשבונאית</strong></td><td>עקרונות, בסיסים, מוסכמות וכללים ספציפיים להכנת הדוחות</td><td>למפרע (Retrospective)</td><td>האם שונה עקרון המדידה עצמו?</td></tr>
+<tr><td><strong>שינוי אומדן</strong></td><td>עדכון ערך הנובע ממידע חדש או ניסיון נוסף, לא טעות</td><td>מכאן ולהבא (Prospective)</td><td>האם הגיע מידע חדש שלא היה זמין?</td></tr>
+<tr><td><strong>תיקון טעות</strong></td><td>השמטה/מצג שגוי שנבע מאי-שימוש במידע שהיה זמין</td><td>הצגה מחדש למפרע (Restatement)</td><td>האם המידע היה זמין בזמנו?</td></tr>
+</tbody></table>
+<div class="callout key"><strong>עיקרון הזהב:</strong> השאלה תמיד היא — האם מדובר בשינוי שיטה, בהתפתחות חדשה, או בשגיאה? התשובה קובעת את אופן הטיפול לחלוטין.</div>
+`},
+{k:'חלק 1',t:'מדיניות חשבונאית — הגדרה והיררכיה',c:`
+<div class="qblock"><strong>IAS 8.5:</strong> "מדיניות חשבונאית הם העקרונות, הבסיסים, המוסכמות, הכללים והנהלים הספציפיים שישות מיישמת בהכנת דוחותיה הכספיים והצגתם."</div>
+<h3>היררכיית הבחירה (IAS 8.7, 8.10–12)</h3>
+<ol><li>יישם את התקן/פרשנות הספציפיים החלים על העסקה.</li>
+<li>בהיעדר תקן ספציפי — הפעל שיקול דעת: (א) תקנים העוסקים בנושאים דומים; (ב) הגדרות המסגרת המושגית; (ג) פרסומי גופי תקינה אחרים בעלי מסגרת דומה.</li></ol>
+<h3>מה אינו שינוי מדיניות? (IAS 8.16)</h3>
+<ul>
+<li>יישום מדיניות לגבי עסקאות <strong>שונות במהותן</strong> מאלו שהתרחשו קודם.</li>
+<li>יישום מדיניות חדשה לגבי עסקאות <strong>שלא התרחשו קודם</strong> או שהיו לא-מהותיות.</li>
+</ul>
+<div class="qa-box">
+<p><strong>שאלה אינטראקטיבית:</strong> חברה עברה מהערכת מלאי לפי FIFO לשיטת ממוצע משוקלל כדי להתאים לחברות ענף מובילות ולשפר כושר ההשוואה. כיצד יסווג שינוי זה?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! מעבר בין שיטות מלאי הוא שינוי במדיניות חשבונאית (עקרון המדידה עצמו השתנה). הטיפול — יישום למפרע עם עדכון נתוני השוואה.',1)">שינוי מדיניות חשבונאית — יישום למפרע.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. שינוי בין שיטות הערכת מלאי הוא שינוי מדיניות, לא אומדן. ה-IAS 2 מגדיר שיטות מלאי כמדיניות.',1)">שינוי אומדן — יישום מכאן ולהבא.</button>
+</div>
+<div class="fb" id="feedback-1"></div>
+</div>
+`},
+{k:'חלק 2',t:'שינוי מדיניות — מתי ואיך',c:`
+<div class="qblock"><strong>IAS 8.14 — "משוכת ההצדקה":</strong> ישות תשנה מדיניות אך ורק אם: (א) השינוי נדרש על‑ידי תקן/פרשנות, <em>או</em> (ב) השינוי יביא למידע <strong>מהימן ורלוונטי יותר</strong> בדבר עסקאות, אירועים ונסיבות.</div>
+<h3>יישום למפרע (IAS 8.19–22)</h3>
+<p>מתאימים את <strong>יתרת הפתיחה</strong> של כל רכיב הון מושפע לתקופה הקודמת המוקדמת ביותר המוצגת, כאילו המדיניות החדשה יושמה <em>מאז ומעולם</em>. גם נתוני ההשוואה מוצגים מחדש.</p>
+<h3>מגבלת מעשיוּת (IAS 8.23–25)</h3>
+<p>אם יישום למפרע אינו <em>מעשי</em> (Impracticable) — מיישמים מהמועד המוקדם ביותר האפשרי ומסבירים זאת בגילוי. <strong>בברירת מחדל במבחני מועצה — היישום מעשי.</strong></p>
+<div class="qa-box">
+<p><strong>שאלה אינטראקטיבית:</strong> חברה בנדל"ן החליטה לעבור ממודל העלות למודל השווי ההוגן לגבי נדל"ן להשקעה (IAS 40), מכיוון שהמידע הופך רלוונטי יותר למשקיעים. שווי הנדל"ן ב-31.12.2020 היה 1,500,000 ש"ח לעומת עלות בספרים של 1,000,000 ש"ח. מה ייכלל בדוחות 2021 (שנת השינוי)?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! שינוי מדיניות מיושם למפרע. יתרת הפתיחה של העודפים ב-1.1.2021 תגדל ב-500,000 ש"ח (בניכוי מס, אם רלוונטי), ונתוני ההשוואה של 2020 יוצגו מחדש לפי שווי הוגן.',2)">הגדלת עודפי פתיחה ב-500,000 ש"ח ביום 1.1.2021 (יישום למפרע של שינוי מדיניות).</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. זהו שינוי מדיניות, לא אומדן. לא מכירים ברווח בדוח רווח והפסד של 2021 — מתאימים את יתרת הפתיחה.',2)">הכרה ברווח של 500,000 ש"ח בדוח רווח והפסד של שנת 2021.</button>
+</div>
+<div class="fb" id="feedback-2"></div>
+</div>
+`},
+{k:'חלק 3',t:'שינויים באומדנים חשבונאיים',c:`
+<div class="qblock"><strong>IAS 8.36:</strong> שינוי אומדן יוכר מכאן ולהבא (Prospective). <strong>אין</strong> לשנות מספרי השוואה של תקופות קודמות. שינוי אומדן מוכר בדוח רווח והפסד של התקופה השוטפת ותקופות עתידיות מושפעות.</div>
+<h3>דוגמאות מובהקות לשינויי אומדן</h3>
+<table class="tbl"><thead><tr><th>אומדן</th><th>מה עשוי להשתנות</th></tr></thead>
+<tbody>
+<tr><td>אורך חיים שימושיים</td><td>שחיקה מהירה מהצפוי, שינוי טכנולוגי</td></tr>
+<tr><td>ערך שייר</td><td>שוק שווי הוגן חדש, מגמות שוק</td></tr>
+<tr><td>שיטת פחת</td><td>שינוי בדפוס צריכת ההטבות הכלכליות</td></tr>
+<tr><td>הפרשה לחובות מסופקים</td><td>ניסיון גבייה, שינוי בסיכון אשראי</td></tr>
+<tr><td>שווי הוגן פיננסי</td><td>מודל הערכה, שינוי נסיבות שוק</td></tr>
+</tbody></table>
+<div class="qblock"><strong>IAS 8.35 — שובר השוויון:</strong> כאשר קשה להבחין בין שינוי מדיניות לשינוי אומדן, השינוי יטופל כ<strong>שינוי אומדן</strong> (מכאן ולהבא).</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> מכונה נרכשה ב-2020 ואורך חייה השימושיים הוערך ב-10 שנים. ב-2023 (לאחר 3 שנות שימוש), לאור בלאי מהיר יותר מהצפוי, שונה אורך החיים ל-4 שנים נוספות בלבד (7 שנות סה"כ). כיצד מטפלים?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. שינוי אורך חיים שימושיים הוא שינוי אומדן (Prospective). אין לתקן פחת תקופות קודמות.',3)">תיקון למפרע של הפחת בשנים 2020–2022.</button>
+<button class="opt" onclick="chk(this,true,'מדויק! שינוי אורך חיים = שינוי אומדן. יתרת הערך בספרים נפרסת על פני 4 השנים שנותרו מ-2023 ואילך, ללא השפעה על נתוני עבר.',3)">פריסת יתרת הנכס על פני 4 השנים הנותרות — מכאן ולהבא.</button>
+</div>
+<div class="fb" id="feedback-3"></div>
+</div>
+`},
+{k:'חלק 4',t:'תיקון טעויות — Restatement',c:`
+<div class="qblock"><strong>IAS 8.41:</strong> טעויות כוללות טעויות מתמטיות, שגיאה ביישום מדיניות, היסח הדעת, פרשנות שגויה של עובדות, ותרמית — כל עוד מדובר בשימוש לרעה (או אי-שימוש) ב<strong>מידע שהיה זמין ומהימן</strong> בעת הכנת הדוחות.</div>
+<div class="qblock"><strong>IAS 8.42:</strong> ישות תתקן טעויות מהותיות של תקופה קודמת <strong>למפרע</strong> בדוחות הראשונים שאושרו לפרסום לאחר גילוין — על-ידי הצגה מחדש של נתוני ההשוואה, או הצגה מחדש של יתרות הפתיחה אם הטעות אירעה לפני התקופה הקודמת המוקדמת ביותר.</div>
+<h3>השפעת מסים על תיקון טעויות</h3>
+<p>כאשר מתקנים טעות, הרווח הנוכחי לאחר מס מושפע הפוך. למשל, אם בשנת 2020 רשמנו הוצאה פחותה ב-100,000 ש"ח (טעות), הרי שהרווח של 2020 היה מנופח ב-100,000 ש"ח. המס שנגבה היה גבוה מהנדרש ב-100,000 × שיעור המס. לכן <strong>הקטנת העודפים הפתיחה נטו ממס</strong>.</p>
+<div class="callout trap"><strong>מלכודת:</strong> תיקון טעות <em>לעולם</em> אינו עובר דרך דוח רווח והפסד השוטף. גם אם התגלה ב-2022, הוא מתוקן בעודפי הפתיחה של 2021, לא ברווח 2022.</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> בשנת 2023 התגלה שבדוחות 2021 הושמטה הוצאת פחת של 200,000 ש"ח עקב שגיאת תוכנה. שיעור המס 25%. הדוחות ל-2022 כבר פורסמו. כיצד תתוקן הטעות בדוחות 2023?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! הטעות שייכת ל-2021. בדוחות 2023, נתוני ההשוואה של 2021 יוצגו מחדש (פחת מוגדל, נכס מופחת). יתרת הפתיחה של העודפים ב-1.1.2022 תקטן ב-150,000 ש"ח (200,000 × 75%) נטו ממס.',4)">הצגה מחדש למפרע: תיקון 2021 ויתרת פתיחה עודפים 2022 מוקטנת ב-150,000 ש"ח.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. הוצאה של 200,000 ש"ח בדוח רווח והפסד 2023 היא טיפול שגוי. טעות עבר מתוקנת בנתוני ההשוואה ובעודפי הפתיחה, לא ברווח השוטף.',4)">רישום הוצאה של 200,000 ש"ח בדוח רווח והפסד של שנת 2023.</button>
+</div>
+<div class="fb" id="feedback-4"></div>
+</div>
+`},
+{k:'שאלות ברמת מועצה',t:'תרחישים מתקדמים — IAS 8',c:`
+<div class="qa-box">
+<p><strong>שאלה 1 — ממשק אומדן ומדיניות:</strong> חברה שינתה את שיטת הפחת של מכונות מקו ישר לשיטת ספרות השנים (Sum-of-Years Digits). מהו הסיווג הנכון?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. לפי IAS 8, שינוי שיטת פחת משקף שינוי בדפוס צריכת ההטבות הכלכליות — וזהו שינוי אומדן, לא מדיניות.',5)">שינוי מדיניות — יישום למפרע עם עדכון נתוני השוואה.</button>
+<button class="opt" onclick="chk(this,true,'נכון! שיטת הפחת היא אומדן לדפוס הצריכה. שינוי שיטת פחת = שינוי אומדן = מכאן ולהבא בלבד.',5)">שינוי אומדן — יישום מכאן ולהבא, ללא שינוי נתוני עבר.</button>
+</div>
+<div class="fb" id="feedback-5"></div>
+</div>
+<div class="qa-box" style="margin-top:20px">
+<p><strong>שאלה 2 — תיקון עם הפרשה ומסים:</strong> חברה גילתה שבשנת 2021 לא נרשמה הוצאה לאחריות מוצר (Warranty) בסך 500,000 ש"ח, שלפי כל הנהלים הנדרשים הייתה צריכה להיות מוכרת. מס חברות 23%. מהי ההשפעה המצטברת על יתרת עודפי הפתיחה ב-1.1.2022?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! טעות — לא נרשמה הוצאה שהייתה צריכה להיות. הרווח 2021 נופח ב-500,000. המס ששולם היה גבוה ב-115,000 (500,000 × 23%). הפחתת עודפים נטו = 500,000 - 115,000 = 385,000 ש"ח.',6)">הקטנת עודפי פתיחה 1.1.2022 ב-385,000 ש"ח (נטו ממס: 500,000 × 77%).</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. יש לקחת בחשבון את השפעת המס. ההוצאה שלא נרשמה גרמה לתשלום מס-יתר של 115,000, ולכן ההפחתה נטו היא 385,000 ש"ח.',6)">הקטנת עודפי פתיחה 1.1.2022 ב-500,000 ש"ח (ברוטו, ללא מס).</button>
+</div>
+<div class="fb" id="feedback-6"></div>
+</div>
+`},
+{k:'מבחן מסכם',t:'מבחן הסמכה — IAS 8',c:`
+<div id="exam-ias8">
+<p>ענו על 4 השאלות. ציון 60 ומעלה → תעודת גמר רשמית בחתימת ד"ר שי צבאן.</p>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 1:</strong> מעבר משיטת FIFO לממוצע משוקלל להערכת מלאי מסווג כ:</p>
+<div class="opts">
+<button class="opt" onclick="sel(0,0,this)">שינוי מדיניות חשבונאית.</button>
+<button class="opt" onclick="sel(0,1,this)">שינוי אומדן חשבונאי.</button>
+</div></div>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 2:</strong> שינוי שיטת פחת מקו ישר לספרות השנים מסווג כ:</p>
+<div class="opts">
+<button class="opt" onclick="sel(1,0,this)">שינוי מדיניות חשבונאית.</button>
+<button class="opt" onclick="sel(1,1,this)">שינוי אומדן חשבונאי.</button>
+</div></div>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 3:</strong> טעות מהותית משנה קודמת מטופלת:</p>
+<div class="opts">
+<button class="opt" onclick="sel(2,0,this)">למפרע — הצגה מחדש של נתוני ההשוואה ויתרת הפתיחה.</button>
+<button class="opt" onclick="sel(2,1,this)">מכאן ולהבא — הכרה בהשפעה ברווח השוטף.</button>
+</div></div>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 4:</strong> כאשר קשה להבחין בין שינוי מדיניות לשינוי אומדן, IAS 8 קובע כי יש לטפל בשינוי כ:</p>
+<div class="opts">
+<button class="opt" onclick="sel(3,0,this)">שינוי מדיניות (למפרע).</button>
+<button class="opt" onclick="sel(3,1,this)">שינוי אומדן (מכאן ולהבא).</button>
+</div></div>
+<button class="submit-exam" onclick="submitExam(4,[0,1,0,1],'IAS 8 — מדיניות, אומדנים וטעויות')">הגש מבחן ⟶</button>
+</div>`}
+];
+
+/* ════════════════════════════════════════════════
+   CURRICULUM  — IAS 10
+════════════════════════════════════════════════ */
+const ias10Slides=[
+{k:'מבוא',t:'IAS 10 — חלון הזמן החשבונאי',c:`
+<p>IAS 10 עוסק אך ורק באירועים המתרחשים בחלון הזמן הבא:</p>
+<div class="flow"><div class="flow-n">📅 31.12 — תום תקופת הדיווח (יום המאזן)</div><div class="flow-arr"></div>
+<div class="flow-n" style="border-color:var(--amber)">⏳ חלון הזמן: הכנת הדוחות ובדיקתם</div><div class="flow-arr"></div>
+<div class="flow-n">✅ מועד אישור הדוחות לפרסום על-ידי הדירקטוריון</div></div>
+<table class="tbl tbl-z"><thead><tr><th>סוג אירוע</th><th>הגדרה</th><th>טיפול</th></tr></thead>
+<tbody>
+<tr><td><strong>מחייב התאמה</strong></td><td>מאיר נסיבות שהתקיימו לפני 31.12</td><td>עדכון סכומי הדוחות</td></tr>
+<tr><td><strong>שאינו מחייב התאמה</strong></td><td>מעיד על נסיבות שנוצרו לאחר 31.12</td><td>גילוי בלבד בביאורים (אם מהותי)</td></tr>
+</tbody></table>
+<div class="callout key"><strong>שאלת המפתח:</strong> האם <em>הנסיבה שהולידה את האירוע</em> התקיימה לפני או אחרי 31.12? זהו הקריטריון היחיד.</div>
+`},
+{k:'חלק 1',t:'מועד האישור לפרסום (IAS 10.4–7)',c:`
+<div class="qblock"><strong>IAS 10.4–7:</strong> מועד האישור לפרסום הוא המועד שבו ההנהלה (הגוף המוסמך — בדרך כלל הדירקטוריון) מאשרת את הדוחות לפרסום. <strong>אישור האסיפה הכללית של בעלי המניות אינו מועד האישור!</strong> אירועים לאחר מועד אישור הדירקטוריון אינם כלל בתחום התקן.</div>
+<div class="callout tip"><strong>גילוי נדרש (IAS 10.17):</strong> הישות תגלה: (א) את מועד אישור הדוחות לפרסום; (ב) מי נתן את האישור.</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> הדירקטוריון אישר את הדוחות ל-31.12.2021 ביום 15.3.2022. האסיפה הכללית אישרה אותם ב-1.5.2022. אירוע חשוב אירע ב-20.4.2022. האם יש לשקפו בדוחות 2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. מועד האישור הקובע הוא 15.3.2022 (אישור הדירקטוריון). אירוע שאירע ב-20.4 הוא מחוץ לחלון הזמן של IAS 10 לגבי דוחות 2021.',1)">כן — כי האסיפה הכללית עדיין לא אישרה ב-20.4.</button>
+<button class="opt" onclick="chk(this,true,'נכון! מועד האישור הקובע הוא 15.3 (הדירקטוריון). אירועים לאחר מכן שייכים לשנת 2022 ואינם חלק מדוחות 2021.',1)">לא — האישור הרלוונטי הוא של הדירקטוריון ב-15.3, ולכן האירוע מחוץ לחלון.</button>
+</div>
+<div class="fb" id="feedback-1"></div>
+</div>
+`},
+{k:'חלק 2',t:'אירועים מחייבי התאמה (IAS 10.8–9)',c:`
+<div class="qblock"><strong>IAS 10.8:</strong> ישות תתאים את הסכומים שהוכרו בדוחותיה לשקף אירועים מחייבי התאמה שלאחר תקופת הדיווח.</div>
+<h3>חמש הדוגמאות המנויות בסעיף 10.9</h3>
+<table class="tbl"><thead><tr><th>סעיף</th><th>האירוע</th><th>ההיגיון</th></tr></thead>
+<tbody>
+<tr><td>10.9(א)</td><td>הכרעת תביעה משפטית</td><td>מאשרת מחויבות בהווה שהייתה קיימת ב-31.12</td></tr>
+<tr><td>10.9(ב)</td><td>מידע על ירידת ערך נכס (פשיטת רגל לקוח, מכירת מלאי)</td><td>מאיר NRV / ערך בר-השבה שהיה קיים ב-31.12</td></tr>
+<tr><td>10.9(ג)</td><td>קביעת עלות/תמורת נכסים שנרכשו/נמכרו לפני 31.12</td><td>מדייק את מחיר העסקה שהייתה ב-31.12</td></tr>
+<tr><td>10.9(ד)</td><td>קביעת בונוסים/השתתפות ברווחים</td><td>החובה הייתה קיימת ב-31.12 (מחויבות משתמעת)</td></tr>
+<tr><td>10.9(ה)</td><td>גילוי תרמית/טעויות</td><td>טעויות מתוקנות לפי IAS 8 למפרע</td></tr>
+</tbody></table>
+<div class="qa-box">
+<p><strong>שאלה:</strong> לקוח חשוב שהיה חייב 400,000 ש"ח ב-31.12.2021 החל לחוות קשיים כלכליים חמורים כבר בנובמבר 2021. ביום 28.1.2022, טרם אישור הדוחות, הוכרז כפושט רגל ושיעור ההחזר הצפוי עומד על 10% בלבד. מה הטיפול?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון מאוד! הקשיים הכלכליים החלו לפני 31.12 (נובמבר 2021). פשיטת הרגל בינואר מאשרת שהחוב היה פגום כבר ביום המאזן. זהו אירוע מחייב התאמה — יש לרשום הפרשה של 360,000 ש"ח (90% × 400,000).',2)">אירוע מחייב התאמה — הפרשה של 360,000 ש"ח בדוחות 31.12.2021.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. פשיטת הרגל היא תוצאה של קשיים שהחלו לפני 31.12 — ולכן זוהי נסיבה שהתקיימה ביום המאזן. נדרשת הפרשה.',2)">אינו מחייב התאמה — גילוי בלבד בביאורים כי פשיטת הרגל התרחשה ב-2022.</button>
+</div>
+<div class="fb" id="feedback-2"></div>
+</div>
+`},
+{k:'חלק 3',t:'אירועים שאינם מחייבי התאמה — גילוי בלבד',c:`
+<div class="qblock"><strong>IAS 10.10:</strong> ישות לא תתאים את הסכומים שהוכרו בדוחותיה לשקף אירועים שאינם מחייבי התאמה.</div>
+<div class="qblock"><strong>IAS 10.21–22 — גילוי:</strong> אם האירוע מהותי — גלה: (א) מהות האירוע; (ב) אומדן ההשפעה הכספית או הצהרה שאין ביכולת לאמוד.</div>
+<h3>דוגמאות מ-IAS 10.22</h3>
+<ul>
+<li>שרפה שהשמידה מתקן מרכזי לאחר תום התקופה.</li>
+<li>צירוף עסקים מהותי שנסגר לאחר תום התקופה.</li>
+<li>הפסקת פעילות (Discontinued Operations) מתוכננת.</li>
+<li>ירידה חדה בשווי ההוגן של השקעות לאחר 31.12.</li>
+<li>שינויי מס שנחקקו לאחר תום התקופה ומשפיעים על מסים נדחים.</li>
+</ul>
+<div class="callout trap"><strong>המלכודת הגדולה:</strong> <strong>שרפה</strong> שמשמידה מפעל ב-5 בינואר = נסיבה חדשה = <u>אינו מחייב התאמה</u>. לעומת זאת <strong>פשיטת רגל לקוח</strong> שהחלו קשייו בדצמבר = נסיבה ישנה = <u>מחייב התאמה</u>. ההבדל: מתי נוצרה הנסיבה!</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> ביום 12.2.2022, לאחר 31.12.2021 אך לפני אישור הדוחות, פרסמה הממשלה חוק המעלה את שיעור מס החברות מ-23% ל-26%. כיצד ישפיע הדבר על דוחות 31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. שינוי חקיקת מס שנחקק לאחר תום התקופה הוא אירוע שאינו מחייב התאמה (נסיבה חדשה). אין לעדכן את נכסי/התחייבויות המסים הנדחים ב-31.12.2021.',3)">יש לעדכן את נכסי/התחייבויות המסים הנדחים לפי שיעור המס החדש (26%).</button>
+<button class="opt" onclick="chk(this,true,'נכון! שינוי מס שנחקק לאחר 31.12 הוא אינו מחייב התאמה. המסים הנדחים נמדדים לפי שיעור המס שהיה בתוקף או שנחקק מהותית ב-31.12 (23%). ניתן גילוי בביאורים.',3)">גילוי בלבד בביאורים. המסים הנדחים נמדדים לפי שיעור 23% (בתוקף ב-31.12).</button>
+</div>
+<div class="fb" id="feedback-3"></div>
+</div>
+`},
+{k:'חלק 4',t:'עסק חי ודיבידנד — שני חריגים מרכזיים',c:`
+<div class="qblock"><strong>IAS 10.14–15 — עסק חי:</strong> ישות לא תכין את דוחותיה על בסיס עסק חי אם לאחר תקופת הדיווח ההנהלה קובעת שבכוונתה לפרק או להפסיק את פעילות הישות, או שאין חלופה. זהו <em>חריג העל</em> — שינוי בסיס ההצגה של כל הדוחות, לא רק "התאמה" של סעיף אחד.</div>
+<div class="qblock"><strong>IAS 10.12–13 — דיבידנד:</strong> "אם הוכרזו דיבידנדים לאחר תקופת הדיווח, הישות לא תכיר בהם כהתחייבות בתום תקופת הדיווח." גילוי בלבד בביאורים.</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> הדירקטוריון הכריז ב-14.2.2022 (לפני אישור הדוחות) על דיבידנד של 700,000 ש"ח לבעלי המניות. האם יש להכיר בהתחייבות במאזן ב-31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. IAS 10.12 מפורש: דיבידנד שהוכרז לאחר תקופת הדיווח אינו מהווה התחייבות ביום המאזן, מאחר שב-31.12 עדיין לא הייתה מחויבות.',4)">כן — יש להכיר ב-700,000 ש"ח כהתחייבות ב-31.12.2021.</button>
+<button class="opt" onclick="chk(this,true,'מדויק! IAS 10.12 ברור: לא מכירים בדיבידנד שהוכרז לאחר תאריך הדיווח כהתחייבות. ניתן גילוי בביאורים בלבד.',4)">לא — גילוי בלבד בביאורים, ללא רישום התחייבות.</button>
+</div>
+<div class="fb" id="feedback-4"></div>
+</div>
+`},
+{k:'שאלות ברמת מועצה',t:'תרחישים מתקדמים — IAS 10',c:`
+<div class="qa-box">
+<p><strong>שאלה 1 — מכירת מלאי לאחר 31.12:</strong> ב-31.12.2021 הוחזק מלאי בעלות של 500,000 ש"ח. ב-20.1.2022, לפני אישור הדוחות, נמכר המלאי תמורת 420,000 ש"ח בלבד — הפסד של 80,000 ש"ח — בשל ירידת ביקושים עונתית טבעית שהחלה ב-2022. כיצד יוצג המלאי ב-31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. ירידת הביקושים החלה ב-2022 — זוהי נסיבה חדשה. NRV ב-31.12 לא ירד. לכן לא נבצע הפחתה.',5)">יש להפחית את ערך המלאי ב-80,000 ש"ח ב-31.12.2021 (מחייב התאמה).</button>
+<button class="opt" onclick="chk(this,true,'נכון! ירידת ביקושים החלה ב-2022. ביום 31.12.2021 ה-NRV עדיין עלה על העלות. המכירה בינואר אינה מאירה נסיבה שהייתה ב-31.12 — היא תוצאה של נסיבה חדשה. המלאי יוצג לפי עלות.',5)">המלאי יוצג לפי עלותו של 500,000 ש"ח (אינו מחייב התאמה).</button>
+</div>
+<div class="fb" id="feedback-5"></div>
+</div>
+<div class="qa-box" style="margin-top:20px">
+<p><strong>שאלה 2 — מניות הטבה:</strong> ב-5.2.2022 (לפני אישור דוחות 2021) הוכרז על הנפקת מניות הטבה ביחס 1:2 (לכל מניה קיימת מוסף חצי מניה). כיצד יוצג הרווח למניה הבסיסי (EPS) בדוחות 2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! לפי IAS 33, מניות הטבה מחייבות חישוב EPS רטרואקטיבי (כאילו הונפקו בתחילת התקופה) לכל התקופות המוצגות — כולל נתוני ההשוואה. זהו חריג ייחודי.',6)">EPS מחושב רטרואקטיבית כאילו מניות ההטבה הונפקו בתחילת 2021 ולכל תקופות ההשוואה.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. מניות הטבה הן חריג מיוחד — בניגוד לדיבידנד רגיל, הן מחייבות חישוב מחדש רטרואקטיבי של EPS.',6)">EPS מחושב רק החל ממועד הנפקת מניות ההטבה בפברואר 2022.</button>
+</div>
+<div class="fb" id="feedback-6"></div>
+</div>
+`},
+{k:'מבחן מסכם',t:'מבחן הסמכה — IAS 10',c:`
+<div id="exam-ias10">
+<p>ענו על 4 השאלות. ציון 60 ומעלה → תעודת גמר.</p>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 1:</strong> לקוח חב 200,000 ש"ח ב-31.12. קשיים כלכליים שהחלו בנובמבר. ביום 10.1 הוכרז כפושט רגל (0% החזר). הטיפול:</p>
+<div class="opts">
+<button class="opt" onclick="sel(0,0,this)">אירוע מחייב התאמה — מחיקה מלאה ב-31.12.</button>
+<button class="opt" onclick="sel(0,1,this)">אינו מחייב התאמה — גילוי בלבד.</button>
+</div></div>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 2:</strong> דיבידנד 500,000 ש"ח שהוכרז ב-20.1.2022 לפני אישור הדוחות:</p>
+<div class="opts">
+<button class="opt" onclick="sel(1,0,this)">הכרה כהתחייבות ב-31.12.</button>
+<button class="opt" onclick="sel(1,1,this)">גילוי בלבד בביאורים.</button>
+</div></div>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 3:</strong> שרפה שהשמידה מחסן ייצור ב-8.1.2022 (לאחר 31.12.2021):</p>
+<div class="opts">
+<button class="opt" onclick="sel(2,0,this)">אירוע מחייב התאמה — מחיקת הנכסים ב-31.12.2021.</button>
+<button class="opt" onclick="sel(2,1,this)">אינו מחייב התאמה — גילוי בלבד.</button>
+</div></div>
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 4:</strong> הדירקטוריון אישר ב-10.3.2022; האסיפה הכללית אישרה ב-30.4.2022. מהו מועד האישור לפרסום?</p>
+<div class="opts">
+<button class="opt" onclick="sel(3,0,this)">30.4.2022 (אסיפה כללית).</button>
+<button class="opt" onclick="sel(3,1,this)">10.3.2022 (דירקטוריון).</button>
+</div></div>
+<button class="submit-exam" onclick="submitExam(4,[0,1,1,1],'IAS 10 — אירועים לאחר תקופת הדיווח')">הגש מבחן ⟶</button>
+</div>`}
+];
+
+/* ════════════════════════════════════════════════
+   CURRICULUM  — COMBINED (10 slides)
+════════════════════════════════════════════════ */
+const combinedSlides=[
+{k:'מבוא',t:'IAS 8 ↔ IAS 10 — מפת ממשק מלאה',c:`
+<p>שני התקנים נבחנים יחד כמעט תמיד, כי שניהם עוסקים בשאלה "מתי ולאיזו תקופה שייך מידע".</p>
+<table class="tbl tbl-z"><thead><tr><th>היבט</th><th>IAS 10</th><th>IAS 8</th></tr></thead>
+<tbody>
+<tr><td>מוקד</td><td>חלון צר: בין 31.12 לאישור הדוחות</td><td>כל תקופה: שיטת מדידה / עדכון אומדן / שגיאה</td></tr>
+<tr><td>שאלת המפתח</td><td>האם הנסיבה התקיימה לפני או אחרי 31.12?</td><td>האם מדובר בשינוי שיטה, מידע חדש, או שגיאה?</td></tr>
+<tr><td>תוצאה</td><td>התאמה / גילוי בלבד</td><td>למפרע / מכאן ולהבא / הצגה מחדש</td></tr>
+<tr><td>נקודת הממשק</td><td colspan="2">טעות המתגלה בחלון הזמן = מחייב התאמה (IAS 10.9(ה)) + הצגה מחדש (IAS 8.42)</td></tr>
+</tbody></table>
+<div class="callout key"><strong>עיקרון שמלווה את כל החומר:</strong> מהותיות (Materiality) מכריעה — גילוי וטיפול נדרשים רק כאשר ההשפעה עשויה להשפיע על החלטות משתמשים. בברירת מחדל במבחני מועצה ההשפעות מהותיות.</div>
+`},
+{k:'חלק 1',t:'חלון הזמן ועץ ההחלטה',c:`
+<p>לחצו על כל צומת בתרשים לקבלת הסבר:</p>
+<div class="flow">
+<div class="flow-q" onclick="fi('האם האירוע מתרחש בחלון הזמן (בין 31.12 לאישור הדוחות)? אירוע לאחר האישור — אינו שייך לדוחות הנוכחיים כלל.')">שלב 1: האם האירוע בתוך חלון הזמן?</div>
+<div class="flow-arr"></div>
+<div class="flow-arms">
+<div class="flow-arm">
+<span class="flow-label">לא — מחוץ לחלון</span>
+<div class="leaf b">אין השפעה על דוחות השנה</div>
+</div>
+<div class="flow-arm">
+<span class="flow-label">כן — בתוך החלון</span>
+<div class="flow-q" onclick="fi('האם המידע מאיר נסיבות שהיו קיימות לפני 31.12? אם הנסיבה ישנה — מחייב התאמה. אם נסיבה חדשה — אינו מחייב.')">שלב 2: האם הנסיבה קדמה ל-31.12?</div>
+<div class="flow-arr"></div>
+<div class="flow-arms">
+<div class="flow-arm"><span class="flow-label">כן</span><div class="leaf g">מחייב התאמה — עדכון המספרים</div></div>
+<div class="flow-arm"><span class="flow-label">לא</span><div class="leaf a">אינו מחייב — גילוי בלבד</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="flow-info" id="flow-info-1"></div>
+`},
+{k:'חלק 2',t:'אירועים מחייבי התאמה — 5 הקטגוריות',c:`
+<h3>סעיף 10.9 — דוגמאות מובהקות</h3>
+<table class="tbl"><thead><tr><th>סעיף</th><th>האירוע</th><th>הנסיבה ב-31.12</th></tr></thead>
+<tbody>
+<tr><td>10.9(א)</td><td>פסיקת תביעה המאשרת מחויבות</td><td>התביעה הוגשה / ההפרה אירעה לפני 31.12</td></tr>
+<tr><td>10.9(ב)</td><td>פשיטת רגל לקוח / מכירת מלאי</td><td>החוב ו/או ירידת ה-NRV התקיימו ב-31.12</td></tr>
+<tr><td>10.9(ג)</td><td>קביעת עלות/תמורה שנסגרה לפני 31.12</td><td>העסקה בוצעה לפני 31.12 אך הסכום נקבע אחריו</td></tr>
+<tr><td>10.9(ד)</td><td>קביעת סכום בונוס</td><td>מחויבות משתמעת הייתה קיימת ב-31.12</td></tr>
+<tr><td>10.9(ה)</td><td>גילוי תרמית / טעויות</td><td>הטעות/התרמית בוצעה לפני 31.12</td></tr>
+</tbody></table>
+<div class="qa-box">
+<p><strong>שאלה:</strong> תביעה בסך 300,000 ש"ח הוגשה נגד החברה בינואר 2022. ביום 1.3.2022 (לפני אישור הדוחות) פסק בית המשפט לטובת התובע. מה הטיפול בדוחות 2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. התביעה הוגשה בינואר 2022 — לאחר 31.12.2021. הנסיבה (ההפרה הנטענת) עשויה להיות לפני 31.12, אך אם התביעה עצמה הוגשה ב-2022, אין מחויבות בהווה ב-31.12. נדרש ניתוח מקרה-לפי-מקרה, אך אם ההפרה ב-2022 — אינו מחייב התאמה.',1)">אירוע מחייב התאמה — הכרה בהפרשה של 300,000 ש"ח בדוחות 2021.</button>
+<button class="opt" onclick="chk(this,true,'נכון! התביעה הוגשה בינואר 2022 (לאחר 31.12), ולכן ב-31.12.2021 לא הייתה מחויבות בהווה. הפסיקה בפברואר על תביעה שהוגשה ב-2022 = נסיבה חדשה = אינו מחייב התאמה. ניתן גילוי בביאורים.',1)">אינו מחייב התאמה — גילוי בביאורים. ב-31.12.2021 לא הייתה מחויבות כי התביעה הוגשה ב-2022.</button>
+</div>
+<div class="fb" id="feedback-1"></div>
+</div>
+`},
+{k:'חלק 3',t:'עסק חי — חריג העל של IAS 10',c:`
+<div class="qblock"><strong>IAS 10.14–15:</strong> כאשר הנחת העסק החי אינה נאותה עוד לאחר תקופת הדיווח, הישות לא תכין את דוחותיה על בסיס עסק חי. זהו <strong>שינוי בסיס הצגה כולל</strong> — לא רק "התאמה" של מספרים, אלא מעבר לבסיס ערכי מימוש לכל הדוחות.</div>
+<h3>הבחנה קריטית</h3>
+<table class="tbl"><thead><tr><th>תרחיש</th><th>הטיפול</th></tr></thead>
+<tbody>
+<tr><td>ירידה בתוצאות לאחר 31.12 אך העסק ממשיך לפעול</td><td>עסק חי נשמר — אולי גילוי בביאורים</td></tr>
+<tr><td>הנהלה מחליטה לפרק את החברה לאחר 31.12</td><td>מעבר לבסיס ערכי מימוש לכל הדוחות</td></tr>
+<tr><td>שרפה שמונעת פעילות לאחר 31.12, ואין חלופה</td><td>מעבר לבסיס מימוש — אם לא ניתן להמשיך</td></tr>
+</tbody></table>
+<div class="qa-box">
+<p><strong>שאלה:</strong> ביום 15.1.2022, לפני אישור הדוחות, הוצאו כל נכסי החברה למכירה כפויה על-ידי הנאמן של האג"ח שפג. הנהלת החברה הכריזה על כוונתה לפרק את החברה. כיצד יוצגו הדוחות ל-31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! כאשר הנחת העסק החי נשברת בחלון הזמן, הדוחות ל-31.12.2021 יוכנו על בסיס ערכי מימוש (ולא עלות היסטורית). זהו חריג העל של IAS 10.',2)">הדוחות יוצגו על בסיס ערכי מימוש — הנחת העסק החי נפלה.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. כאשר קורסת הנחת העסק החי בחלון הזמן, אסור להציג את הדוחות על בסיס עסק חי — גם אם הפירוק אמור להתרחש בעתיד.',2)">הדוחות יוצגו על בסיס עסק חי, עם גילוי על אי-ודאות בביאורים.</button>
+</div>
+<div class="fb" id="feedback-2"></div>
+</div>
+`},
+{k:'חלק 4',t:'שינוי מדיניות — חישוב מלא',c:`
+<h3>דוגמה מספרית — מעבר ל-FIFO</h3>
+<p>חברה עוברת ממלאי לפי ממוצע משוקלל לשיטת FIFO ב-1.1.2022. ידוע:</p>
+<ul>
+<li>מלאי ב-31.12.2020 לפי ממוצע: 500,000 ש"ח — לפי FIFO: 560,000 ש"ח</li>
+<li>מלאי ב-31.12.2021 לפי ממוצע: 620,000 ש"ח — לפי FIFO: 700,000 ש"ח</li>
+<li>שיעור מס: 25%</li>
+</ul>
+<table class="tbl"><thead><tr><th>השפעה</th><th>2020</th><th>2021</th></tr></thead>
+<tbody>
+<tr><td>הגדלת מלאי</td><td>+60,000</td><td>+80,000</td></tr>
+<tr><td>הגדלת רווח לפני מס</td><td>+60,000</td><td>+20,000 (הפרש)</td></tr>
+<tr><td>מס נוסף (25%)</td><td>-15,000</td><td>-5,000</td></tr>
+<tr><td>השפעה על עודפים (נטו)</td><td>+45,000</td><td>+15,000</td></tr>
+</tbody></table>
+<p><strong>בדוחות 2022:</strong> יתרת פתיחת עודפים 1.1.2022 מוגדלת ב-60,000 ש"ח (45,000 + 15,000 נטו); נתוני 2021 מוצגים מחדש עם מלאי FIFO.</p>
+<div class="qa-box">
+<p><strong>שאלה:</strong> חברה עברה ממודל העלות למודל השווי ההוגן לגבי נדל"ן להשקעה (שיפור כושר ההשוואה). מהי ההשפעה הצפויה על יתרת הפתיחה של ההון ב-1.1.2022 (שנת השינוי)?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! שינוי מדיניות מיושם למפרע. ההפרש בין שווי הוגן לעלות היסטורית בגין כל התקופות עד 31.12.2021 מוכר כהגדלת עודפי הפתיחה (בניכוי מסים).',3)">הגדלת עודפי פתיחה 1.1.2022 בסכום שווי ההוגן בניכוי עלות ספרים לכל תקופות העבר, נטו ממס.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. שינוי מדיניות מיושם למפרע, לא מכאן ולהבא. אין להכיר ברווח בדוח רווח והפסד 2022.',3)">הכרה ברווח שערוך בדוח רווח והפסד של 2022 (מכאן ולהבא).</button>
+</div>
+<div class="fb" id="feedback-3"></div>
+</div>
+`},
+{k:'חלק 5',t:'שינויי אומדן — חישוב מלא',c:`
+<h3>דוגמה מספרית — שינוי אורך חיים</h3>
+<p>מכונה נרכשה ב-1.1.2020 בעלות 1,000,000 ש"ח (ערך שייר 0). אורך חיים מוערך: 10 שנים. ב-1.1.2023 (לאחר 3 שנות פחת) שונה אורך החיים ל-7 שנות סה"כ (נותרות 4 שנים).</p>
+<table class="tbl"><thead><tr><th>שלב</th><th>חישוב</th><th>תוצאה</th></tr></thead>
+<tbody>
+<tr><td>פחת שנתי מקורי</td><td>1,000,000 ÷ 10</td><td>100,000 לשנה</td></tr>
+<tr><td>פחת שנצבר (2020–2022)</td><td>3 × 100,000</td><td>300,000</td></tr>
+<tr><td>ערך בספרים ב-1.1.2023</td><td>1,000,000 − 300,000</td><td>700,000</td></tr>
+<tr><td>פחת חדש (מ-2023)</td><td>700,000 ÷ 4</td><td>175,000 לשנה</td></tr>
+</tbody></table>
+<div class="callout tip"><strong>לא מתקנים</strong> את הפחת של 2020–2022 — הוא נשאר 100,000 לשנה. השינוי חל מ-2023 בלבד.</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> חברה עדכנה את הפרשתה לאחריות מוצר (Warranty) מ-3% מהמכירות ל-5% על בסיס ניסיון גבייה עדכני. האם יש לתקן שנים קודמות?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,false,'לא נכון. שינוי שיעור האחריות מבוסס על ניסיון חדש — זהו שינוי אומדן. מיושם מכאן ולהבא בלבד.',4)">כן — תיקון למפרע של ההפרשות בשנים קודמות.</button>
+<button class="opt" onclick="chk(this,true,'נכון! ניסיון גבייה עדכני = מידע חדש = שינוי אומדן = מכאן ולהבא. ההפרשה תגדל רק מהתקופה הנוכחית.',4)">לא — שינוי אומדן מיושם מכאן ולהבא בלבד.</button>
+</div>
+<div class="fb" id="feedback-4"></div>
+</div>
+`},
+{k:'חלק 6',t:'תיקון טעויות — חישוב עם מסים',c:`
+<h3>דוגמה מספרית — טעות מלאי עם השפעת מס</h3>
+<p>בדוחות שנת 2021 הוצג מלאי ביתר של 300,000 ש"ח (טעות חשבונאית). הדוחות ל-2022 בכנה. מס חברות 23%.</p>
+<table class="tbl"><thead><tr><th>אירוע</th><th>ברוטו</th><th>מס (23%)</th><th>נטו</th></tr></thead>
+<tbody>
+<tr><td>הצגת מלאי-יתר גרמה לרווח מנופח ב-2021</td><td>300,000</td><td>69,000 (מס-יתר)</td><td>231,000 עודפים-יתר</td></tr>
+<tr><td>תיקון בדוחות 2022: יתרת פתיחה עודפים 1.1.2022</td><td>−300,000</td><td>+69,000</td><td>−231,000</td></tr>
+<tr><td>נכס מס נדחה נוצר (300,000 × 23%)</td><td>—</td><td>69,000</td><td>—</td></tr>
+</tbody></table>
+<div class="callout trap"><strong>מלכודת נפוצה:</strong> השפעת המס בתיקון טעות פועלת בכיוון <em>הפוך</em> לטעות עצמה — מלאי-יתר → רווח-יתר → מס-יתר ששולם. לכן ההפחתה נטו קטנה מהברוטו.</div>
+<div class="qa-box">
+<p><strong>שאלה:</strong> בשנת 2023 התגלה שב-2020 לא נרשמה הוצאת שכר בסך 400,000 ש"ח (מס 25%). הדוחות ל-2021 ו-2022 כבר פורסמו. כיצד יוצג הדבר בדוחות 2023?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! הטעות ב-2020 מתוקנת בדוחות 2023 על-ידי הצגה מחדש: נתוני 2021 מוצגים מחדש, ויתרת פתיחת 2022 מוקטנת ב-300,000 ש"ח (400,000 × 75%). בנוסף, נוצרה זכות להחזר מס של 100,000.',5)">הצגה מחדש למפרע: נתוני 2021 ויתרת פתיחת 2022 מוקטנים ב-300,000 ש"ח נטו ממס.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. הוצאה של 400,000 ש"ח ב-2023 היא טיפול שגוי. טעות עבר מתוקנת על-ידי הצגה מחדש, לא ברווח השוטף.',5)">הכרה בהוצאה של 400,000 ש"ח בדוח רווח והפסד של שנת 2023.</button>
+</div>
+<div class="fb" id="feedback-5"></div>
+</div>
+`},
+{k:'חלק 7',t:'ממשק IAS 8 ↔ IAS 10 — נקודות המפגש',c:`
+<h3>שלושה תרחישי ממשק קריטיים</h3>
+<table class="tbl"><thead><tr><th>תרחיש</th><th>IAS 10 אומר</th><th>IAS 8 אומר</th></tr></thead>
+<tbody>
+<tr><td>טעות שמתגלה בחלון הזמן (לפני אישור)</td><td>מחייב התאמה (10.9(ה))</td><td>תקן את הדוחות ישירות לפני פרסומם — הצגה מחדש</td></tr>
+<tr><td>טעות שמתגלה לאחר פרסום הדוחות</td><td>לא בתחום IAS 10</td><td>הצגה מחדש בדוחות הבאים (נתוני השוואה)</td></tr>
+<tr><td>שינוי אומדן בחלון הזמן</td><td>אם הנסיבה ישנה — מחייב התאמה; אם חדשה — אינו</td><td>טיפול מכאן ולהבא בתקופה שבה נעשה השינוי</td></tr>
+</tbody></table>
+<div class="qa-box">
+<p><strong>שאלה — מעילה שנתגלתה בחלון הזמן:</strong> בפברואר 2022 (לפני אישור הדוחות) התגלה שעובד ביצע מעילה בקופה של 180,000 ש"ח בין יוני לדצמבר 2021. כיצד יש לטפל בדוחות 2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! המעילה התרחשה לפני 31.12.2021 (נסיבה ישנה). גילוי המעילה בפברואר הוא אירוע מחייב התאמה לפי IAS 10.9(ה). הטיפול: תיקון ישיר של דוחות 2021 לפני פרסומם על-פי כללי IAS 8 לתיקון טעויות.',6)">תיקון ישיר של דוחות 2021 לפני פרסומם: מחיקת 180,000 ש"ח והתאמת העודפים.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. המעילה שבוצעה לפני 31.12 היא נסיבה ישנה — גילוייה הוא אירוע מחייב התאמה. יש לתקן את דוחות 2021 לפני פרסומם.',6)">גילוי בביאורים בלבד, ותיקון בדוחות 2022 (מכאן ולהבא).</button>
+</div>
+<div class="fb" id="feedback-6"></div>
+</div>
+`},
+{k:'חלק 8',t:'תרחישים מתקדמים — IAS 37 ו-IFRS 15',c:`
+<div class="qa-box">
+<p><strong>שאלה 1 — מחויבות משתמעת ו-IAS 37:</strong> חברה הצהירה ב-2020 על מחויבותה לתכנית שיקום סביבתי עבור פעילות שפגעה בסביבה בין 2020 ל-2021. ב-31.12.2021 לא נרשמה כל הפרשה, בטענה שאין חוק המחייב שיקום. ב-1.2.2022 (לפני אישור הדוחות) הוחלט להתחיל בפעולות השיקום ועלות ההערכה היא 250,000 ש"ח. האם נדרשת הפרשה ב-31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! גם בהיעדר חוק, ההצהרות הפומביות וההתנהגות העקבית יצרו מחויבות משתמעת (Constructive Obligation) לפי IAS 37.10. הפעילות הפוגעת אירעה ב-2021 (ישנה) וההחלטה ב-2022 מאשרת שהמחויבות הייתה קיימת. זהו אירוע מחייב התאמה — הפרשה של 250,000 ש"ח נדרשת ב-31.12.2021.',7)">כן — הפרשה של 250,000 ש"ח ב-31.12.2021. ההצהרות הפומביות יצרו מחויבות משתמעת (IAS 37).</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. IAS 37 מכיר במחויבות משתמעת שנוצרה מהצהרות פומביות ודפוס התנהגות עקבי. לא רק חוק יכול ליצור מחויבות.',7)">לא — ללא חוק מחייב, אין מחויבות משפטית ואין הפרשה.</button>
+</div>
+<div class="fb" id="feedback-7"></div>
+</div>
+<div class="qa-box" style="margin-top:22px">
+<p><strong>שאלה 2 — IFRS 15 ו-IAS 10:</strong> חברה מכרה ציוד ב-30.12.2021 ורשמה הכנסה של 2,000,000 ש"ח. בחוזה כלולה אופציית רכש-חזרה (Call Option). ב-8.1.2022, לפני אישור הדוחות, מימשה החברה את האופציה ורכשה חזרה את הציוד. מה הטיפול?</p>
+<div class="opts">
+<button class="opt" onclick="chk(this,true,'נכון! מימוש מהיר של האופציה מאיר שב-30.12.2021 לא הועברה שליטה אמיתית (IFRS 15). זהו אירוע מחייב התאמה — יש לבטל את ההכנסה בדוחות 2021 ולהציג עסקת מימון.',8)">אירוע מחייב התאמה: ביטול ההכנסה ב-2021 — מדובר בעסקת מימון, לא מכירה.</button>
+<button class="opt" onclick="chk(this,false,'לא נכון. אופציית הרכש הייתה בחוזה ב-30.12, ומימושה המהיר ב-8.1 מוכיח שהשליטה לא הועברה. העסקה צריכה להיות מוצגת כהתחייבות פיננסית, לא כמכירה.',8)">אינו מחייב התאמה: ההכנסה ב-2021 תישאר, ורכישת הציוד ב-2022 תרשם בנפרד.</button>
+</div>
+<div class="fb" id="feedback-8"></div>
+</div>
+`},
+{k:'מבחן מסכם מורחב',t:'בחינת מועצה מסכמת — רמת מומחה',c:`
+<div id="exam-combined">
+<p>ענו על 6 השאלות המורכבות הבאות. ציון 60 ומעלה → תעודת מומחה בחתימת ד"ר שי צבאן.</p>
+
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 1:</strong> ב-15.2.2022 פסק בית המשפט פיצוי של 500,000 ש"ח נגד החברה בגין הפרת הסכם שאירעה באוגוסט 2021. בדצמבר 2021 העריכו היועצים שסיכויי התביעה "קלושים" ולא נרשמה הפרשה. הוגש ערעור במרץ 2022. מה הטיפול בדוחות 2021?</p>
+<div class="opts">
+<button class="opt" onclick="sel(0,0,this)">אין להכיר בהפרשה כלל עקב הגשת ערעור.</button>
+<button class="opt" onclick="sel(0,1,this)">להכיר בהפרשה של 500,000 ש"ח — אירוע מחייב התאמה.</button>
+</div></div>
+
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 2:</strong> טעות חישוב שגרמה להצגת מלאי ביתר של 300,000 ש"ח ב-2020 התגלתה בינואר 2022 לפני אישור דוחות 2021. מס חברות 23%. מה ההשפעה על עודפי פתיחת 1.1.2021?</p>
+<div class="opts">
+<button class="opt" onclick="sel(1,0,this)">הקטנת עודפים ב-231,000 ש"ח (300,000 × 77%, נטו ממס).</button>
+<button class="opt" onclick="sel(1,1,this)">הקטנת עודפים ב-300,000 ש"ח (ברוטו, ללא השפעת מס).</button>
+</div></div>
+
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 3:</strong> מלאי הוחזק ב-31.12.2021 בעלות 200,000 ש"ח. ב-5.1.2022 פרצה שרפה שפגמה במוצרים; ב-20.1.2022 נמכרו ב-160,000 ש"ח (הפסד 40,000). כיצד יוצג המלאי ב-31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="sel(2,0,this)">הפחתת ערך ב-40,000 ש"ח (NRV נמוך מעלות).</button>
+<button class="opt" onclick="sel(2,1,this)">לפי עלות — 200,000 ש"ח (השרפה ב-2022, אינו מחייב התאמה).</button>
+</div></div>
+
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 4:</strong> הדירקטוריון הכריז ב-20.2.2022 על דיבידנד של 800,000 ש"ח (לפני אישור דוחות 2021). הטיפול:</p>
+<div class="opts">
+<button class="opt" onclick="sel(3,0,this)">הכרה כהתחייבות ב-31.12.2021 כנגד הפחתת עודפים.</button>
+<button class="opt" onclick="sel(3,1,this)">גילוי בלבד בביאורים — אין הכרה כהתחייבות.</button>
+</div></div>
+
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 5:</strong> בינואר 2022 הוחלט לשנות את מדיניות הפחת של מכונות ממודל עלות למודל הערכה מחדש. מה ההשפעה על דוחות 31.12.2021?</p>
+<div class="opts">
+<button class="opt" onclick="sel(4,0,this)">יישום למפרע — שינוי מספרי המאזן של 2021.</button>
+<button class="opt" onclick="sel(4,1,this)">אין השפעה על 2021 — השינוי ייושם לראשונה בדוחות 2022.</button>
+</div></div>
+
+<div class="qa-box" style="margin-top:18px">
+<p><strong>שאלה 6:</strong> לקוח חב 1,000,000 ש"ח ב-31.12.2021. הקשיים הכלכליים שלו החלו ביולי 2021. ב-2.2.2022 הוכרז כפושט רגל; שיעור ההחזר הצפוי: 0%. הטיפול בדוחות 2021:</p>
+<div class="opts">
+<button class="opt" onclick="sel(5,0,this)">מחיקה מלאה של החוב ב-31.12.2021 — אירוע מחייב התאמה.</button>
+<button class="opt" onclick="sel(5,1,this)">גילוי בלבד — פשיטת הרגל הרשמית ב-2022.</button>
+</div></div>
+
+<button class="submit-exam" onclick="submitExam(6,[1,0,1,1,1,0],'IAS 8 & IAS 10 — מומחה משולב')">הגש מבחן מסכם ⟶</button>
+</div>`}
+];
+
+const TRACKS={ias8:{label:'IAS 8',slides:ias8Slides},ias10:{label:'IAS 10',slides:ias10Slides},combined:{label:'IAS 8 & 10 משולב',slides:combinedSlides}};
+
+/* ════════════════════════════════════════════════
+   CORE APP FUNCTIONS
+════════════════════════════════════════════════ */
+function startCourse(t){
+  const n=document.getElementById('sn').value.trim();
+  const e=document.getElementById('se').value.trim();
+  if(!n||!e){alert('אנא מלאו שם מלא ואימייל כדי להתחיל.');return;}
+  studentName=n; studentEmail=e; track=t;
+  localStorage.setItem('sn',n); localStorage.setItem('se',e);
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('logo-txt').textContent=TRACKS[t].label+' — אקדמיית צבאן';
+  lifelines=3; hints=3; examAnswers={};
+  buildSlides(); showSlide(0); updateStats();
+  showDlg('ברוכים הבאים! לחצו על כדי לקבל רמזים בכל שלב.');
+}
+
+function buildSlides(){
+  const root=document.getElementById('slides-root');
+  const sel=document.getElementById('nav-sel');
+  root.innerHTML=''; sel.innerHTML='';
+  TRACKS[track].slides.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='slide'+(i===0?' active':'');
+    div.id='slide-'+i;
+    div.innerHTML=`<div class="card"><div class="kicker">${s.k}</div><h2>${s.t}</h2>${s.c}</div>`;
+    root.appendChild(div);
+    const opt=document.createElement('option');
+    opt.value=i; opt.textContent=s.k+': '+s.t.substring(0,35);
+    sel.appendChild(opt);
+  });
+  examAnswers={};
+}
+
+function showSlide(i){
+  const slides=document.querySelectorAll('.slide');
+  slides.forEach(s=>s.classList.remove('active'));
+  const target=document.getElementById('slide-'+i);
+  if(target){target.classList.add('active'); window.scrollTo(0,0);}
+  curSlide=i;
+  document.getElementById('nav-sel').value=i;
+  const total=TRACKS[track].slides.length;
+  document.getElementById('prev-btn').style.visibility=i===0?'hidden':'visible';
+  document.getElementById('next-btn').style.visibility=i===total-1?'hidden':'visible';
+  const pct=Math.round((i/(total-1))*100);
+  document.getElementById('pbar').style.width=pct+'%';
+}
+
+function go(d){
+  const total=TRACKS[track].slides.length;
+  const next=curSlide+d;
+  if(next>=0&&next<total) showSlide(next);
+}
+
+function jumpTo(v){showSlide(parseInt(v));}
+
+function updateStats(){
+  document.getElementById('lf-disp').textContent='❤️'.repeat(lifelines)||(lifelines===0?'💀':'');
+  document.getElementById('ht-disp').textContent=hints;
+}
+
+function loseLife(){
+  lifelines--;
+  updateStats();
+  if(lifelines<=0&&hints<=0) startGame();
+}
+
+function useHint(){
+  if(hints<=0){showDlg('אין יותר רמזים! אם תפסיד עוד חיים, יופעל מיני-משחק.');return;}
+  hints--;
+  updateStats();
+  showDlg('רמז: '+ADVICE[Math.floor(Math.random()*ADVICE.length)]);
+}
+
+/* Q&A */
+function chk(btn,correct,explanation,id){
+  const parent=btn.closest('.opts');
+  parent.querySelectorAll('.opt').forEach(b=>{b.disabled=true;});
+  btn.classList.add(correct?'correct':'wrong');
+  const fb=document.getElementById('feedback-'+id);
+  if(fb){
+    fb.textContent=(correct?'✓ '+explanation:'✗ '+explanation);
+    fb.className='fb '+(correct?'ok':'err');
+  }
+  if(!correct) loseLife();
+}
+
+function sel(q,opt,btn){
+  examAnswers[q]=opt;
+  const parent=btn.closest('.opts');
+  parent.querySelectorAll('.opt').forEach(b=>b.style.borderColor='var(--border)');
+  btn.style.borderColor='var(--teal)';
+}
+
+function submitExam(total,correctArr,trackLabel){
+  const answered=Object.keys(examAnswers).length;
+  if(answered<total){alert('אנא ענו על כל '+total+' השאלות לפני ההגשה.');return;}
+  let correct=0;
+  for(let i=0;i<total;i++){if(examAnswers[i]===correctArr[i])correct++;}
+  const grade=Math.round((correct/total)*100);
+  if(grade>=60){
+    showCertificate(studentName,grade,trackLabel);
+  } else {
+    alert('ציונך: '+grade+'%.\nלא הגעת לרף 60% הנדרש לתעודה.\nניתן לאפס ולנסות שוב.');
+  }
+}
+
+function showCertificate(name,grade,label){
+  document.getElementById('wrap').style.display='none';
+  const cw=document.getElementById('cert-wrap');
+  cw.style.display='block';
+  document.getElementById('cert-name').textContent=name;
+  document.getElementById('cert-grade').textContent='ציון סופי: '+grade+'%';
+  document.getElementById('cert-body').innerHTML=
+    'על השלמה בהצלחה של מודול הלמידה האינטראקטיבי המקיף בנושא:<br><strong>'+label+'</strong><br>'+
+    'ועמידה במבחני הסמכה ברמת מועצת רואי החשבון בישראל.';
+}
+
+function resetApp(){localStorage.clear();location.reload();}
+
+/* Flow info */
+function fi(txt){
+  const boxes=document.querySelectorAll('.flow-info');
+  boxes.forEach(b=>{b.textContent=txt;b.style.display='block';});
+}
+
+/* ─── VIRTUAL ASSISTANT ─── */
+let isDragging=false, dragX=0;
+const av=document.getElementById('avatar');
+av.addEventListener('mousedown',e=>{isDragging=true;dragX=e.clientX-av.offsetLeft;e.preventDefault();});
+document.addEventListener('mousemove',e=>{
+  if(!isDragging)return;
+  let nx=e.clientX-dragX;
+  nx=Math.max(10,Math.min(window.innerWidth-110,nx));
+  av.style.left=nx+'px';
+  // Keep dialogue box aligned
+  const dlg=document.getElementById('dlg');
+  dlg.style.left=Math.max(10,Math.min(window.innerWidth-340,nx-10))+'px';
+});
+document.addEventListener('mouseup',()=>{isDragging=false;});
+
+function toggleDlg(){
+  const d=document.getElementById('dlg');
+  if(d.style.display==='block'){d.style.display='none';}
+  else{showDlg(ADVICE[Math.floor(Math.random()*ADVICE.length)]);}
+}
+function showDlg(t){const d=document.getElementById('dlg');document.getElementById('dlg-text').textContent=t;d.style.display='block';}
+function closeDlg(){document.getElementById('dlg').style.display='none';}
+
+/* ════════════════════════════════════════════════
+   PAC-MAN GAME
+════════════════════════════════════════════════ */
+const canvas=document.getElementById('game-canvas');
+const ctx=canvas.getContext('2d');
+let gameRunning=false,gameTimer=null;
+const ghostImg=new Image(); ghostImg.src='./avatar.png';
+let player={x:60,y:60,sz:22,spd:4};
+let ghosts=[],coins=[];
+const GHOST_TEXTS=['תלמד חשבונאות יא כלב!','חשבונאות בדם!','IAS 8 בלב!'];
+
+function startGame(){
+  document.getElementById('game-overlay').style.display='flex';
+  player.x=60;player.y=60;
+  ghosts=[
+    {x:320,y:100,vx:2.2,vy:1.1,t:GHOST_TEXTS[0]},
+    {x:450,y:260,vx:-1.8,vy:2.1,t:GHOST_TEXTS[1]},
+    {x:200,y:320,vx:2.8,vy:-1.6,t:GHOST_TEXTS[2]},
+  ];
+  coins=[];
+  for(let i=0;i<18;i++){
+    coins.push({x:40+Math.random()*(canvas.width-80),y:40+Math.random()*(canvas.height-80),r:7,alive:true});
+  }
+  gameRunning=true;
+  document.addEventListener('keydown',onKey);
+  if(gameTimer)clearInterval(gameTimer);
+  gameTimer=setInterval(gameFrame,1000/30);
+}
+
+function onKey(e){
+  if(!gameRunning)return;
+  const spd=player.spd;
+  if(e.key==='ArrowLeft'||e.key==='Left') player.x=Math.max(0,player.x-spd);
+  if(e.key==='ArrowRight'||e.key==='Right') player.x=Math.min(canvas.width-player.sz,player.x+spd);
+  if(e.key==='ArrowUp'||e.key==='Up') player.y=Math.max(0,player.y-spd);
+  if(e.key==='ArrowDown'||e.key==='Down') player.y=Math.min(canvas.height-player.sz,player.y+spd);
+}
+
+function gameFrame(){
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Coins
+  coins.forEach(c=>{
+    if(!c.alive)return;
+    ctx.fillStyle='#f59e0b';
+    ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fcd34d';
+    ctx.beginPath();ctx.arc(c.x-2,c.y-2,c.r/3,0,Math.PI*2);ctx.fill();
+    const px=player.x+player.sz/2,py=player.y+player.sz/2;
+    if(Math.hypot(px-c.x,py-c.y)<c.r+player.sz/2){c.alive=false;}
+  });
+  // Player
+  ctx.fillStyle='#14b8a6';
+  ctx.beginPath();
+  const px=player.x+player.sz/2,py=player.y+player.sz/2;
+  ctx.arc(px,py,player.sz/2,0.3,Math.PI*2-0.3);
+  ctx.lineTo(px,py);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 9px Heebo';ctx.textAlign='center';
+  ctx.fillText('IFRS',px,py+13);
+  // Ghosts
+  ghosts.forEach(g=>{
+    g.x+=g.vx; g.y+=g.vy;
+    if(g.x<0||g.x>canvas.width-40)g.vx*=-1;
+    if(g.y<0||g.y>canvas.height-40)g.vy*=-1;
+    // Draw avatar image as ghost
+    if(ghostImg.complete&&ghostImg.naturalHeight>0){
+      ctx.save();
+      ctx.beginPath();ctx.arc(g.x+20,g.y+20,20,0,Math.PI*2);ctx.clip();
+      ctx.drawImage(ghostImg,g.x,g.y,40,40);
+      ctx.restore();
+    } else {
+      ctx.fillStyle='#dc2626';
+      ctx.fillRect(g.x,g.y,40,40);
+    }
+    // Red border on ghost
+    ctx.strokeStyle='#dc2626';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(g.x+20,g.y+20,21,0,Math.PI*2);ctx.stroke();
+    // Speech bubble
+    ctx.fillStyle='rgba(0,0,0,.75)';
+    ctx.fillRect(g.x-22,g.y-24,g.t.length*6+10,18);
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Heebo';ctx.textAlign='right';
+    ctx.fillText(g.t,g.x+g.t.length*4,g.y-10);
+    // Collision
+    if(Math.abs(player.x-g.x)<35&&Math.abs(player.y-g.y)<35){
+      clearInterval(gameTimer);gameRunning=false;
+      setTimeout(()=>{alert('נפסלת על-ידי ד"ר צבאן! נסה שוב.');startGame();},100);
+    }
+  });
+  // Win check
+  if(coins.every(c=>!c.alive)){
+    clearInterval(gameTimer);gameRunning=false;
+    document.getElementById('game-overlay').style.display='none';
+    lifelines=3;hints=3;updateStats();
+    showDlg('כל הכבוד! ניצחת את ד"ר צבאן! קיבלת חיים ורמזים בחזרה.');
+  }
+}
+
+// Init on load
+window.addEventListener('load',()=>{
+  const sn=localStorage.getItem('sn');
+  if(sn){
+    document.getElementById('sn').value=sn;
+    document.getElementById('se').value=localStorage.getItem('se')||'';
+  }
+  updateStats();
+});
+</script>
+</body>
+</html>

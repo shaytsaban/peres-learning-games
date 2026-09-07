@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שומרי הנתונים: מהגדרת טבלאות ל-Tableau | משחק לימודי אקדמי מורחב</title>
+    <!-- CSS and Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Header Panel -->
+    <header>
+        <div class="logo-area">
+            <h2 class="text-gradient"><i class="fa-solid fa-graduation-cap"></i> שומרי הנתונים: מהגדרת טבלאות ל-Tableau 🎓🚀</h2>
+        </div>
+        <div class="audio-controls" style="display: flex; gap: 12px; align-items: center;">
+            <!-- Skip Lifelines Counter -->
+            <div class="lifelines-hud-display" style="background: #fff8f6; border: 1.5px solid #ff7a59; border-radius: 20px; padding: 6px 16px; font-weight: 700; font-size: 0.88rem; color: #ff7a59; display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm);">
+                🛟 גלגלי הצלה: <span id="hud-lifelines">3</span>
+            </div>
+            
+            <!-- Pac-Man Game Button -->
+            <button class="cyber-button orange pulse" id="pacman-trigger-btn" onclick="navigateToStage('3-5')" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 20px;" title="קפוץ מיידית לשלב 3.5: הפסקת פק-מן אקדמית!">
+                🎮 הפסקת פק-מן!
+            </button>
+            
+            <button class="audio-btn" id="music-toggle" title="מוזיקת רקע" onclick="toggleMusic()">
+                <i class="fa-solid fa-volume-xmark" id="music-icon"></i>
+            </button>
+            <button class="audio-btn" id="sfx-toggle" title="אפקטים קוליים" onclick="toggleMuteSFX()">
+                <i class="fa-solid fa-bell" id="sfx-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Viewport -->
+    <main class="game-viewport">
+
+        <!-- SCREEN 0: CHARACTER SETUP -->
+        <section id="setup-screen" class="setup-screen cyber-card">
+            <!-- Fireworks Canvas behind setup screen -->
+            <canvas id="setup-fireworks-canvas" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 1;"></canvas>
+            
+            <!-- Floating Accents -->
+            <div class="floating-accent fa-1" style="z-index: 2;">📁</div>
+            <div class="floating-accent fa-2" style="z-index: 2;">📊</div>
+            <div class="floating-accent fa-3" style="z-index: 2;">🎓</div>
+
+            <!-- STEP 1: WELCOME & NAME -->
+            <div id="setup-step-1" class="setup-step active" style="position: relative; z-index: 3;">
+                <h1 class="text-gradient bouncing-element" style="font-size: 2.5rem; margin-bottom: 12px; font-weight: 900;">🚀 שומרי הנתונים: המסע מתחיל! 🎮</h1>
+                
+                <div class="caricature-welcome-box" style="text-align: center; margin-bottom: 24px;">
+                    <img src="caricature.png" alt="ד״ר רמי רשקוביץ ופק-מן" style="max-width: 200px; border-radius: 16px; border: 3px solid var(--secondary); box-shadow: 0 8px 24px rgba(13, 148, 136, 0.25); animation: float 3s ease-in-out infinite;">
+                </div>
+
+                <p style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.7; font-size: 1.1rem;">
+                    היי אלופי הנתונים לעתיד! 🌟 מוכנים להרפתקה מטורפת במיוחד? 
+                    במשחק הלימודי והסופר-צבעוני הזה נלמד יחד איך להפוך למאסטרים אמיתיים ב**בינה מלאכותית (AI) 🤖** וב**אנליזה ב-Tableau 📊**! 
+                    נעצב טבלאות, ניצור נתונים \"בעלי היגיון בריא\", ונפיק דאשבורדים אמיתיים להנהלה הבכירה! 👑
+                </p>
+                
+                <div class="form-group" style="max-width: 500px; margin: 0 auto 24px auto;">
+                    <label for="player-name-input" class="form-label" style="text-align: center; display: block; font-size: 1.25rem;">✍️ מה השם שלך? (לרישום על תעודת הגמר):</label>
+                    <input type="text" id="player-name-input" class="cyber-input" placeholder="הקלד/י את שמך כאן..." autocomplete="off" style="text-align: center;">
+                </div>
+
+                <button class="cyber-button success pulse" style="width: 100%; padding: 16px; font-size: 1.2rem; border-radius: 12px;" onclick="goToSetupStep(2)">
+                    קדימה, בואו נמשיך! ➡️ <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </div>
+
+            <!-- STEP 2: CHOOSE AVATAR -->
+            <div id="setup-step-2" class="setup-step" style="display: none; position: relative; z-index: 3;">
+                <h1 class="text-gradient" style="font-size: 2.3rem; margin-bottom: 8px; font-weight: 900;">🧙‍♂️ בחר/י את אוואטר הדאטה שלך! 🔮</h1>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 1.05rem;">
+                    לכל דמות יש כוחות-על ייחודיים בעולם האנליטיקה! בחר/י את הגיבור/ה שלך:
+                </p>
+                
+                <div class="avatar-grid">
+                    <div class="avatar-option selected popup-1" onclick="selectAvatar(this, '🧙‍♂️', 'מכשף הפרומפטים', 'אשף הניסוח וההנחיות ל-AI ⚡')">
+                        <div class="avatar-icon">🧙‍♂️</div>
+                        <div class="avatar-name">מכשף הפרומפטים</div>
+                        <div class="avatar-role">הנדסת פרומפטים ואיכות נתונים ⚡</div>
+                    </div>
+                    <div class="avatar-option popup-2" onclick="selectAvatar(this, '🧪', 'אלכימאי המידע', 'בורא נתונים בעלי היגיון בריא 🧪')">
+                        <div class="avatar-icon">🧪</div>
+                        <div class="avatar-name">אלכימאי המידע</div>
+                        <div class="avatar-role">אבטחת נאותות ושלמות נתונים 🧪</div>
+                    </div>
+                    <div class="avatar-option popup-3" onclick="selectAvatar(this, '🔮', 'חוזה הדאשבורדים', 'אשף הויזואליזציה וההקשרים 📊')">
+                        <div class="avatar-icon">🔮</div>
+                        <div class="avatar-name">חוזה הדאשבורדים</div>
+                        <div class="avatar-role">ניתוח וויזואליזציה ב-Tableau 📊</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; margin-top: 24px;">
+                    <button class="cyber-button text-muted" style="width: 30%; padding: 14px;" onclick="goToSetupStep(1)">
+                        <i class="fa-solid fa-arrow-right"></i> חזרה
+                    </button>
+                    <button class="cyber-button cyan pulse" style="width: 70%; padding: 14px; font-size: 1.1rem;" onclick="goToSetupStep(3)">
+                        המשך לתדרוך המשימה! ➡️ <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: MISSION BRIEFING -->
+            <div id="setup-step-3" class="setup-step" style="display: none; position: relative; z-index: 3;">
+                <h1 class="text-gradient" style="font-size: 2.3rem; margin-bottom: 12px; font-weight: 900;">📢 תדרוך המשימה ההייטקי! 🤖</h1>
+                
+                <div class="hologram-display scroll-terminal" style="text-align: right; line-height: 1.7; margin-bottom: 24px; padding: 24px; background: rgba(99, 102, 241, 0.04); border: 2px solid var(--primary); border-radius: 16px;">
+                    <p style="color: var(--text-main); font-weight: 900; margin-bottom: 12px; font-size: 1.1rem;">
+                        🚨 קשב רב, סיינטסיט/ית נתונים צעיר/ה! הנה מפת הדרכים להצלחה:
+                    </p>
+                    <p style="font-size: 0.95rem; color: var(--text-muted);">
+                        • 📊 **שלב 1 (סכמת הנתונים)**: נבין את מבנה הטבלאות הריקות ונגלה סוד מדהים – איך **מיזוג (JOIN) לטבלה שטוחה אחת** פותר את כל בעיות החיבור ב-Tableau!
+                        <br>
+                        • 🧹 **שלב 2 (נאותות הנתונים)**: נבצע "מבחן היגיון בריא" ונרפא נתונים שבורים, שליליים ומקוטעים שנוצרו בטעות.
+                        <br>
+                        • ✍️ **שלב 3 (מחשפת הפרומפטים)**: נכתוב פרומפט מנצח שמאלץ את ה-AI לייצר לנו קובץ CSV אמיתי ומושלם להורדה, תוך הימנעות ממסיחים שבורים!
+                        <br>
+                        • 🔗 **שלב 4 (זירת הפלטפורמות)**: נכיר את הכלים המובילים ונעבור חידון הבנה קצר על חיבור קובצי אקסל ו-CSV.
+                        <br>
+                        • 📈 **שלב 5 (בניית תרשימים)**: נגרור מימדים כחולים ומדדים ירוקים כדי לבנות 5 תרשימים עוצמתיים ומדויקים!
+                        <br>
+                        • 👑 **שלב 6 (מבנה דאשבורדים)**: נמיין את התרשימים לדאשבורדים תפעוליים, טקטיים ואסטרטגיים, ונוציא תעודת Master רשמית!
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 16px;">
+                    <button class="cyber-button text-muted" style="width: 30%; padding: 14px;" onclick="goToSetupStep(2)">
+                        <i class="fa-solid fa-arrow-right"></i> חזרה
+                    </button>
+                    <button class="cyber-button success pulse-cyan" style="width: 70%; padding: 14px; font-size: 1.15rem; border-radius: 12px;" onclick="startGame()">
+                        🚀 לצאת לדרך! התחל בהכשרה האקדמית 🎮
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN GAMEPLAY CONTAINER -->
+        <section id="gameplay-area" style="display: none;">
+            
+            <!-- User HUD -->
+            <div class="hud-panel cyber-card cyan-edge" style="padding: 16px 24px; margin-bottom: 24px;">
+                <div class="user-badge">
+                    <div class="user-avatar" id="hud-avatar">🧙‍♂️</div>
+                    <div class="user-info">
+                        <div class="user-name" id="hud-name">צוער נתונים</div>
+                        <div class="user-level-title" id="hud-class">דרגה: מתחיל הפרומפטים</div>
+                    </div>
+                </div>
+                <div class="score-badge">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">ניקוד XP</div>
+                    <div style="font-size: 1.6rem; font-weight: 900; color: var(--secondary);" id="hud-score">0 XP</div>
+                </div>
+            </div>
+
+            <!-- 6-Stage Quest Map Nodes -->
+            <div class="map-node-container">
+                <div class="map-node active" id="node-1" onclick="navigateToStage(1)">
+                    <div class="node-number">01</div>
+                    <div class="node-title">סכמת הטבלאות 📁</div>
+                    <div class="node-status" id="node-status-1">פעיל ⚡</div>
+                </div>
+                <div class="map-node locked" id="node-2" onclick="navigateToStage(2)">
+                    <div class="node-number">02</div>
+                    <div class="node-title">נאותות הנתונים 🧹</div>
+                    <div class="node-status" id="node-status-2">נעול 🔒</div>
+                </div>
+                <div class="map-node locked" id="node-3" onclick="navigateToStage(3)">
+                    <div class="node-number">03</div>
+                    <div class="node-title">מחשפת הפרומפט ✍️</div>
+                    <div class="node-status" id="node-status-3">נעול 🔒</div>
+                </div>
+                <div class="map-node locked" id="node-3-5" onclick="navigateToStage('3-5')">
+                    <div class="node-number">3.5</div>
+                    <div class="node-title">הפסקת ריכוז 🎮</div>
+                    <div class="node-status" id="node-status-3-5">נעול 🔒</div>
+                </div>
+                <div class="map-node locked" id="node-4" onclick="navigateToStage(4)">
+                    <div class="node-number">04</div>
+                    <div class="node-title">זירת הפלטפורמות 🔗</div>
+                    <div class="node-status" id="node-status-4">נעול 🔒</div>
+                </div>
+                <div class="map-node locked" id="node-5" onclick="navigateToStage(5)">
+                    <div class="node-number">05</div>
+                    <div class="node-title">תרשימי Tableau 📊</div>
+                    <div class="node-status" id="node-status-5">נעול 🔒</div>
+                </div>
+                <div class="map-node locked" id="node-6" onclick="navigateToStage(6)">
+                    <div class="node-number">06</div>
+                    <div class="node-title">מבנה דאשבורדים 👑</div>
+                    <div class="node-status" id="node-status-6">נעול 🔒</div>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 1 PANEL ================= -->
+            <div id="stage-1" class="stage-panel active cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-database"></i> שלב 1: הבסיס לכל פרויקט - הגדרת סכמת הנתונים (Database Schema) 📁</h2>
+                    <span class="clean-badge" style="background: var(--primary);">פרס: +150 XP 🎉</span>
+                </div>
+                
+                <div class="theory-panel" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3><i class="fa-solid fa-circle-question"></i> למה שלב זה הכרחי לפרויקט שלכם? הסבר אקדמי מורחב 🎓</h3>
+                        <p>
+                            לפני שרצים לייצר נתונים בבינה מלאכותית, חובה לתכנן את ארכיטקטורת המידע – ה-**Schema** של בסיס הנתונים.
+                            הגדרת סכמה היא למעשה תכנון של תבניות הטבלאות הריקות והגדרת סוגי העמודות.
+                            <br><br>
+                            💡 **הסבר זהב מעשי - טבלה מלאה ושטוחה אחת (JOIN)!**
+                            <br>
+                            בעולם הנתונים והאקדמיה, נהוג לתכנן טבלאות נפרדות למניעת כפילויות (מוצרים לחוד, סניפים לחוד, מכירות לחוד).
+                            אבל, כשמגיעים לעבודה מעשית ב-**Tableau Public**, הטיפ המנצח והקל ביותר הוא לבצע **JOIN (מיזוג)** של טבלאות האם לתוך טבלת המכירות כדי ליצור **טבלה מלאה ושטוחה אחת!** 
+                            עבודה עם טבלה שטוחה אחת מרכזת את כל המימדים והמדדים במקום אחד, מונעת שגיאות קישור מורכבות ומאפשרת לייצר גרפים במהירות הבזק! ⚡ 
+                            אבל כדי לעשות זאת נכון ב-AI, עלינו להבין בדיוק אילו שדות מקשרים ביניהן.
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="database_keys_schema.png" alt="סכמת מפתחות יחסים" style="max-width: 240px; border-radius: 12px; border: 2px solid var(--primary); box-shadow: var(--shadow-sm);">
+                    </div>
+                </div>
+
+                <!-- Stage 1 Feedback alert inline -->
+                <div class="feedback-banner" id="s1-feedback"></div>
+
+
+                <h3 style="margin-bottom: 12px; color: var(--primary);"><i class="fa-solid fa-eye"></i> סכמת הטבלאות הריקות של פרויקט הקורס שלך:</h3>
+                
+                <!-- Database Schema Cards Preview -->
+                <div class="schema-grid">
+                    <div class="schema-card">
+                        <div class="schema-title">📁 טבלת מוצרים (Products)</div>
+                        <div class="schema-cols">
+                            <div class="schema-col-item"><span>מוצר_מזהה</span> <span class="schema-pk">PK</span></div>
+                            <div class="schema-col-item"><span>שם_מוצר</span> <span>Text</span></div>
+                            <div class="schema-col-item"><span>קטגוריה</span> <span>Text</span></div>
+                            <div class="schema-col-item"><span>מחיר_עלות</span> <span>Currency</span></div>
+                        </div>
+                    </div>
+                    <div class="schema-card">
+                        <div class="schema-title">📁 טבלת סניפים (Branches)</div>
+                        <div class="schema-cols">
+                            <div class="schema-col-item"><span>סניף_מזהה</span> <span class="schema-pk">PK</span></div>
+                            <div class="schema-col-item"><span>שם_עיר</span> <span>Text (Geo)</span></div>
+                            <div class="schema-col-item"><span>מחוז</span> <span>Text</span></div>
+                        </div>
+                    </div>
+                    <div class="schema-card">
+                        <div class="schema-title">📁 טבלת מכירות (Sales)</div>
+                        <div class="schema-cols">
+                            <div class="schema-col-item"><span>עסקה_מזהה</span> <span class="schema-pk">PK</span></div>
+                            <div class="schema-col-item"><span>תאריך_רכישה</span> <span>Date</span></div>
+                            <div class="schema-col-item"><span>סניף_מזהה</span> <span class="schema-fk">FK</span></div>
+                            <div class="schema-col-item"><span>מוצר_מזהה</span> <span class="schema-fk">FK</span></div>
+                            <div class="schema-col-item"><span>כמות_פריטים</span> <span>Integer</span></div>
+                            <div class="schema-col-item"><span>סה״כ_לתשלום</span> <span>Currency</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match key logic challenge -->
+                <div class="s1-matching-area">
+                    <h3 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-circle-nodes"></i> אתגר קשרי הישויות: שייך/י את המפתחות הזרים לטבלת המכירות</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+                        גרור/י את שדות המפתח הזרים (FK) או לחץ/י על התא המתאים בטבלת המכירות כדי להשלים את הסכמה העסקית!
+                    </p>
+                    
+                    <div>
+                        <div class="match-draggable" draggable="true" id="drag-prod-id" ondragstart="dragKey(event, 'מוצר_מזהה')">מוצר_מזהה (FK)</div>
+                        <div class="match-draggable" draggable="true" id="drag-branch-id" ondragstart="dragKey(event, 'סניף_מזהה')">סניף_מזהה (FK)</div>
+                    </div>
+
+                    <div class="s1-match-slots">
+                        <div class="match-slot" id="slot-branch" ondragover="allowKeyDrop(event)" ondrop="dropKey(event, 'branch')" onclick="clickKeySlot('branch')">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">מקשר לטבלת סניפים:</div>
+                            <div id="slot-branch-val" style="font-weight: 700; color: var(--secondary);">[גרור מפתח כאן]</div>
+                        </div>
+                        <div class="match-slot" id="slot-product" ondragover="allowKeyDrop(event)" ondrop="dropKey(event, 'product')" onclick="clickKeySlot('product')">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">מקשר לטבלת מוצרים:</div>
+                            <div id="slot-product-val" style="font-weight: 700; color: var(--secondary);">[גרור מפתח כאן]</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unified Navigation Bar -->
+                <div class="navigation-bar">
+                    <button class="cyber-button text-muted" style="visibility: hidden;">הקודם</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="cyber-button orange" onclick="useLifeline(1)" title="🛟 שימוש בגלגל הצלה בשלב זה: ישבץ עבורך אוטומטית את המפתחות הראשיים (PK) במקומם הנכון בסכמה ויאפשר לך לעבור לשלב 2."><i class="fa-solid fa-life-ring"></i> גלגל הצלה 🛟</button>
+                        <button class="cyber-button success" id="s1-verify-btn" onclick="verifyStage1()" disabled>אמת סכמה ועבור לטעינת נתונים <i class="fa-solid fa-angle-left"></i></button>
+                    </div>
+                    <button class="cyber-button cyan" onclick="unlockStage(2); navigateToStage(2);">דלג שלב <i class="fa-solid fa-forward-step"></i></button>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 2 PANEL ================= -->
+            <div id="stage-2" class="stage-panel cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-shield-halved"></i> שלב 2: נאותות הנתונים ומבחן ההיגיון הבריא (Data Integrity)</h2>
+                    <span class="clean-badge" style="background: var(--secondary);">פרס: +150 XP</span>
+                </div>
+
+                <div class="theory-panel" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <h3><i class="fa-solid fa-graduation-cap"></i> המשמעות העסקית: למה "היגיון בריא" בדאטה קובע החלטות ניהוליות?</h3>
+                        <p>
+                            נאותות נתונים (Data Integrity) היא התשתית לקבלת החלטות. אם בינה מלאכותית מפיקה נתוני מכירות שאין בהם "היגיון בריא" (למשל, תאריכי רכישה משנת 2035, מחיר עלות שלילי של מוצרים, או מזהי מפתחות זרים שלא קיימים בטבלאות האם) - מנהלי הארגון יסיקו מסקנות מוטעות ויפסידו כסף!
+                            עליך לנתח את טבלת המכירות שהתקבלה מה-AI ולסנן את **השורות המשובשות המפרות את נאותות המערכת**.
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="data_cleaning_guide.png" alt="מדריך ניקוי נתונים" style="max-width: 200px; border-radius: 12px; border: 2px solid var(--secondary); box-shadow: var(--shadow-sm);">
+                    </div>
+                </div>
+
+                <!-- Stage 2 Feedback banner inline -->
+                <div class="feedback-banner" id="s2-feedback"></div>
+
+                <div class="s2-tables-layout">
+                    <!-- Left: Corrupted table -->
+                    <div>
+                        <h3 style="margin-bottom: 8px; color: var(--error);"><i class="fa-solid fa-triangle-exclamation"></i> תצוגה מקדימה: פלט ה-AI המשובש (לחץ על השורות הלא הגיוניות)</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>עסקה</th>
+                                        <th>תאריך</th>
+                                        <th>סניף</th>
+                                        <th>מוצר</th>
+                                        <th>כמות</th>
+                                        <th>סה״כ (ש"ח)</th>
+                                        <th>לקוח</th>
+                                        <th>רווח (ש"ח)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="s2-corrupted-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Pure table -->
+                    <div>
+                        <h3 style="margin-bottom: 8px; color: var(--success);"><i class="fa-solid fa-circle-check"></i> יעד: טבלת מכירות בעלת "היגיון בריא" ونאותות דאטה</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>עסקה</th>
+                                        <th>תאריך</th>
+                                        <th>סניף</th>
+                                        <th>מוצר</th>
+                                        <th>כמות</th>
+                                        <th>סה״כ (ש"ח)</th>
+                                        <th>לקוח</th>
+                                        <th>רווח (ש"ח)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="s2-clean-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-bar">
+                    <button class="cyber-button" onclick="navigateToStage(1)"><i class="fa-solid fa-angle-right"></i> הקודם</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="cyber-button orange" onclick="useLifeline(2)" title="🛟 שימוש בגלגל הצלה בשלב זה: יאתר וינקה אוטומטית את כל 6 השורות המשובשות בדאטה ויכין את הטבלה לייצוא מיידי."><i class="fa-solid fa-life-ring"></i> גלגל הצלה 🛟</button>
+                        <button class="cyber-button success" id="s2-verify-btn" onclick="verifyStage2()" disabled>אמת נאותות ועבור לייצור פרומפטים <i class="fa-solid fa-angle-left"></i></button>
+                    </div>
+                    <button class="cyber-button cyan" onclick="unlockStage(3); navigateToStage(3);">דלג שלב <i class="fa-solid fa-forward-step"></i></button>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 3 PANEL ================= -->
+            <div id="stage-3" class="stage-panel cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-wand-magic-sparkles"></i> שלב 3: מחשפת הפרומפטים - נוסחת הנתונים המושלמת ✍️✨</h2>
+                    <span class="clean-badge" style="background: var(--primary);">פרס: +200 XP 🏆</span>
+                </div>
+                
+                <div class="theory-panel" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3><i class="fa-solid fa-graduation-cap"></i> כיצד ננחה את ה-AI לייצר קובץ CSV אמיתי ולא רק טקסט סתמי? 🤖</h3>
+                        <p>
+                            כדי לייצר נתוני פרויקט איכותיים, לא מספיק לבקש מה-AI "תכתוב לי כמה שורות". 
+                            פרומפט מנצח ומקצועי חייב להגדיר במפורש את **תפקיד ה-AI**, **הקשר הפרויקט והצורך בטבלה שטוחה אחת**, **סכמה מדוייקת של עמודות**, וכן **חוקי היגיון בריא** נוקשים למחירים, כמויות ותאריכים ריאליים.
+                            <br><br>
+                            🔥 **דגש קריטי: הנחיית AI להפקת קובץ פיזי!**
+                            <br>
+                            בפרומפט שלנו, נדרוש מה-AI במפורש לפלוט את הנתונים בתוך **תיבת קוד (Code Block) ייעודית בפורמט CSV נקי**, ללא הסברים מיותרים באמצע וללא שימוש בשלוש נקודות (...). 
+                            הדבר מאפשר לנו להעתיק את הקוד בקליק, לשמור אותו כקובץ פיזי בעל סיומת `.csv`, או להוריד אותו ישירות דרך מנגנון ה-Artifacts של Claude ו-Advanced Data Analysis של ChatGPT! 💾
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="prompt_forge_sparks.png" alt="ניצוצות הנדסת פרומפט" style="max-width: 220px; border-radius: 12px; border: 2px solid var(--primary); box-shadow: var(--shadow-sm);">
+                    </div>
+                </div>
+
+                <!-- Stage 3 Feedback banner inline -->
+                <div class="feedback-banner" id="s3-feedback"></div>
+
+                <div class="s3-workspace">
+                    <!-- Left: blocks -->
+                    <div class="blocks-sidebar">
+                        <h3 style="margin-bottom: 12px; color: var(--primary);"><i class="fa-solid fa-cubes"></i> רכיבי הפרומפט שלך:</h3>
+                        <div class="blocks-container" id="s3-blocks-pool">
+                            <!-- Populated dynamically by app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Right: prompt forge preview and terminal -->
+                    <div class="prompt-workspace-area">
+                        <h3 style="margin-bottom: 8px; color: var(--primary);"><i class="fa-solid fa-pen-nib"></i> הפרומפט המתגבש לבינה המלאכותית:</h3>
+                        <div class="prompt-preview-box" id="s3-prompt-preview">לחץ על הבלוקים בצד ימין כדי להרכיב את הפרומפט המנצח... ✍️</div>
+
+                        <div style="text-align: left; margin-bottom: 24px;">
+                            <button class="cyber-button orange pulse" onclick="runPromptSynthesisV2()"><i class="fa-solid fa-paper-plane"></i> שגר הנחיה לייצור קובצי CSV 🚀</button>
+                        </div>
+
+                        <!-- Terminal simulator -->
+                        <div class="ai-console-area" id="s3-console-area" style="display: none;">
+                            <div class="ai-console-header">
+                                <div class="console-dots">
+                                    <span class="console-dot red"></span>
+                                    <span class="console-dot yellow"></span>
+                                    <span class="console-dot green"></span>
+                                </div>
+                                <span>SIMULATED AI OUTPUT (CSV CODE BLOCK GENERATOR) 🤖</span>
+                            </div>
+                            <div class="ai-console-output cursor-blink" id="s3-console-output"></div>
+                            
+                            <!-- Simulated physical download section -->
+                            <div id="s3-download-container" style="display: none; padding: 20px; background: #e6f4f1; border-top: 2px solid var(--secondary); text-align: center; border-radius: 0 0 10px 10px;">
+                                <h4 style="color: var(--secondary); margin-bottom: 8px;"><i class="fa-solid fa-circle-check"></i> פלט ה-CSV נוצר בהצלחה בתוך תיבת קוד נקייה! 💾</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">ה-AI יצר קובץ מושלם המרכז את כל נתוני המכירות, הסניפים והמוצרים לטבלה שטוחה ומלאה אחת!</p>
+                                <button class="cyber-button success pulse" onclick="simulateCSVDownload()" style="box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+                                    <i class="fa-solid fa-file-csv"></i> הורד/י קובץ מכירות מוכן: sales_data.csv 📥
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-bar">
+                    <button class="cyber-button" onclick="navigateToStage(2)"><i class="fa-solid fa-angle-right"></i> הקודם</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="cyber-button orange" onclick="useLifeline(3)" title="🛟 שימוש בגלגל הצלה בשלב זה: ירכיב עבורך את הפרומפט המושלם מ-6 הבלוקים הנכונים ויריץ את ייצור ה-CSV."><i class="fa-solid fa-life-ring"></i> גלגל הצלה 🛟</button>
+                        <button class="cyber-button success" id="s3-next-action" style="display: none;" onclick="completeStage3()">המשך לשלב 3.5 🎮 <i class="fa-solid fa-angle-left"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 3.5 PANEL ================= -->
+            <div id="stage-3-5" class="stage-panel cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-gamepad"></i> שלב 3.5: הפסקת ריכוז - פק-מן אקדמי 🎮👾</h2>
+                    <span class="clean-badge" style="background: var(--warning);">פרס: +150 XP 🏆</span>
+                </div>
+
+                <div class="theory-panel secondary-edge" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3><i class="fa-solid fa-graduation-cap"></i> מדוע שילבנו פק-מן באמצע הקורס? 🎓💡</h3>
+                        <p style="font-size: 0.95rem; line-height: 1.65; color: var(--text-main);">
+                            מחקרים קוגניטיביים מראים כי <strong>הפסקות ריכוז קצרות ופעילות (Active Breaks)</strong> משפרות משמעותית את הטמעת החומר הלימודי ומחדשות את זרימת הדם למוח!
+                            לאחר שעבדנו קשה על סכמת הנתונים, טיהור הדאטה והנדסת פרומפטים מורכבת - הגיע הזמן להפוגה משעשעת.
+                            <br><br>
+                            ⚠️ <strong>חוקי האתגר המותאמים:</strong>
+                            עליך להוביל את פק-מן הסטודנט לאכול את כל <strong>פירורי הידע (הנקודות הצהובות)</strong> במבוך, תוך בריחה מהמרצה הקשוח <strong>ד"ר רמי רשקוביץ</strong> (הרוח האדומה עם המשקפיים).
+                            אם ד"ר רמי יתפוס אותך, תאבד חיים ותיאלץ להתחיל מחדש!
+                            <br><br>
+                            💡 <strong>לא מצליח לעבור?</strong> אל דאגה! יש ברשותך גלגל הצלה 🛟 שיפתור את השלב בשבילך!
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="pacman_arcade_banner.png" alt="פוסטר פק-מן אקדמי" style="max-width: 200px; border-radius: 12px; border: 2.5px solid var(--secondary); box-shadow: var(--shadow-sm);">
+                    </div>
+                </div>
+
+                <div class="feedback-banner" id="s3_5-feedback"></div>
+
+                <!-- Playable Canvas Pac-man Game Container -->
+                <div class="pacman-arcade-container" style="margin: 0 auto 30px auto; direction: ltr;">
+                    <div class="pacman-arcade-header">
+                        <h3 style="color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);"><i class="fa-solid fa-ghost"></i> DR. RAMI CHASE 👨‍🏫</h3>
+                        <p style="margin-top: 4px; color: #94a3b8; font-size: 0.85rem;">Eat all dots and run away from Rami!</p>
+                    </div>
+
+                    <!-- Game board screen wrapper -->
+                    <div class="pacman-canvas-wrapper" style="position: relative;">
+                        <!-- The Cover Screen shown before playing -->
+                        <div id="pacman-cover-screen" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                            <div style="font-size: 2.5rem; color: #fbbf24; animation: pulse 1.5s infinite; font-weight: bold; font-family: var(--font-code);">READY?</div>
+                            <p style="font-size: 0.85rem; color: #e2e8f0; margin-top: 8px; font-family: var(--font-hebrew); text-align: center; padding: 0 20px;">לחץ על הכפתור כדי להתחיל לברוח מהמרצה!</p>
+                            <button class="cyber-button success pulse" onclick="startStagePacmanGame()" style="margin-top: 15px; font-family: var(--font-hebrew); font-weight: bold;">התחל לשחק! 🎮</button>
+                        </div>
+                        
+                        <!-- The Game Over overlay screen -->
+                        <div id="pacman-gameover-screen" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(239, 68, 68, 0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                            <div style="font-size: 2.5rem; color: #ffffff; font-weight: bold; font-family: var(--font-code); text-shadow: 0 0 15px rgba(0,0,0,0.5);">GAME OVER</div>
+                            <p style="font-size: 0.9rem; color: #ffffff; margin-top: 8px; font-family: var(--font-hebrew); text-align: center; padding: 0 20px;">המרצה תפס אותך! 👨‍🏫 'חזור ללמוד!'</p>
+                            <button class="cyber-button white" onclick="startStagePacmanGame()" style="margin-top: 15px; color: #ef4444; font-family: var(--font-hebrew); font-weight: bold;">התחל מחדש 🔄</button>
+                        </div>
+
+                        <!-- The Victory overlay screen -->
+                        <div id="pacman-victory-screen" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(16, 185, 129, 0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                            <div style="font-size: 2.5rem; color: #ffffff; font-weight: bold; font-family: var(--font-code); text-shadow: 0 0 15px rgba(0,0,0,0.5);">VICTORY! 🎉</div>
+                            <p style="font-size: 0.9rem; color: #ffffff; margin-top: 8px; font-family: var(--font-hebrew); text-align: center; padding: 0 20px;">ניצחת! ברחת מרמי בהצלחה וצברת +150 XP!</p>
+                            <div style="font-size: 0.8rem; color: #e2e8f0; margin-top: 4px; font-family: var(--font-hebrew);">כעת לחץ על כפתור ההמשך בתחתית השלב</div>
+                        </div>
+
+                        <canvas id="stage-3-5-pacman-canvas" width="450" height="450"></canvas>
+                    </div>
+
+                    <!-- Scores & Lives -->
+                    <div class="arcade-status-bar" style="direction: rtl; font-family: var(--font-hebrew); margin: 15px 10px 0 10px;">
+                        <div>ניקוד: <span id="stage-pacman-score" style="color: #fbbf24; font-family: var(--font-code);">0</span></div>
+                        <div>חיים: <span id="stage-pacman-lives" style="color: #ef4444; font-family: var(--font-code);">3</span></div>
+                    </div>
+
+                    <!-- Mobile arcade pad controls -->
+                    <div class="arcade-control-pad" style="margin-top: 15px;">
+                        <div></div>
+                        <button class="arcade-pad-btn" onclick="sendPacmanDirection('up')"><i class="fa-solid fa-caret-up"></i></button>
+                        <div></div>
+                        <button class="arcade-pad-btn" onclick="sendPacmanDirection('left')"><i class="fa-solid fa-caret-left"></i></button>
+                        <button class="arcade-pad-btn" onclick="sendPacmanDirection('down')"><i class="fa-solid fa-caret-down"></i></button>
+                        <button class="arcade-pad-btn" onclick="sendPacmanDirection('right')"><i class="fa-solid fa-caret-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="navigation-bar">
+                    <button class="cyber-button" onclick="navigateToStage(3)"><i class="fa-solid fa-angle-right"></i> הקודם</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="cyber-button orange" onclick="useLifeline('3-5')" title="🛟 שימוש בגלגל הצלה בשלב זה: יעקוף את משחק הפק-מן, יביס את המרצה רמי, ויפתח בפניך את שלב 4 ללא עיכוב!"><i class="fa-solid fa-life-ring"></i> גלגל הצלה 🛟</button>
+                        <button class="cyber-button success" id="s3_5-next-action" style="display: none;" onclick="navigateToStage(4)">המשך לשלב 4 <i class="fa-solid fa-angle-left"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 4 PANEL ================= -->
+            <div id="stage-4" class="stage-panel cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-layer-group"></i> שלב 4: זירת הפלטפורמות וחיבור הנתונים ל-Tableau 🔗🤖</h2>
+                    <span class="clean-badge" style="background: var(--info);">פרס: +200 XP 🏆</span>
+                </div>
+
+                <div class="theory-panel">
+                    <h3><i class="fa-solid fa-graduation-cap"></i> בחירת הכלי הנכון לייצור הנתונים 🛠️</h3>
+                    <p>
+                        עכשיו, כשיצרנו את הפרומפט המנצח, הגיע הזמן להכיר את פלטפורמות ה-AI השונות שבהן נוכל להשתמש לייצור הנתונים. לכל כלי יש יתרונות ייחודיים שחייבים להכיר לטובת משימות ניתוח נתונים מורכבות:
+                    </p>
+                </div>
+
+                <!-- Titans Card Grid -->
+                <div class="titan-card-grid">
+                    <!-- Claude Card -->
+                    <div class="cyber-card titan-card amber-edge">
+                        <div class="titan-logo" style="color: #d97706;"><i class="fa-solid fa-brain"></i></div>
+                        <div class="titan-title">Claude (Anthropic)</div>
+                        <span class="titan-badge claude">הכי טוב להנחיות מורכבות ונאותות נתונים</span>
+                        <ul class="titan-bullets">
+                            <li><strong>Artifacts</strong> מאפשר לראות את קובצי ה-CSV שנוצרו בצורה ויזואלית ומסודרת בחלון צידי.</li>
+                            <li>מושלם להבנת מפתחות זרים ויחסי יחיד-לרבים בטבלאות.</li>
+                            <li>תמיכה מעולה בעברית נאותה ללא תקלות קידוד בייצוא.</li>
+                        </ul>
+                        <a href="https://claude.ai" target="_blank" class="external-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Claude.ai</a>
+                    </div>
+
+                    <!-- ChatGPT Card -->
+                    <div class="cyber-card titan-card green-edge">
+                        <div class="titan-logo" style="color: #10a37f;"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="titan-title">ChatGPT (OpenAI)</div>
+                        <span class="titan-badge chatgpt">הכי טוב לדפי נתונים ענקיים</span>
+                        <ul class="titan-bullets">
+                            <li><strong>Advanced Data Analysis</strong> משתמש במנוע פייתון פנימי לייצור קבצי אקסל ו-CSV ללא קיטועים.</li>
+                            <li>מסוגל לייצר 5,000+ שורות מורכבות על ידי הרצת סקריפט והורדתו כקובץ XLS.</li>
+                            <li>אפשרות לבניית **Custom GPT** ייעודי המאומן על סכמת הנתונים שלכם.</li>
+                        </ul>
+                        <a href="https://chatgpt.com" target="_blank" class="external-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> ChatGPT.com</a>
+                    </div>
+
+                    <!-- Deepseek Card -->
+                    <div class="cyber-card titan-card cyan-edge">
+                        <div class="titan-logo" style="color: #3b82f6;"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="titan-title">Deepseek</div>
+                        <span class="titan-badge deepseek">הכי מהיר לייצוא קוד CSV נקי</span>
+                        <ul class="titan-bullets">
+                            <li>מצוין לפלט מהיר של בלוקי קוד Markdown CSV מופרדים בפסיקים להעתקה מיידית.</li>
+                            <li>עלויות חינמיות ומהירות ריצה גבוהה במיוחד.</li>
+                            <li><strong>Deepseek R1</strong> מריץ שרשרת חשיבה (CoT) מורכבת לאימות הנתונים מראש.</li>
+                        </ul>
+                        <a href="https://deepseek.com" target="_blank" class="external-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Deepseek.com</a>
+                    </div>
+                </div>
+
+                <!-- NEW: 3 CSVs + AI Join Workflow Panel -->
+                <div class="theory-panel secondary-edge" style="margin-top: 24px; margin-bottom: 24px; border: 2px solid var(--secondary);">
+                    <h3 style="color: var(--secondary);"><i class="fa-solid fa-circle-nodes"></i> 💡 סוד מקצועי: עבודה עם 3 קבצי CSV ומיזוגם באמצעות AI לטבלה שטוחה אחת!</h3>
+                    <p style="font-size: 0.95rem; line-height: 1.65; color: var(--text-main);">
+                        בפרויקטים אקדמיים ומסחריים, מומלץ לייצר <strong>שלושה קבצי נתונים נפרדים (3 CSVs)</strong> דרך הבינה המלאכותית:
+                        <br>
+                        1. 📊 <strong>טבלת המכירות הראשיות (Transactions)</strong>
+                        <br>
+                        2. 📁 <strong>טבלת מפתחות המוצרים (Products)</strong>
+                        <br>
+                        3. 🏢 <strong>טבלת מפתחות הסניפים (Branches)</strong>
+                        <br><br>
+                        במקום להתאמץ ולנסות לחבר ביניהן ידנית בתוך Tableau Public, ישנו קיצור דרך גאוני ומקצועי:
+                        <strong>פשוט טענו (Upload) את שלושת הקבצים שנוצרו לתוך מנוע ה-AI</strong> (כמו ChatGPT Advanced Data Analysis או Claude), וכתבו לו פרומפט מיזוג פשוט:
+                    </p>
+                    <div style="background: #0f172a; color: #38bdf8; font-family: var(--font-code); padding: 15px; border-radius: 8px; font-size: 0.88rem; margin: 12px 0; direction: ltr; text-align: left; border-left: 4px solid var(--secondary);">
+                        "Please perform a JOIN on these 3 tables to create a single flat table. Join sales to branches on 'branch_id', and to products on 'product_id', and generate a single unified CSV file for download."
+                    </div>
+                    <p style="font-size: 0.95rem; line-height: 1.65; color: var(--text-main); margin-top: 8px;">
+                        ה-AI יפעיל מנוע פייתון פנימי, יבצע את ה-JOIN במקומכם ויפלוט לכם קובץ CSV שטוח ומלא אחד המרכז את כל המידע!
+                        טעינת <strong>טבלה שטוחה אחת (Single Flat Table)</strong> ל-Tableau Public הופכת את בניית התרשימים והדאשבורדים לקלה, מהירה ונטולת שגיאות מפתח זר לחלוטין! 🚀✨
+                    </p>
+                </div>
+
+                <!-- Step-by-Step Tableau Connect Tutorial -->
+                <div class="tableau-connect-tutorial">
+                    <h3 style="color: var(--secondary);"><i class="fa-solid fa-link"></i> מדריך אקדמי מעמיק: איך מתחילים ומחברים נתונים ב-Tableau Public 🔗📊</h3>
+                    <p style="font-size: 0.98rem; margin-top: 6px; line-height: 1.65; color: var(--text-main);">
+                        כעת, כשיש לכם את קובץ ה-CSV הפיזי שהורדתם בשלב הקודם (`sales_data.csv`), הגיע הזמן לעבור לכלי האנליטיקה המוביל בעולם - **Tableau Public**! 
+                        הורדת התוכנה היא חינמית לחלוטין. פשוט כנסו לאתר הרשמי, הירשמו, והורידו את הגרסה העדכנית למחשב שלכם. 
+                        לאחר שתפתחו את התוכנה, תראו ממשק נקי ומזמין.
+                    </p>
+                    
+                    <!-- NEW Animated Connect Simulator -->
+                    <div class="connect-simulator-card cyber-card cyan-edge" style="margin: 24px 0; padding: 24px; background: #ffffff; text-align: center;">
+                        <h4 style="color: var(--secondary); margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            ⚡ סימולטור חיבורי נתונים ב-Tableau Public (מונפש ומעוצב)
+                        </h4>
+                        <div class="connect-animation-viewport" style="display: flex; align-items: center; justify-content: center; gap: 40px; background: #f8fafc; border-radius: 12px; padding: 20px; border: 2px dashed rgba(13, 148, 136, 0.2); position: relative; min-height: 140px; overflow: hidden;">
+                            
+                            <!-- Source File: CSV -->
+                            <div class="anim-file-node" style="text-align: center; z-index: 5; animation: bounce 3s infinite ease-in-out;">
+                                <div style="font-size: 3rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">📄</div>
+                                <div style="font-family: var(--font-code); font-size: 0.78rem; font-weight: 700; background: #e6f4f1; border: 1.5px solid var(--secondary); padding: 4px 8px; border-radius: 6px; margin-top: 4px; color: var(--secondary);">sales_data.csv</div>
+                            </div>
+                            
+                            <!-- Glowing Link and arrows -->
+                            <div class="anim-link-flow" style="flex-grow: 1; height: 4px; background: linear-gradient(90deg, var(--secondary), var(--primary), var(--info)); border-radius: 2px; position: relative;">
+                                <div class="anim-sparkle" style="position: absolute; width: 12px; height: 12px; background: #ffffff; border: 2px solid var(--success); border-radius: 50%; top: -4px; left: 0; box-shadow: 0 0 10px var(--success); animation: sparkFlow 2.5s infinite linear;"></div>
+                            </div>
+                            
+                            <!-- Destination Tableau Public -->
+                            <div class="anim-tableau-node" style="text-align: center; z-index: 5;">
+                                <div style="font-size: 3rem; filter: drop-shadow(0 4px 8px rgba(99,102,241,0.25)); animation: float 3s infinite ease-in-out;">📊</div>
+                                <div style="font-family: var(--font-hebrew); font-size: 0.82rem; font-weight: 700; background: #eef2ff; border: 1.5px solid var(--primary); padding: 4px 10px; border-radius: 6px; margin-top: 4px; color: var(--primary);">טבלת המכירות (Sales)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tutorial-step-list">
+                        <div class="tut-step">
+                            <div class="tut-step-num">1</div>
+                            <h4 style="margin-bottom: 6px;">בחירת מקור החיבור 📂</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                                פתחו את Tableau Public במחשב. בתפריט **Connect** הצידי (שצבוע בכחול):
+                                בחרו ב-**Text file** אם קובץ הנתונים הוא CSV (כמו שהורדנו), או ב-**Microsoft Excel** במידה והמרתם אותו לאקסל. העלו את הקובץ.
+                            </p>
+                        </div>
+                        <div class="tut-step">
+                            <div class="tut-step-num">2</div>
+                            <h4 style="margin-bottom: 6px;">טעינת מקורות נוספים ➕</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                                אם תרצו לחבר טבלאות נפרדות, לחצו על **Add** ליד מקור הנתונים וטענו את שאר הקבצים (טבלת מוצרים וטבלת סניפים) כך שכולם יופיעו במסך ה-Data Source.
+                            </p>
+                        </div>
+                        <div class="tut-step">
+                            <div class="tut-step-num">3</div>
+                            <h4 style="margin-bottom: 6px;">יצירת ה-JOIN והמפה הלוגית 🔗</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                                גררו את טבלת המכירות למרכז. כעת גררו את טבלת המוצרים וחברו ביניהן. Tableau יבקש מכם להגדיר את השדות המשותפים: בחרו ב-**מוצר_מזהה** בשני הצדדים. עשו דבר דומה עבור סניפים עם **סניף_מזהה** ותקבלו מפה לוגית מושלמת!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Worksheet vs Dashboard Concept & Saving/Sharing Guide -->
+                    <div class="theory-panel secondary-edge" style="margin-top: 24px; margin-bottom: 0;">
+                        <h3><i class="fa-solid fa-circle-info"></i> הסבר אקדמי: מה ההבדל בין גיליון (Worksheet) לדאשבורד (Dashboard)?</h3>
+                        <p style="font-size: 0.9rem; line-height: 1.6;">
+                            • **גיליון עבודה (Worksheet)**: סביבה המיועדת לבניית תרשים בודד וסינגולרי (למשל, רק תרשים עמודות או רק מפה). בגיליון אנו מגררים מימדים ומדדים כדי ליצור את הויזואליזציה.
+                            <br>
+                            • **דאשבורד (Dashboard)**: לוח מחוונים המאחד מספר גיליונות עבודה שונים במקום אחד. מטרתו היא ליצור סיפור ויזואלי שלם (Visual Storytelling). דאשבורד מאפשר למנהלים לראות הצלבות של נתונים, וכולל מסננים אינטראקטיביים (Dashboard Action Filters) שבהם לחיצה על עיר במפה מסננת מיד את שאר הגרפים בדאשבורד!
+                            <br><br>
+                            <strong>💾 איך שומרים ומגישים את העבודה לבודק הקורס?</strong>
+                            <br>
+                            1. בתפריט העליון לחצו על **File** -> **Save to Tableau Public As...**
+                            <br>
+                            2. התחברו עם המשתמש האקדמי שלכם ותנו שם פרויקט משמעותי.
+                            <br>
+                            3. לאחר שהדאשבורד פורסם בדפדפן, לחצו על כפתור **Share** (סמל המשולש הקטן בפינה הימנית התחתונה).
+                            <br>
+                            4. העתיקו את הכתובת תחת שדה **Link** – זהו הקישור הרשמי והיחיד שאתם צריכים להגיש בפורטל הקורס לבודק המטלות שלכם!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stage 4 Feedback banner inline -->
+                <div class="feedback-banner" id="s4-feedback"></div>
+
+                <!-- Quiz challenge -->
+                <div class="s3-quiz-container" style="margin-top: 32px;">
+                    <h3 style="color: var(--primary); margin-bottom: 12px;"><i class="fa-solid fa-circle-question"></i> אתגר הטקטיקה: הוכח/י הבנה בחיבור והפקת נתונים</h3>
+                    <div class="quiz-card" id="s4-quiz-wrapper">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="navigation-bar">
+                    <button class="cyber-button" onclick="navigateToStage('3-5')"><i class="fa-solid fa-angle-right"></i> הקודם</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="cyber-button orange" onclick="useLifeline(4)" title="🛟 שימוש בגלגל הצלה בשלב זה: יסמן עבורך את התשובה הנכונה ביותר לשאלה הנוכחית בחידון ה-Tableau."><i class="fa-solid fa-life-ring"></i> גלגל הצלה 🛟</button>
+                        <button class="cyber-button success" id="s4-next-action" style="display: none;" onclick="completeStage(4, 200); navigateToStage(5);">המשך לשלב 5 <i class="fa-solid fa-angle-left"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 5 PANEL ================= -->
+            <div id="stage-5" class="stage-panel cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-chart-pie"></i> שלב 5: בניית התרשימים ב-Tableau (Tableau Sheet Builder)</h2>
+                    <span class="clean-badge" style="background: var(--secondary);">פרס: +250 XP</span>
+                </div>
+
+                <div class="theory-panel" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3><i class="fa-solid fa-graduation-cap"></i> הבנת המימדים והמדדים בויזואליזציה</h3>
+                        <p style="font-size: 0.95rem; line-height: 1.65; color: var(--text-main);">
+                            ב-Tableau אנו מחלקים את עמודות הנתונים לשני סוגים מרכזיים:
+                            <br>
+                            🔹 **מימדים (Dimensions)**: נתונים איכותיים, קטגוריאליים או תאריכים המשמשים לחלוקה ולסינון של הגרף (למשל: קטגוריית מוצר, תאריך רכישה, עיר, סוג לקוח). מופיעים בדרך כלל בצבע כחול.
+                            <br>
+                            🔸 **מדדים (Measures)**: נתונים כמותיים-מתמטיים שניתן לבצע עליהם פעולות חישוב כמו סכימה, ממוצע או ספירה (למשל: סה"כ מכירות, כמות, רווח עסקה). מופיעים בצבע ירוק.
+                            <br><br>
+                            עליך לגרור את המימדים והמדדים הנכונים אל מדפי העמודות (Columns) והשורות (Rows) בסימולטור כדי לייצר 5 תרשימים עסקיים מנצחים!
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="tableau_sheet_builder.png" alt="בונה גיליונות טבלו" style="max-width: 200px; border-radius: 12px; border: 2px solid var(--secondary); box-shadow: var(--shadow-sm);">
+                    </div>
+                </div>
+
+                <!-- Stage 5 Feedback banner inline -->
+                <div class="feedback-banner" id="s5-feedback"></div>
+
+                <div class="s4-layout">
+                    <!-- Left sidebar info -->
+                    <div class="tableau-explanations">
+                        <div class="cyber-card orange-edge" style="padding: 16px; margin-bottom: 16px; background: #ffffff;">
+                            <h4 style="color: var(--accent); margin-bottom: 8px;"><i class="fa-solid fa-circle-nodes"></i> הגדרת המשימה וההקשר העסקי:</h4>
+                            <p style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);" id="s5-mission-desc">
+                                <!-- Populated dynamically -->
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tableau UI Simulator Workbench -->
+                    <div class="tableau-workbench">
+                        <div class="tableau-header">
+                            <div class="tableau-title"><i class="fa-solid fa-chart-column"></i> Tableau Public Workspace - בניית גיליונות עבודה</div>
+                            <span style="font-family: var(--font-code); font-size: 0.75rem; color: var(--text-muted);" id="s5-sheet-active-title">ACTIVE_SHEET: SHEET_ANALYSIS_1</span>
+                        </div>
+
+                        <div class="tableau-grid">
+                            <!-- Fields Sidebar -->
+                            <div class="tableau-sidebar">
+                                <div class="tableau-section-title">שדות נתונים (Data Fields)</div>
+                                <div class="tableau-fields-list">
+                                    <div class="draggable-field dimension" draggable="true" id="s5-field-cat" ondragstart="dragFieldV2(event, 'category')">
+                                        <i class="fa-solid fa-font" style="color: var(--secondary);"></i> קטגוריית מוצר
+                                    </div>
+                                    <div class="draggable-field dimension" draggable="true" id="s5-field-date" ondragstart="dragFieldV2(event, 'date')">
+                                        <i class="fa-solid fa-calendar" style="color: var(--secondary);"></i> תאריך רכישה
+                                    </div>
+                                    <div class="draggable-field dimension" draggable="true" id="s5-field-city" ondragstart="dragFieldV2(event, 'city')">
+                                        <i class="fa-solid fa-location-dot" style="color: var(--secondary);"></i> שם_עיר (סניף)
+                                    </div>
+                                    <div class="draggable-field dimension" draggable="true" id="s5-field-segment" ondragstart="dragFieldV2(event, 'segment')">
+                                        <i class="fa-solid fa-user-tag" style="color: var(--secondary);"></i> סוג לקוח (מקטע)
+                                    </div>
+                                    <div class="draggable-field measure" draggable="true" id="s5-field-sales" ondragstart="dragFieldV2(event, 'sales')">
+                                        <i class="fa-solid fa-hashtag" style="color: var(--accent);"></i> סה״כ מכירות (ש"ח)
+                                    </div>
+                                    <div class="draggable-field measure" draggable="true" id="s5-field-qty" ondragstart="dragFieldV2(event, 'qty')">
+                                        <i class="fa-solid fa-hashtag" style="color: var(--accent);"></i> כמות פריטים
+                                    </div>
+                                    <div class="draggable-field measure" draggable="true" id="s5-field-profit" ondragstart="dragFieldV2(event, 'profit')">
+                                        <i class="fa-solid fa-hashtag" style="color: var(--accent);"></i> רווח עסקה (ש"ח)
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 8px;">
+                                    * גרור/י או לחץ/י על השדה כדי למקם במדף
+                                </div>
+                            </div>
+
+                            <!-- Workspace Canvas Area -->
+                            <div class="tableau-workspace">
+                                <div class="tableau-shelves">
+                                    <!-- Columns Shelf -->
+                                    <div class="tableau-shelf" id="s5-shelf-columns" ondragover="allowFieldDropV2(event)" ondrop="dropFieldV2(event, 'columns')" onclick="clickShelfV2('columns')">
+                                        <div class="shelf-label"><i class="fa-solid fa-arrows-left-right"></i> עמודות (Cols):</div>
+                                        <div class="shelf-items" id="s5-shelf-items-columns"></div>
+                                    </div>
+                                    <!-- Rows Shelf -->
+                                    <div class="tableau-shelf" id="s5-shelf-rows" ondragover="allowFieldDropV2(event)" ondrop="dropFieldV2(event, 'rows')" onclick="clickShelfV2('rows')">
+                                        <div class="shelf-label"><i class="fa-solid fa-arrows-up-down"></i> שורות (Rows):</div>
+                                        <div class="shelf-items" id="s5-shelf-items-rows"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Chart rendering canvas -->
+                                <div class="tableau-viz-canvas">
+                                    <div class="viz-placeholder" id="s5-viz-placeholder">
+                                        <i class="fa-solid fa-chart-area"></i>
+                                        <p>גרור עמודות ומדדים למעלה כדי להתחיל להרכיב את התרשים הנוכחי ב-Tableau.</p>
+                                    </div>
+
+                                    <div class="viz-svg-container" id="s5-viz-container">
+                                        <h4 style="text-align: right; color: var(--text-main); margin-bottom: 8px;" id="s5-viz-chart-title">תרשים Tableau</h4>
+                                        <div class="viz-svg-chart" id="s5-viz-svg-placeholder"></div>
+                                        <div class="viz-explanation-bubble" id="s5-viz-explanation"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-bar">
+                    <button class="cyber-button" onclick="navigateToStage(4)"><i class="fa-solid fa-angle-right"></i> הקודם</button>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="cyber-button orange" onclick="useLifeline(5)" title="🛟 שימוש בגלגל הצלה בשלב זה: ישבץ אוטומטית את שדות ה-Rows וה-Columns המתאימים לתרשים הנוכחי ויאפשר מעבר לתרשים הבא."><i class="fa-solid fa-life-ring"></i> גלגל הצלה 🛟</button>
+                        <div id="s5-action-panel"></div>
+                    </div>
+                    <button class="cyber-button cyan" onclick="unlockStage(6); navigateToStage(6);">דלג שלב <i class="fa-solid fa-forward-step"></i></button>
+                </div>
+            </div>
+
+            <!-- ================= STAGE 6 PANEL ================= -->
+            <div id="stage-6" class="stage-panel cyber-card">
+                <div class="stage-header">
+                    <h2 class="text-gradient"><i class="fa-solid fa-sitemap"></i> שלב 6: בניית הדאשבורדים וסיווג הדרגים (Dashboard Layout & Hierarchy)</h2>
+                    <span class="clean-badge" style="background: var(--success);">פרס: תעודת מוסמך Master</span>
+                </div>
+
+                <div class="theory-panel" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3><i class="fa-solid fa-graduation-cap"></i> סוגי דאשבורדים בארגון מבוסס נתונים</h3>
+                        <p>
+                            מנהלים בדרגים שונים בארגון זקוקים למידע שונה לחלוטין לקבלת החלטות. אנו מסווגים דאשבורדים לשלושה סוגים מרכזיים:
+                            <br>
+                            ⚙️ **דאשבורד תפעולי (Operational)**: מיועד לדרג העבודה בשטח ומנהלי סניפים. עוסק בנתונים תכופים ופרטניים המצריכים תגובה מיידית (למשל: כמות פריטים במלאי בכל יום, עמידה ביעדי משמרת).
+                            <br>
+                            📊 **דאשבורד ניהולי/טקטי (Tactical/Management)**: מיועד למנהלי מחלקות ואנליסטים. מנתח מגמות, השוואות וביצועים של חודש או רבעון (למשל: סה"כ מכירות לפי קטגוריות מוצר שונות והשוואה ביניהן).
+                            <br>
+                            👑 **דאשבורד אסטרטגי (Strategic)**: מיועד להנהלה הבכירה (מנכ"ל, סמנכ"לים). מציג תמונת על שנתית, יציבות פיננסית, התרחבות ומדדי KPI גלובליים ארוכי טווח (למשל: מפת פריסה ארצית וביצועים רוחביים של סניפים).
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="dashboard_complete.png" alt="דאשבורד שלם ומקצועי" style="max-width: 240px; border-radius: 12px; border: 2px solid var(--success); box-shadow: var(--shadow-sm); animation: float 4s ease-in-out infinite;">
+                    </div>
+                </div>
+
+                <!-- Stage 6 Feedback banner inline -->
+                <div class="feedback-banner" id="s6-feedback"></div>
+
+                <p style="font-size: 1rem; color: var(--text-main); margin-bottom: 20px; font-weight: 700;">
+                    <i class="fa-solid fa-puzzle-piece"></i> משימת הגיימיפיקציה הסופית: גרור/י את חמשת התרשימים שבנית בשלב הקודם אל הדאשבורד הנכון ביותר עבורם! (ניתן לשים יותר מתרשים אחד בדאשבורד)
+                </p>
+
+                <div class="dashboard-builder-layout">
+                    <!-- Left: draggable charts list -->
+                    <div class="charts-inventory">
+                        <h4 style="margin-bottom: 12px; color: var(--primary);"><i class="fa-solid fa-box-open"></i> התרשימים שבנית:</h4>
+                        <div id="chart-inv-list">
+                            <!-- Populated dynamically by app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Right: three dashboard canvases -->
+                    <div class="dashboard-canvases">
+                        <!-- Strategic Canvas -->
+                        <div class="dashboard-canvas-card" style="border-right: 4px solid var(--primary);">
+                            <div class="dashboard-canvas-header">
+                                <div class="dashboard-canvas-title"><i class="fa-solid fa-crown" style="color: var(--primary);"></i> דאשבורד אסטרטגי (הנהלה בכירה)</div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">מיקוד: מפות פריסה ארציות, ניתוחי עלויות, תכנון התרחבות רב-שנתי</span>
+                            </div>
+                            <div class="dashboard-canvas-dropzone" id="db-zone-strategic" ondragover="allowChartDrop(event)" ondrop="dropChartToDb(event, 'strategic')" onclick="clickDbZone('strategic')">
+                                <span style="color: var(--text-muted); font-size: 0.85rem;" id="db-zone-lbl-strategic">[גרור/לחץ להצבת התרשימים האסטרטגיים המתאימים]</span>
+                            </div>
+                        </div>
+
+                        <!-- Tactical Canvas -->
+                        <div class="dashboard-canvas-card" style="border-right: 4px solid var(--secondary);">
+                            <div class="dashboard-canvas-header">
+                                <div class="dashboard-canvas-title"><i class="fa-solid fa-chart-pie" style="color: var(--secondary);"></i> דאשבורד ניהולי/טקטי (מנהלי מחלקות)</div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">מיקוד: רווחיות קטגוריות מוצרים, פילוח סוגי לקוחות (חברי מועדון)</span>
+                            </div>
+                            <div class="dashboard-canvas-dropzone" id="db-zone-tactical" ondragover="allowChartDrop(event)" ondrop="dropChartToDb(event, 'tactical')" onclick="clickDbZone('tactical')">
+                                <span style="color: var(--text-muted); font-size: 0.85rem;" id="db-zone-lbl-tactical">[גרור/לחץ להצבת התרשימים הניהוליים המתאימים]</span>
+                            </div>
+                        </div>
+
+                        <!-- Operational Canvas -->
+                        <div class="dashboard-canvas-card" style="border-right: 4px solid var(--accent);">
+                            <div class="dashboard-canvas-header">
+                                <div class="dashboard-canvas-title"><i class="fa-solid fa-gears" style="color: var(--accent);"></i> דאשבורד תפעולי (דרג השטח והסניפים)</div>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">מיקוד: כמות פריטים, עונתיות שבועית, מעקב רציף</span>
+                            </div>
+                            <div class="dashboard-canvas-dropzone" id="db-zone-operational" ondragover="allowChartDrop(event)" ondrop="dropChartToDb(event, 'operational')" onclick="clickDbZone('operational')">
+                                <span style="color: var(--text-muted); font-size: 0.85rem;" id="db-zone-lbl-operational">[גרור/לחץ להצבת התרשים התפעולי המתאים]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Glowing Certificate Screen -->
+                <div class="certificate-wrapper" id="certificate-wrapper">
+                    <div class="certificate-card">
+                        <!-- Decorative corners -->
+                        <div class="cert-corner top-left"></div>
+                        <div class="cert-corner top-right"></div>
+                        <div class="cert-corner bottom-left"></div>
+                        <div class="cert-corner bottom-right"></div>
+
+                        <div class="cert-badge-glow">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <h1 class="cert-title">תעודת גמר אקדמית: מאסטר בנתונים וב-Tableau</h1>
+                        <p class="cert-subtitle">שומרי הנתונים - בינה מלאכותית & TABLEAU PUBLIC</p>
+                        
+                        <p style="color: var(--text-muted); font-size: 1rem;">תעודה זו מוענקת בזאת בהצטיינות יתרה לסטודנט/ית:</p>
+                        <h2 class="cert-recipient" id="cert-recipient-name">ישראל ישראלי</h2>
+                        
+                        <p class="cert-desc">
+                            על השלמה מלאה ופתרון מושלם של כל שלבי ההכשרה המתקדמים בסימולטור **שומרי הנתונים**. בעל/ת יכולת אקדמית מוכחת להגדרת סכמות טבלאות מורכבות, הבטחת נאותות ושלמות נתונים סינתטיים דרך הנדסת פרומפטים מונחי "היגיון בריא" בבינה מלאכותית, חיבורם המקצועי ל-Tableau Public ופילוחם לדאשבורדים תפעוליים, טקטיים ואסטרטגיים.
+                        </p>
+
+                        <!-- Academic Submission Reminder Banner -->
+                        <div class="submission-alert-banner" style="background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 12px; padding: 15px; margin: 24px auto 30px auto; max-width: 600px; text-align: center;">
+                            <h4 style="color: #d97706; margin-bottom: 6px; font-weight: 800;"><i class="fa-solid fa-camera-retro"></i> משימה אקדמית אחרונה: הגשת המטלה 👨‍🏫</h4>
+                            <p style="font-size: 0.88rem; color: #78350f; line-height: 1.5; margin: 0;">
+                                <strong>נא לצלם מסך (Screenshot)</strong> של תעודה זו הכוללת את שמך וניקוד ה-XP שלך, ולהעלות את הצילום ישירות בפורטל הסטודנטים האוניברסיטאי כהוכחה לביצוע מושלם של משימת ההכשרה!
+                            </p>
+                        </div>
+
+                        <div class="cert-footer">
+                            <div class="cert-meta-item">
+                                <div>תאריך הסמכה:</div>
+                                <div class="cert-meta-val" id="cert-date">26.05.2026</div>
+                            </div>
+                            <div class="cert-meta-item">
+                                <div>ניקוד XP מצטבר:</div>
+                                <div class="cert-meta-val" id="cert-final-score">1000 XP</div>
+                            </div>
+                            <div class="cert-meta-item">
+                                <div>מזהה תעודה:</div>
+                                <div class="cert-meta-val" style="text-transform: uppercase;">DG-ACAD-58472-L</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 32px; display: flex; gap: 16px; justify-content: center;">
+                        <button class="cyber-button success" onclick="window.print()"><i class="fa-solid fa-print"></i> הדפס/י תעודה או שמור/י כ-PDF</button>
+                        <button class="cyber-button cyan" onclick="restartGame()"><i class="fa-solid fa-rotate-left"></i> שחק/י שוב</button>
+                    </div>
+                </div>
+
+                <div class="navigation-bar" id="s6-action-panel">
+                    <button class="cyber-button" onclick="navigateToStage(5)"><i class="fa-solid fa-angle-right"></i> הקודם</button>
+                    <button class="cyber-button success" id="s6-verify-btn" onclick="verifyStage6()" disabled>אמת דאשבורדים והפק תעודת מאסטר <i class="fa-solid fa-award"></i></button>
+                    <span style="visibility:hidden;">הבא</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- Sad Emoji Error Overlay -->
+    <div id="sad-emoji-overlay" class="sad-emoji-overlay" onclick="closeSadEmojiOverlay()">
+        <div class="sad-emoji-content" onclick="event.stopPropagation()">
+            <span class="sad-emoji-face" id="sad-emoji-icon">😭</span>
+            <h3 class="sad-emoji-title" id="sad-emoji-title">שגיאה בתהליך!</h3>
+            <p class="sad-emoji-desc" id="sad-emoji-text">אופס, משהו לא עובד נכון. בדוק את ההנחיות ונסה שוב!</p>
+            <button class="cyber-button error" onclick="closeSadEmojiOverlay()" style="margin-top: 20px; width: 100%;">הבנתי, אנסה שוב! 🔧</button>
+        </div>
+    </div>
+
+    <!-- JS Files -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="audio.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

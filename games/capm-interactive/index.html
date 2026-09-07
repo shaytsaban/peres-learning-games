@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מודל CAPM | שיעור אינטראקטיבי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --blue:#2563eb;--blue-light:#eff6ff;--blue-mid:#bfdbfe;--blue-dark:#1e40af;
+  --green:#16a34a;--green-light:#f0fdf4;--green-mid:#bbf7d0;
+  --red:#dc2626;--red-light:#fef2f2;
+  --amber:#d97706;--amber-light:#fffbeb;--amber-mid:#fde68a;
+  --purple:#7c3aed;--purple-light:#f5f3ff;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;
+  --gray-600:#4b5563;--gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;
+  --font:'Rubik',sans-serif;--r:14px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+}
+
+body{font-family:var(--font);background:#f0f4ff;color:var(--gray-900);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ─── CONFETTI CANVAS ─────────────────────── */
+#confetti-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:9999;
+}
+
+/* ─── HEADER ─────────────────────────────── */
+header{
+  background:#fff;
+  border-bottom:1px solid var(--gray-200);
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 1px 0 rgba(0,0,0,.05);
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:18px;font-weight:800;
+  box-shadow:0 2px 8px rgba(37,99,235,.35);
+}
+.logo-text{font-size:15px;font-weight:700;color:var(--gray-800);letter-spacing:-.2px}
+.logo-sub{font-size:11px;color:var(--gray-400);font-weight:400}
+
+/* Progress nodes */
+.progress-track{display:flex;align-items:center;gap:10px}
+.progress-nodes{display:flex;align-items:center;gap:0}
+.node-wrap{display:flex;align-items:center}
+.node{
+  width:30px;height:30px;border-radius:50%;
+  border:2px solid var(--gray-200);background:#fff;
+  font-size:11px;font-weight:700;color:var(--gray-400);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .25s;flex-shrink:0;position:relative;
+}
+.node.done{
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  border-color:transparent;color:#fff;
+  box-shadow:0 2px 6px rgba(37,99,235,.3);
+}
+.node.done::after{content:'✓';font-size:12px}
+.node.done span{display:none}
+.node.active{
+  border-color:var(--blue);color:var(--blue);background:#fff;
+  box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
+.node-line{width:16px;height:2px;background:var(--gray-200)}
+.node-line.done{background:linear-gradient(90deg,#2563eb,#7c3aed)}
+.progress-label{font-size:12px;color:var(--gray-500);font-weight:600;white-space:nowrap}
+
+/* ─── MAIN LAYOUT ─────────────────────────── */
+main{
+  flex:1;display:grid;
+  grid-template-columns:1fr 420px;
+  gap:0;max-width:1240px;width:100%;
+  margin:0 auto;padding:28px 24px;
+  align-items:start;
+}
+@media(max-width:920px){
+  main{grid-template-columns:1fr;padding:16px}
+}
+
+/* ─── CONCEPT PANEL ────────────────────────── */
+.concept-panel{
+  background:#fff;border:1px solid var(--gray-200);
+  border-radius:var(--r);overflow:hidden;
+  position:sticky;top:72px;
+  box-shadow:var(--shadow-md);
+}
+.concept-header{padding:24px 24px 0}
+.step-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+  color:var(--blue);font-size:11px;font-weight:800;
+  padding:4px 12px;border-radius:99px;
+  margin-bottom:14px;letter-spacing:.5px;text-transform:uppercase;
+  border:1px solid #c7d2fe;
+}
+.step-icon{font-size:14px}
+.concept-title{
+  font-size:21px;font-weight:800;line-height:1.2;
+  color:var(--gray-900);margin-bottom:14px;letter-spacing:-.3px;
+}
+.concept-body{font-size:14px;line-height:1.7;color:var(--gray-600);padding:0 24px 18px}
+.concept-body p{margin-bottom:10px}
+.concept-body strong{color:var(--gray-800);font-weight:700}
+
+/* Callout */
+.callout{
+  background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+  border-right:4px solid var(--blue);
+  border-radius:0 10px 10px 0;
+  padding:13px 15px;margin:12px 0;
+  font-size:13px;color:var(--gray-700);
+}
+.callout-title{
+  font-weight:800;color:var(--blue);
+  margin-bottom:5px;font-size:11px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+
+/* Question zone */
+.question-zone{
+  border-top:1px solid var(--gray-100);
+  padding:20px 24px;background:var(--gray-50);
+}
+.q-label{
+  font-size:10px;font-weight:800;color:var(--gray-400);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;
+}
+.question-prompt{
+  font-size:14px;font-weight:700;color:var(--gray-800);
+  margin-bottom:14px;line-height:1.5;
+}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{
+  background:#fff;border:1.5px solid var(--gray-200);border-radius:10px;
+  padding:11px 15px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;
+  transition:border-color .15s,background .15s,transform .1s,box-shadow .15s;
+  font-size:13px;color:var(--gray-700);font-weight:500;
+  position:relative;
+}
+.choice:hover:not(.locked){
+  border-color:var(--blue);background:var(--blue-light);
+  transform:translateX(-2px);box-shadow:0 2px 8px rgba(37,99,235,.1);
+}
+.choice.picked{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.choice.correct{
+  border-color:var(--green);background:var(--green-light);color:var(--green);
+  animation:correctPop .4s ease;
+}
+@keyframes correctPop{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+.choice.wrong{border-color:var(--red);background:var(--red-light);color:var(--red);animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.choice.locked{cursor:default;transform:none!important}
+.choice-bullet{
+  width:20px;height:20px;border-radius:50%;border:2px solid currentColor;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;
+}
+.choice.correct .choice-bullet{background:var(--green);color:#fff;border-color:var(--green)}
+.choice.wrong .choice-bullet{background:var(--red);color:#fff;border-color:var(--red)}
+.choice.correct .choice-bullet::after{content:'✓';font-size:11px;font-weight:800;color:#fff}
+.choice.wrong .choice-bullet::after{content:'✗';font-size:11px;font-weight:800;color:#fff}
+.choice.picked .choice-bullet{background:var(--blue);border-color:var(--blue)}
+.choice.picked .choice-bullet::after{content:'●';font-size:8px;color:#fff}
+
+/* Feedback */
+.feedback{
+  display:none;border-radius:10px;padding:14px 15px;margin-top:12px;
+  font-size:13px;line-height:1.55;gap:10px;align-items:flex-start;
+}
+.feedback.show{display:flex;animation:fadeSlideIn .3s ease}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.feedback.ok{background:var(--green-light);color:#15803d;border:1px solid #bbf7d0}
+.feedback.no{background:var(--red-light);color:#b91c1c;border:1px solid #fecaca}
+.feedback-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.feedback-text strong{display:block;margin-bottom:3px;font-weight:800}
+
+/* Buttons */
+.panel-footer{
+  display:flex;gap:10px;padding:16px 24px;
+  border-top:1px solid var(--gray-100);background:#fff;
+}
+.btn{
+  font-family:var(--font);font-size:13px;font-weight:700;
+  padding:10px 20px;border-radius:10px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:all .15s;
+  letter-spacing:.1px;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--blue),#5b21b6);
+  color:#fff;flex:1;justify-content:center;
+  box-shadow:0 2px 8px rgba(37,99,235,.25);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.35)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{background:var(--gray-100);color:var(--gray-600)}
+.btn-ghost:hover{background:var(--gray-200)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* ─── EXPLORE PANEL ────────────────────────── */
+.explore-panel{padding-left:28px}
+@media(max-width:920px){.explore-panel{padding-left:0;order:-1}}
+
+.explore-card{
+  background:#fff;border:1px solid var(--gray-200);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow-md);
+}
+.explore-header{
+  padding:18px 22px 14px;border-bottom:1px solid var(--gray-100);
+  background:linear-gradient(135deg,#fafbff,#f5f3ff);
+}
+.explore-tag{
+  font-size:10px;font-weight:800;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--purple);margin-bottom:5px;
+}
+.explore-title{font-size:15px;font-weight:800;color:var(--gray-800);letter-spacing:-.2px}
+.explore-sub{font-size:12px;color:var(--gray-400);margin-top:3px;line-height:1.4}
+
+.explore-body{padding:20px}
+
+/* Chart wrappers */
+.chart-wrap{
+  width:100%;border-radius:10px;overflow:hidden;
+  border:1px solid var(--gray-100);position:relative;
+}
+.chart-svg{display:block;width:100%;height:auto}
+
+/* Sliders */
+.sliders{margin-top:16px;display:flex;flex-direction:column;gap:14px}
+.slider-row{display:flex;flex-direction:column;gap:5px}
+.slider-top{display:flex;justify-content:space-between;font-size:12px;font-weight:700}
+.slider-label-text{color:var(--gray-500)}
+.slider-val{
+  color:var(--blue);background:var(--blue-light);
+  padding:1px 8px;border-radius:99px;font-size:11px;
+  border:1px solid var(--blue-mid);
+}
+input[type=range]{
+  width:100%;height:5px;
+  background:var(--gray-200);border-radius:5px;
+  -webkit-appearance:none;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),#7c3aed);
+  box-shadow:0 2px 6px rgba(37,99,235,.35);
+  border:2px solid #fff;
+}
+
+/* Stock cards */
+.stock-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stock-card{
+  border:1.5px solid var(--gray-200);border-radius:10px;padding:10px;
+  cursor:pointer;transition:all .15s;
+  display:flex;flex-direction:column;gap:3px;background:#fff;
+}
+.stock-card:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.12)}
+.stock-card.active{
+  border-color:var(--blue);background:var(--blue-light);
+  box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+.stock-name{font-size:11px;font-weight:800;color:var(--gray-700)}
+.stock-sector{font-size:10px;color:var(--gray-400)}
+.stock-beta{
+  font-size:13px;font-weight:800;color:var(--gray-900);
+  margin-top:2px;
+}
+.stock-icon{font-size:14px;margin-bottom:2px}
+
+/* Risk meter */
+.risk-meter{
+  margin-top:14px;background:var(--gray-50);
+  border:1px solid var(--gray-100);border-radius:10px;padding:14px;
+}
+.risk-meter-label{
+  font-size:10px;font-weight:800;color:var(--gray-500);
+  margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;
+}
+.risk-bar-wrap{
+  height:12px;background:var(--gray-100);border-radius:6px;overflow:hidden;
+  position:relative;
+}
+.risk-bar-fill{
+  height:100%;border-radius:6px;
+  transition:width .7s cubic-bezier(.4,0,.2,1),background .5s;
+}
+.risk-numbers{display:flex;justify-content:space-between;margin-top:8px;font-size:11px}
+.risk-total{font-weight:800;color:var(--gray-700)}
+.risk-sys{font-size:10px;color:var(--red);font-weight:700}
+
+/* Stat pills */
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.stat-pill{
+  background:var(--gray-100);border-radius:8px;padding:7px 13px;
+  font-size:12px;font-weight:700;color:var(--gray-700);
+  display:flex;align-items:center;gap:6px;border:1px solid var(--gray-200);
+  transition:all .2s;
+}
+.stat-pill span{color:var(--blue);font-weight:800}
+.stat-pill.highlight{
+  background:var(--blue-light);border-color:var(--blue-mid);
+  box-shadow:0 2px 8px rgba(37,99,235,.12);
+}
+.stat-pill.green span{color:var(--green)}
+.stat-pill.red span{color:var(--red)}
+
+/* Drag hint */
+.drag-hint{
+  font-size:11px;color:var(--gray-400);margin-top:8px;
+  display:flex;align-items:center;gap:5px;font-weight:600;
+}
+.drag-hint::before{content:'⟡';color:var(--amber)}
+
+/* Formula display */
+.formula-display{
+  background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+  border:1.5px solid #c7d2fe;border-radius:12px;
+  padding:14px 18px;text-align:center;margin-top:14px;
+}
+.formula-main{font-size:17px;font-weight:800;color:var(--blue);letter-spacing:.5px;line-height:1.6}
+.formula-breakdown{
+  display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center;
+}
+.formula-part{
+  font-size:11px;font-weight:700;padding:3px 10px;
+  border-radius:99px;border:1.5px solid;
+}
+
+/* Step transition */
+.step-transition{animation:stepIn .3s cubic-bezier(.4,0,.2,1)}
+@keyframes stepIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Step illustration */
+.step-illustration{
+  width:100%;height:90px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;margin-bottom:14px;
+  border-radius:10px;
+  position:relative;
+}
+
+/* ─── SML zone message ─────── */
+.sml-msg{
+  font-size:12px;font-weight:600;
+  color:var(--gray-600);margin-top:8px;padding:10px 14px;
+  background:var(--gray-50);border-radius:8px;
+  border:1px solid var(--gray-100);
+  transition:all .3s;min-height:40px;line-height:1.5;
+}
+
+/* ─── END SCREEN ───────────── */
+.end-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  z-index:1000;display:flex;align-items:center;justify-content:center;
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.end-card{
+  background:#fff;border-radius:20px;padding:48px 40px;
+  max-width:560px;width:90%;text-align:center;
+  box-shadow:0 24px 64px rgba(0,0,0,.15);
+  animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);
+  position:relative;overflow:hidden;
+}
+@keyframes popIn{
+  from{transform:scale(.85);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.end-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#2563eb,#7c3aed,#db2777);
+}
+.end-trophies{font-size:52px;margin-bottom:16px;line-height:1}
+.end-title{font-size:26px;font-weight:800;color:var(--gray-900);margin-bottom:10px;letter-spacing:-.5px}
+.end-body{font-size:14px;color:var(--gray-500);line-height:1.65;margin-bottom:28px;max-width:380px;margin-inline:auto}
+.formula-box-end{
+  background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+  border:2px solid #c7d2fe;border-radius:14px;
+  padding:18px 24px;margin-bottom:28px;
+  font-size:18px;font-weight:800;color:var(--blue);letter-spacing:.5px;
+}
+.end-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:28px;text-align:right;
+}
+.end-grid-item{
+  background:var(--gray-50);border:1px solid var(--gray-200);
+  border-radius:10px;padding:12px 10px;
+}
+.end-grid-num{font-size:10px;font-weight:800;color:var(--gray-400);text-transform:uppercase;margin-bottom:3px}
+.end-grid-text{font-size:12px;font-weight:700;color:var(--gray-700)}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo-icon">C</div>
+    <div>
+      <div class="logo-text">מודל CAPM</div>
+      <div class="logo-sub">הבנה מהשורש — 6 שלבים</div>
+    </div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-nodes" id="nodes"></div>
+    <span class="progress-label" id="prog-label">1 / 6</span>
+  </div>
+</header>
+
+<main id="main-grid">
+  <!-- LEFT: Explore -->
+  <div class="explore-panel" id="explore-panel">
+    <div class="explore-card">
+      <div class="explore-header">
+        <div class="explore-tag" id="explore-tag"></div>
+        <div class="explore-title" id="explore-title"></div>
+        <div class="explore-sub" id="explore-sub"></div>
+      </div>
+      <div class="explore-body" id="explore-body"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Concept + Quiz -->
+  <div class="concept-panel">
+    <div class="concept-header">
+      <div class="step-chip"><span class="step-icon" id="step-icon"></span><span id="step-chip"></span></div>
+      <div class="concept-title" id="concept-title"></div>
+    </div>
+    <div class="concept-body" id="concept-body"></div>
+    <div class="question-zone">
+      <div class="q-label">🧩 שאלת הבנה</div>
+      <div class="question-prompt" id="q-prompt"></div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback">
+        <div class="feedback-icon" id="fb-icon"></div>
+        <div class="feedback-text" id="fb-text"></div>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <button class="btn btn-ghost" id="btn-back" onclick="nav(-1)" disabled>→ חזרה</button>
+      <button class="btn btn-primary" id="btn-next" onclick="submitOrNext()">בדיקה ←</button>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════
+   CONFETTI ENGINE
+   ══════════════════════════════════════════════════ */
+const confettiCanvas = document.getElementById('confetti-canvas');
+const cCtx = confettiCanvas.getContext('2d');
+let confettiParticles = [];
+let confettiAnimId = null;
+
+function resizeConfetti(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeConfetti();
+window.addEventListener('resize', resizeConfetti);
+
+function launchConfetti(count=80){
+  const colors = ['#2563eb','#7c3aed','#db2777','#16a34a','#d97706','#0891b2','#dc2626'];
+  for(let i=0;i<count;i++){
+    confettiParticles.push({
+      x: Math.random()*window.innerWidth,
+      y: -10 - Math.random()*100,
+      vx: (Math.random()-0.5)*4,
+      vy: 2 + Math.random()*4,
+      size: 5 + Math.random()*7,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: Math.random()*Math.PI*2,
+      rotV: (Math.random()-0.5)*0.15,
+      shape: Math.random()>0.5?'rect':'circle',
+      alpha: 1,
+    });
+  }
+  if(!confettiAnimId) animConfetti();
+}
+
+function animConfetti(){
+  cCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  confettiParticles = confettiParticles.filter(p=>{
+    p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+    p.vy += 0.06; // gravity
+    if(p.y > window.innerHeight+20) return false;
+    if(p.y > window.innerHeight*0.7) p.alpha = Math.max(0, p.alpha-0.02);
+    cCtx.save();
+    cCtx.globalAlpha = p.alpha;
+    cCtx.translate(p.x, p.y);
+    cCtx.rotate(p.rot);
+    cCtx.fillStyle = p.color;
+    if(p.shape==='circle'){
+      cCtx.beginPath(); cCtx.arc(0,0,p.size/2,0,Math.PI*2); cCtx.fill();
+    } else {
+      cCtx.fillRect(-p.size/2,-p.size*0.4,p.size,p.size*0.8);
+    }
+    cCtx.restore();
+    return true;
+  });
+  if(confettiParticles.length>0){
+    confettiAnimId = requestAnimationFrame(animConfetti);
+  } else {
+    confettiAnimId = null;
+    cCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   STEP ILLUSTRATIONS  (inline SVG per step)
+   ══════════════════════════════════════════════════ */
+const STEP_ILLUSTRATIONS = [
+
+  /* Step 1 — Two investment products: bond vs stock */
+  `<svg width="100%" height="90" viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g1a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bbf7d0"/><stop offset="100%" stop-color="#4ade80"/></linearGradient>
+      <linearGradient id="g1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#fb923c"/></linearGradient>
+      <linearGradient id="g1bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#eff6ff"/><stop offset="100%" stop-color="#f5f3ff"/></linearGradient>
+    </defs>
+    <rect width="560" height="90" fill="url(#g1bg)" rx="10"/>
+    <!-- Bond card -->
+    <rect x="60" y="12" width="140" height="66" rx="10" fill="white" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="130" y="32" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#16a34a" text-anchor="middle">אג"ח ממשלתי</text>
+    <rect x="88" y="40" width="84" height="22" rx="6" fill="url(#g1a)"/>
+    <text x="130" y="56" font-family="Rubik,sans-serif" font-size="13" font-weight="800" fill="#15803d" text-anchor="middle">4% בטוח</text>
+    <text x="130" y="76" font-family="Rubik,sans-serif" font-size="10" fill="#6b7280" text-anchor="middle">σ = 0%</text>
+    <!-- VS -->
+    <circle cx="280" cy="45" r="20" fill="white" stroke="#e5e7eb" stroke-width="2"/>
+    <text x="280" y="50" font-family="Rubik,sans-serif" font-size="13" font-weight="800" fill="#374151" text-anchor="middle">VS</text>
+    <!-- Stock card -->
+    <rect x="360" y="12" width="140" height="66" rx="10" fill="white" stroke="#fde68a" stroke-width="2"/>
+    <text x="430" y="32" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#d97706" text-anchor="middle">מניית הייטק</text>
+    <rect x="388" y="40" width="84" height="22" rx="6" fill="url(#g1b)"/>
+    <text x="430" y="56" font-family="Rubik,sans-serif" font-size="13" font-weight="800" fill="#92400e" text-anchor="middle">4%? ? ?</text>
+    <text x="430" y="76" font-family="Rubik,sans-serif" font-size="10" fill="#6b7280" text-anchor="middle">σ = גבוה!</text>
+    <!-- Arrow question -->
+    <text x="280" y="82" font-family="Rubik,sans-serif" font-size="10" font-weight="700" fill="#9ca3af" text-anchor="middle">כמה תשואה תדרשו?</text>
+  </svg>`,
+
+  /* Step 2 — Diversification: eggs in baskets */
+  `<svg width="100%" height="90" viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g2bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7ed"/><stop offset="100%" stop-color="#ecfdf5"/></linearGradient>
+    </defs>
+    <rect width="560" height="90" fill="url(#g2bg)" rx="10"/>
+    <!-- Single basket -->
+    <rect x="30" y="20" width="100" height="55" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5"/>
+    <text x="80" y="38" font-family="Rubik,sans-serif" font-size="10" font-weight="800" fill="#ef4444" text-anchor="middle">תיק 1 מניה</text>
+    <text x="80" y="58" font-family="Rubik,sans-serif" font-size="24" text-anchor="middle">🥚</text>
+    <text x="80" y="74" font-family="Rubik,sans-serif" font-size="9" fill="#dc2626" font-weight="700" text-anchor="middle">סיכון: 28%</text>
+    <!-- Arrow -->
+    <text x="165" y="52" font-family="Rubik,sans-serif" font-size="18" fill="#9ca3af" text-anchor="middle">→</text>
+    <!-- Multi basket -->
+    <rect x="190" y="20" width="160" height="55" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1.5"/>
+    <text x="270" y="38" font-family="Rubik,sans-serif" font-size="10" font-weight="800" fill="#d97706" text-anchor="middle">תיק 4 מניות</text>
+    <text x="226" y="62" font-family="Rubik,sans-serif" font-size="16" text-anchor="middle">🥚</text>
+    <text x="256" y="62" font-family="Rubik,sans-serif" font-size="16" text-anchor="middle">🥚</text>
+    <text x="286" y="62" font-family="Rubik,sans-serif" font-size="16" text-anchor="middle">🥚</text>
+    <text x="316" y="62" font-family="Rubik,sans-serif" font-size="16" text-anchor="middle">🥚</text>
+    <text x="270" y="74" font-family="Rubik,sans-serif" font-size="9" fill="#d97706" font-weight="700" text-anchor="middle">סיכון: 14%</text>
+    <!-- Arrow -->
+    <text x="375" y="52" font-family="Rubik,sans-serif" font-size="18" fill="#9ca3af" text-anchor="middle">→</text>
+    <!-- Floor -->
+    <rect x="395" y="20" width="130" height="55" rx="8" fill="white" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="460" y="38" font-family="Rubik,sans-serif" font-size="10" font-weight="800" fill="#16a34a" text-anchor="middle">תיק 20+ מניות</text>
+    <text x="460" y="58" font-family="Rubik,sans-serif" font-size="12" text-anchor="middle">🥚🥚🥚🥚🥚</text>
+    <text x="460" y="74" font-family="Rubik,sans-serif" font-size="9" fill="#16a34a" font-weight="700" text-anchor="middle">סיכון: ~6% (רצפה!)</text>
+  </svg>`,
+
+  /* Step 3 — Beta gauge */
+  `<svg width="100%" height="90" viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g3bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#eff6ff"/><stop offset="100%" stop-color="#f0fdf4"/></linearGradient>
+    </defs>
+    <rect width="560" height="90" fill="url(#g3bg)" rx="10"/>
+    <!-- Beta items row -->
+    <rect x="20" y="15" width="100" height="60" rx="8" fill="white" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="70" y="32" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#16a34a" text-anchor="middle">β = 0.5</text>
+    <text x="70" y="50" font-family="Rubik,sans-serif" font-size="20" text-anchor="middle">🛡️</text>
+    <text x="70" y="70" font-family="Rubik,sans-serif" font-size="9" fill="#16a34a" font-weight="700" text-anchor="middle">הגנתי</text>
+
+    <rect x="145" y="15" width="100" height="60" rx="8" fill="white" stroke="#bfdbfe" stroke-width="2"/>
+    <text x="195" y="32" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#2563eb" text-anchor="middle">β = 1.0</text>
+    <text x="195" y="50" font-family="Rubik,sans-serif" font-size="20" text-anchor="middle">⚖️</text>
+    <text x="195" y="70" font-family="Rubik,sans-serif" font-size="9" fill="#2563eb" font-weight="700" text-anchor="middle">כמו השוק</text>
+
+    <rect x="270" y="15" width="100" height="60" rx="8" fill="white" stroke="#fde68a" stroke-width="2"/>
+    <text x="320" y="32" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#d97706" text-anchor="middle">β = 1.5</text>
+    <text x="320" y="50" font-family="Rubik,sans-serif" font-size="20" text-anchor="middle">⚡</text>
+    <text x="320" y="70" font-family="Rubik,sans-serif" font-size="9" fill="#d97706" font-weight="700" text-anchor="middle">תוקפני</text>
+
+    <rect x="395" y="15" width="100" height="60" rx="8" fill="white" stroke="#fecaca" stroke-width="2"/>
+    <text x="445" y="32" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#dc2626" text-anchor="middle">β = 2.0</text>
+    <text x="445" y="50" font-family="Rubik,sans-serif" font-size="20" text-anchor="middle">🚀</text>
+    <text x="445" y="70" font-family="Rubik,sans-serif" font-size="9" fill="#dc2626" font-weight="700" text-anchor="middle">סיכון גבוה</text>
+
+    <!-- Scale bar at bottom -->
+    <rect x="20" y="82" width="475" height="4" rx="2" fill="url(#g3bg)"/>
+  </svg>`,
+
+  /* Step 4 — RF as foundation */
+  `<svg width="100%" height="90" viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g4bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0fdf4"/><stop offset="100%" stop-color="#eff6ff"/></linearGradient>
+      <linearGradient id="g4bar" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+    </defs>
+    <rect width="560" height="90" fill="url(#g4bg)" rx="10"/>
+    <!-- Building blocks visual -->
+    <!-- Base: RF -->
+    <rect x="160" y="55" width="240" height="26" rx="6" fill="#bbf7d0"/>
+    <text x="280" y="73" font-family="Rubik,sans-serif" font-size="12" font-weight="800" fill="#15803d" text-anchor="middle">R_F = ריבית בטוחה 🏦</text>
+    <!-- Premium layer -->
+    <rect x="200" y="29" width="160" height="26" rx="6" fill="#bfdbfe"/>
+    <text x="280" y="47" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#1e40af" text-anchor="middle">+ פרמיית שוק [E(Rm)−Rf]</text>
+    <!-- Beta multiplier -->
+    <rect x="225" y="8" width="110" height="22" rx="6" fill="url(#g4bar)"/>
+    <text x="280" y="23" font-family="Rubik,sans-serif" font-size="10" font-weight="800" fill="white" text-anchor="middle">× בטא (β)</text>
+    <!-- Label -->
+    <text x="480" y="45" font-family="Rubik,sans-serif" font-size="11" fill="#6b7280" text-anchor="middle">מהבסיס</text>
+    <text x="480" y="58" font-family="Rubik,sans-serif" font-size="11" fill="#6b7280" text-anchor="middle">לפסגה</text>
+    <text x="480" y="72" font-family="Rubik,sans-serif" font-size="18" text-anchor="middle">🏗️</text>
+  </svg>`,
+
+  /* Step 5 — Full CAPM formula assembled */
+  `<svg width="100%" height="90" viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g5bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5f3ff"/><stop offset="100%" stop-color="#eff6ff"/></linearGradient>
+    </defs>
+    <rect width="560" height="90" fill="url(#g5bg)" rx="10"/>
+    <!-- Formula parts animated visually -->
+    <rect x="20" y="25" width="80" height="40" rx="8" fill="white" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="60" y="42" font-family="Rubik,sans-serif" font-size="9" font-weight="800" fill="#6b7280" text-anchor="middle">תשואה</text>
+    <text x="60" y="57" font-family="Rubik,sans-serif" font-size="12" font-weight="800" fill="#16a34a" text-anchor="middle">E(Ri)</text>
+
+    <text x="116" y="50" font-family="Rubik,sans-serif" font-size="18" font-weight="800" fill="#374151" text-anchor="middle">=</text>
+
+    <rect x="130" y="25" width="70" height="40" rx="8" fill="white" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="165" y="42" font-family="Rubik,sans-serif" font-size="9" font-weight="800" fill="#6b7280" text-anchor="middle">ריבית</text>
+    <text x="165" y="57" font-family="Rubik,sans-serif" font-size="12" font-weight="800" fill="#16a34a" text-anchor="middle">R_F</text>
+
+    <text x="214" y="50" font-family="Rubik,sans-serif" font-size="18" font-weight="800" fill="#374151" text-anchor="middle">+</text>
+
+    <rect x="225" y="25" width="60" height="40" rx="8" fill="white" stroke="#bfdbfe" stroke-width="2"/>
+    <text x="255" y="42" font-family="Rubik,sans-serif" font-size="9" font-weight="800" fill="#6b7280" text-anchor="middle">בטא</text>
+    <text x="255" y="57" font-family="Rubik,sans-serif" font-size="12" font-weight="800" fill="#2563eb" text-anchor="middle">β_i</text>
+
+    <text x="298" y="50" font-family="Rubik,sans-serif" font-size="14" font-weight="800" fill="#374151" text-anchor="middle">×</text>
+
+    <rect x="308" y="12" width="120" height="66" rx="8" fill="white" stroke="#fde68a" stroke-width="2"/>
+    <text x="368" y="30" font-family="Rubik,sans-serif" font-size="9" font-weight="800" fill="#6b7280" text-anchor="middle">פרמיית שוק</text>
+    <text x="368" y="48" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#d97706" text-anchor="middle">[E(Rm)</text>
+    <text x="368" y="65" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#d97706" text-anchor="middle">− R_F]</text>
+
+    <!-- Result -->
+    <text x="450" y="34" font-family="Rubik,sans-serif" font-size="10" fill="#6b7280" text-anchor="middle">= התשואה</text>
+    <text x="450" y="48" font-family="Rubik,sans-serif" font-size="10" fill="#6b7280" text-anchor="middle">הנדרשת</text>
+    <text x="450" y="65" font-family="Rubik,sans-serif" font-size="20" text-anchor="middle">✅</text>
+  </svg>`,
+
+  /* Step 6 — SML alpha above/below */
+  `<svg width="100%" height="90" viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g6bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0fdf4"/><stop offset="100%" stop-color="#fff7ed"/></linearGradient>
+    </defs>
+    <rect width="560" height="90" fill="url(#g6bg)" rx="10"/>
+    <!-- Mini SML -->
+    <line x1="60" y1="75" x2="400" y2="20" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="410" y="22" font-family="Rubik,sans-serif" font-size="11" font-weight="800" fill="#2563eb">SML</text>
+    <!-- Above dot - α+ -->
+    <circle cx="200" cy="30" r="8" fill="#16a34a"/>
+    <text x="200" y="34" font-family="Rubik,sans-serif" font-size="8" font-weight="800" fill="white" text-anchor="middle">A</text>
+    <line x1="200" y1="38" x2="200" y2="52" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="230" y="32" font-family="Rubik,sans-serif" font-size="9" font-weight="800" fill="#16a34a">α &gt; 0 ✅</text>
+    <text x="230" y="43" font-family="Rubik,sans-serif" font-size="9" fill="#16a34a">הזדמנות!</text>
+    <!-- On line dot -->
+    <circle cx="300" cy="40" r="6" fill="#2563eb"/>
+    <text x="300" y="44" font-family="Rubik,sans-serif" font-size="7" font-weight="800" fill="white" text-anchor="middle">✓</text>
+    <text x="310" y="52" font-family="Rubik,sans-serif" font-size="9" fill="#374151">שיווי משקל</text>
+    <!-- Below dot - α- -->
+    <circle cx="150" cy="70" r="8" fill="#dc2626"/>
+    <text x="150" y="74" font-family="Rubik,sans-serif" font-size="8" font-weight="800" fill="white" text-anchor="middle">B</text>
+    <line x1="150" y1="62" x2="150" y2="54" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="60" y="72" font-family="Rubik,sans-serif" font-size="9" font-weight="800" fill="#dc2626">α &lt; 0 ⚠️</text>
+    <!-- Axes -->
+    <text x="60" y="86" font-family="Rubik,sans-serif" font-size="9" fill="#9ca3af">β →</text>
+  </svg>`,
+];
+
+/* ══════════════════════════════════════════════════
+   COURSE DATA
+   ══════════════════════════════════════════════════ */
+const STEPS = [
+  {
+    icon:"💡", chip:"שלב 1 מתוך 6",
+    title:"למה בכלל מישהו מסתכן?",
+    body:`
+      <p>שני מוצרים, <strong>אותה תשואה של 8%</strong>. אחד בטוח לחלוטין. השני עלול לאבד שליש מערכו.</p>
+      <p>כל אחד יבחר בבטוח. כדי שמישהו יבחר בסיכון — הוא חייב לקבל <strong>יותר</strong>. זהו הרעיון שמניע את כל מודל CAPM.</p>
+      <div class="callout">
+        <div class="callout-title">💎 רעיון מפתח</div>
+        כל תשואה מתפצלת לשתיים: תשואה <em>בטוחה</em> (שכולם מקבלים) ו<em>פרמיית סיכון</em> (תגמול על כך שנלקח סיכון). CAPM מחשב בדיוק כמה הפרמיה שווה.
+      </div>
+    `,
+    explore:{tag:"ניסוי מחשבתי",title:"קבעו את הפרמיה שלכם",sub:"הזיזו את הסליידר — כמה תשואה תדרשו מהמניה כדי לקבל את הסיכון?",render:renderStep1},
+    q:{
+      prompt:"מדוע מניה מסוכנת חייבת להציע תשואה צפויה גבוהה יותר מאג\"ח ממשלתי?",
+      choices:["כי חוקי ניירות ערך מחייבים זאת","כי משקיעים דורשים פיצוי על אי-ודאות — הם עלולים להפסיד","כי מניות תמיד רווחיות יותר מאג\"ח"],
+      ok:1,
+      okMsg:"<strong>מדויק!</strong> זוהי <em>פרמיית הסיכון</em> — תוספת תשואה שהמשקיע דורש עבור נשיאת הסיכון. ללא פרמיה, אף אחד לא ייקח סיכון כשיש חלופה בטוחה.",
+      noMsg:"חשבו: אם שני נכסים מציעים 8%, מי יקח את הסיכון? אין סיבה. לכן הנכס המסוכן חייב לתגמל יותר כדי למשוך משקיעים."
+    }
+  },
+  {
+    icon:"🧺", chip:"שלב 2 מתוך 6",
+    title:"פיזור: ה-Free Lunch היחיד בפיננסים",
+    body:`
+      <p>אם תחזיקו <strong>מניה אחת</strong> ו-CEO יגנוב — תאבדו הכל. זהו <em>סיכון ספציפי</em>.</p>
+      <p>אם תפזרו ל-20 מניות מענפים שונים — נפילת חברה אחת תפגע ב-5% מהתיק בלבד. הסיכון הספציפי כמעט <strong>נעלם</strong>.</p>
+      <div class="callout">
+        <div class="callout-title">🚨 אך שימו לב</div>
+        תמיד נשאר <em>סיכון שיטתי</em> — הסיכון של השוק כולו. מיתון, מלחמה, משבר פיננסי — פוגעים בכולם. השוק ישלם רק על <strong>סיכון זה</strong>.
+      </div>
+    `,
+    explore:{tag:"סימולציית פיזור",title:"בנו את תיק ההשקעות שלכם",sub:"לחצו על מניות כדי להוסיפן לתיק ובצפו בסיכון יורד",render:renderStep2},
+    q:{
+      prompt:"מה קורה לסיכון ספציפי כשמוסיפים יותר ויותר מניות לתיק?",
+      choices:["עולה, כי יש יותר חשיפות","פוחת ומתקרב לאפס — אך הסיכון השיטתי נשאר","יורד לאפס — ניתן לבטל כל סיכון עם פיזור מספיק"],
+      ok:1,
+      okMsg:"<strong>בדיוק!</strong> פיזור הוא כלי עוצמתי — אבל יש לו רצפה. הסיכון השיטתי (β-based) לא ניתן לפיזור. רק עליו ישולם פיצוי.",
+      noMsg:"פיזור מסלק סיכון ספציפי — אך לא את הסיכון של השוק כולו (כמו ירידת כל השוק). הסיכון השיטתי תמיד נשאר."
+    }
+  },
+  {
+    icon:"📐", chip:"שלב 3 מתוך 6",
+    title:"בטא — מד הסיכון שה-CAPM משתמש בו",
+    body:`
+      <p>השוק עלה 10%? מניית Tesla עלתה 20%. מניית שופרסל עלתה 3%. <strong>כמה פעמים</strong> כל מניה מגיבה לתנועת השוק — זו הבטא.</p>
+      <p>הבטא היא <em>שיפוע הרגרסיה</em> של תשואת המניה על תשואת השוק. שיפוע גבוה = תגובה חדה יותר לשני הכיוונים.</p>
+      <div class="callout">
+        <div class="callout-title">📌 טבלת בטא</div>
+        β=0.5 → תזוז חצי ממה שהשוק | β=1 → כמו השוק | β=1.5 → פי 1.5 | β=2 → פי 2 (לטוב ולרע)
+      </div>
+    `,
+    explore:{tag:"גרף רגרסיה חי",title:"שנו בטא — ראו את שיפוע הקשר",sub:"הזיזו את הסליידר ושימו לב כיצד זווית הקו משתנה",render:renderStep3},
+    q:{
+      prompt:"שוק ירד 5%. מניה עם β=2 — מה קרה לה?",
+      choices:["ירדה 5% — כמו השוק","ירדה 10% — הבטא מכפילה את תנועת השוק","עלתה 2% — בטא גבוהה = חיובי"],
+      ok:1,
+      okMsg:"<strong>נכון!</strong> β=2 פירושו שכל תנועת שוק מוכפלת פי 2. ירידה של 5% בשוק ⟹ ירידה של 10% במניה. זה בדיוק למה מניות high-beta הן גם high-reward.",
+      noMsg:"הבטא היא מכפיל: 5% × 2 = 10%. מניה עם β גבוהה מגיבה בחדות — גם כשעולים וגם כשיורדים."
+    }
+  },
+  {
+    icon:"🏦", chip:"שלב 4 מתוך 6",
+    title:"R_F — נקודת האפס של הסיכון",
+    body:`
+      <p>לפני שמחשבים כמה מגיע למניה — צריך לדעת את <strong>הבסיס</strong>: כמה מקבלים ללא שום סיכון?</p>
+      <p>זוהי <strong>הריבית חסרת הסיכון (R_F)</strong> — בד"כ תשואת אג"ח ממשלתי קצר-מועד. זה מה שכולם מקבלים "בחינם".</p>
+      <div class="callout">
+        <div class="callout-title">🔑 פרמיית שוק</div>
+        התשואה הנוספת שהשוק כולו מציע מעל R_F היא <em>פרמיית שוק השוק</em>: E(Rm) − Rf. זהו התגמול עבור לקיחת סיכון שוק ממוצע (β=1).
+      </div>
+    `,
+    explore:{tag:"בנאי תשואות",title:"הרכיבו את מרכיבי התשואה",sub:"שנו את ריבית הבסיס ותשואת השוק — ראו כיצד הפרמיה נוצרת",render:renderStep4},
+    q:{
+      prompt:"Rf=3%, E(Rm)=10%. מה גובה פרמיית שוק השוק?",
+      choices:["3% — הריבית הבסיסית","7% — ההפרש: 10%−3%","13% — הסכום הכולל"],
+      ok:1,
+      okMsg:"<strong>מצוין!</strong> הפרמיה היא ה<em>תוספת</em> מעל הבסיס הבטוח. 10%−3%=7%. זה הפיצוי שהשוק מציע עבור סיכון שוק רגיל (β=1).",
+      noMsg:"פרמיית השוק = ההפרש, לא הסכום. E(Rm)−Rf = 10%−3% = 7%. זה מה שהשוק משלם מעל הריבית הבטוחה."
+    }
+  },
+  {
+    icon:"🔬", chip:"שלב 5 מתוך 6",
+    title:"נוסחת CAPM — הרכבה מלאה",
+    body:`
+      <p>כל החלקים מוכנים. הנוסחה פשוט <strong>מרכיבה</strong> אותם:</p>
+      <p>מתחילים מ-<strong>R_F</strong> (הבסיס הבטוח). מוסיפים את הפרמיה שמגיעה לנכס הספציפי — שהיא β כפול פרמיית השוק.</p>
+      <div class="callout">
+        <div class="callout-title">✏️ הנוסחה</div>
+        <div style="font-size:16px;font-weight:800;color:#2563eb;text-align:center;padding:6px 0;letter-spacing:.5px">
+          E(R<sub>i</sub>) = R<sub>F</sub> + β<sub>i</sub> · [E(R<sub>M</sub>) − R<sub>F</sub>]
+        </div>
+      </div>
+      <p>β=0 → R_F בלבד. β=1 → תשואת שוק מלאה. β=2 → פרמיה כפולה. הגיוני לחלוטין!</p>
+    `,
+    explore:{tag:"מחשבון CAPM חי",title:"שנו פרמטרים — ראו את SML מתעדכן",sub:"שלושה סליידרים — הנקודה על הגרף זה הנכס שלכם",render:renderStep5},
+    q:{
+      prompt:"Rf=4%, E(Rm)=11%, β=1.5. מהי התשואה לפי CAPM?",
+      choices:["11% — תשואת השוק","14.5% — 4%+1.5×7%","16.5% — 4%+1.5×11%"],
+      ok:1,
+      okMsg:"<strong>מדויק!</strong> 4% + 1.5×(11%−4%) = 4%+10.5% = 14.5%. הבטא מכפילה את הפרמיה (7%), לא את תשואת השוק כולה!",
+      noMsg:"זכרו: הבטא מכפילה את ההפרש [E(Rm)−Rf], לא את E(Rm). נסו: 4 + 1.5×(11−4) = 4+10.5 = 14.5%."
+    }
+  },
+  {
+    icon:"📊", chip:"שלב 6 מתוך 6",
+    title:"קו ה-SML — שיווי משקל, חריגות, ואלפא",
+    body:`
+      <p>ציירו CAPM על גרף: ציר X=בטא, ציר Y=תשואה. הגרף הוא <strong>קו ישר עולה</strong> — זהו קו שוק ניירות הערך (SML).</p>
+      <p><strong>מעל הקו</strong> = נכס זול — מציע יותר ממה שהסיכון מצדיק. משקיעים יקנו → מחיר יעלה → תשואה תרד לקו.</p>
+      <div class="callout">
+        <div class="callout-title">🔑 אלפא (α)</div>
+        המרחק האנכי מה-SML = אלפא. <strong>α>0</strong>: עודף תשואה לא מוסבר. זה מה שמנהלי קרנות מנסים "לצוד".
+      </div>
+    `,
+    explore:{tag:"SML אינטראקטיבי",title:"גררו את המניה — ראו את האלפא שלה",sub:"מעל הקו = קנייה. מתחת לקו = מכירה. על הקו = שיווי משקל.",render:renderStep6},
+    q:{
+      prompt:"β=1, Rf=3%, E(Rm)=10%, אך מניה זו מציעה 15%. מה המצב בשוק יעיל?",
+      choices:["מנהל טוב יכול לשמר אלפא חיובית לאורך זמן","אלפא חיובית תפוצץ ביקוש → מחיר יעלה → תשואה תרד חזרה לקו","הנכס תמיד יישאר מעל ה-SML"],
+      ok:1,
+      okMsg:"<strong>בדיוק.</strong> בשוק יעיל, הזדמנות נוצלת מיד. המשקיעים יקנו, המחיר יעלה, התשואה תרד מ-15% ל-10% (תשואת השוק ל-β=1). האלפא תיעלם.",
+      noMsg:"בשוק יעיל, אלפא חיובית מושכת קונים → מחיר עולה → תשואה יורדת. CAPM מניח שיווי משקל, ולכן אלפא מתמשכת מאתגרת את הנחת היעילות."
+    }
+  }
+];
+
+/* ══════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════ */
+let step=0,picked=null,answered=false;
+let s1_req=12;
+let s2_stocks=new Set();
+const S2_POOL=[
+  {id:0,name:"בנק לאומי",sector:"בנקאות",icon:"🏛️",beta:0.7},
+  {id:1,name:"Apple",sector:"טכנולוגיה",icon:"🍎",beta:1.4},
+  {id:2,name:"שופרסל",sector:"קמעונאות",icon:"🛒",beta:0.5},
+  {id:3,name:"NVIDIA",sector:"מוליכים",icon:"🖥️",beta:1.8},
+  {id:4,name:"מים ישראל",sector:"תשתיות",icon:"💧",beta:0.3},
+  {id:5,name:"Tesla",sector:"רכב-טק",icon:"⚡",beta:2.1},
+];
+let s3_beta=1.2;
+let s4_rf=3,s4_rm=10;
+let s5_rf=4,s5_rm=11,s5_beta=1.0;
+let s6_rf=3,s6_rm=10,s6_ax=0,s6_ay=0,s6_dragging=false;
+const s6_listeners=[];
+
+/* ══════════════════════════════════════════════════
+   RENDER ENGINE
+   ══════════════════════════════════════════════════ */
+function render(){
+  const s=STEPS[step];
+
+  // Progress nodes
+  const nodesEl=document.getElementById('nodes');
+  nodesEl.innerHTML='';
+  for(let i=0;i<STEPS.length;i++){
+    if(i>0){
+      const line=document.createElement('div');
+      line.className='node-line'+(i<=step?' done':'');
+      nodesEl.appendChild(line);
+    }
+    const n=document.createElement('div');
+    n.className='node'+(i<step?' done':i===step?' active':'');
+    n.innerHTML=i<step?'<span></span>':`<span>${i+1}</span>`;
+    if(i<step) n.onclick=()=>goTo(i);
+    nodesEl.appendChild(n);
+  }
+  document.getElementById('prog-label').textContent=`${step+1} / ${STEPS.length}`;
+
+  // Concept panel with transition
+  document.getElementById('step-icon').textContent=s.icon;
+  document.getElementById('step-chip').textContent=s.chip;
+  const titleEl=document.getElementById('concept-title');
+  titleEl.textContent=s.title;
+  titleEl.className='concept-title step-transition';
+
+  const bodyEl=document.getElementById('concept-body');
+  bodyEl.innerHTML=STEP_ILLUSTRATIONS[step]+s.body;
+  bodyEl.className='concept-body step-transition';
+
+  // Question
+  document.getElementById('q-prompt').textContent=s.q.prompt;
+  const ch=document.getElementById('choices');
+  ch.innerHTML='';
+  s.q.choices.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='choice';
+    d.innerHTML=`<div class="choice-bullet"></div><span>${c}</span>`;
+    d.onclick=()=>pick(i);
+    ch.appendChild(d);
+  });
+
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('btn-back').disabled=step===0;
+  document.getElementById('btn-next').textContent='בדיקה ←';
+  picked=null; answered=false;
+
+  // Explore panel
+  const ex=s.explore;
+  document.getElementById('explore-tag').textContent=ex.tag;
+  document.getElementById('explore-title').textContent=ex.title;
+  document.getElementById('explore-sub').textContent=ex.sub;
+  const eb=document.getElementById('explore-body');
+  eb.innerHTML='';
+  eb.className='explore-body step-transition';
+
+  // Clean up drag listeners from step 6
+  s6_listeners.forEach(([el,ev,fn])=>el.removeEventListener(ev,fn));
+  s6_listeners.length=0;
+
+  ex.render();
+}
+
+function pick(i){
+  if(answered) return;
+  picked=i;
+  document.querySelectorAll('.choice').forEach((c,j)=>{
+    c.className='choice'+(j===i?' picked':'');
+  });
+}
+
+function submitOrNext(){
+  if(!answered){
+    if(picked===null) return;
+    answered=true;
+    const s=STEPS[step];
+    const ok=picked===s.q.ok;
+    document.querySelectorAll('.choice').forEach((c,i)=>{
+      if(i===s.q.ok) c.className='choice correct locked';
+      else if(i===picked) c.className='choice wrong locked';
+      else c.className='choice locked';
+    });
+    const fb=document.getElementById('feedback');
+    document.getElementById('fb-icon').textContent=ok?'🎉':'💭';
+    document.getElementById('fb-text').innerHTML=ok?s.q.okMsg:s.q.noMsg;
+    fb.className='feedback show '+(ok?'ok':'no');
+    if(ok) launchConfetti(60);
+    document.getElementById('btn-next').textContent=step<STEPS.length-1?'שלב הבא ←':'סיום 🎓';
+  } else {
+    step<STEPS.length-1 ? (step++, render()) : showEnd();
+  }
+}
+
+function nav(d){step=Math.max(0,Math.min(STEPS.length-1,step+d));render();}
+function goTo(i){step=i;render();}
+
+/* ══════════════════════════════════════════════════
+   STEP 1 — Risk premium bar chart
+   ══════════════════════════════════════════════════ */
+function renderStep1(){
+  const eb=document.getElementById('explore-body');
+  eb.innerHTML=`
+    <div class="chart-wrap"><canvas id="c1" width="540" height="230" style="display:block;width:100%"></canvas></div>
+    <div class="sliders">
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label-text">תשואה שאתם דורשים מהמניה</span>
+          <span class="slider-val" id="s1v">${s1_req}%</span>
+        </div>
+        <input type="range" min="4" max="30" value="${s1_req}" id="s1sl">
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-pill ${s1_req-4>0?'highlight':''}">פרמיית סיכון: <span id="s1prem">${s1_req-4}%</span></div>
+      <div class="stat-pill" id="s1pill2" style="font-size:11px"></div>
+    </div>
+  `;
+  drawStep1();
+  document.getElementById('s1sl').addEventListener('input',function(){
+    s1_req=+this.value;
+    document.getElementById('s1v').textContent=s1_req+'%';
+    document.getElementById('s1prem').textContent=(s1_req-4)+'%';
+    const p1=document.getElementById('s1prem').parentElement;
+    p1.className='stat-pill'+(s1_req-4>0?' highlight':'');
+    drawStep1();
+  });
+}
+
+function drawStep1(){
+  const cvs=document.getElementById('c1'); if(!cvs) return;
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+  const prem=s1_req-4;
+
+  // Gradient background
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f9fafb'); bg.addColorStop(1,'#f0f4ff');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const maxR=32, bw=88, baseY=H-45;
+  const maxBarH=H-80;
+  const x1=90, x2=x1+bw+80;
+
+  // RF bar with gradient
+  const rfH=Math.round((4/maxR)*maxBarH);
+  const g1=ctx.createLinearGradient(0,baseY-rfH,0,baseY);
+  g1.addColorStop(0,'#4ade80'); g1.addColorStop(1,'#bbf7d0');
+  ctx.fillStyle=g1;
+  ctx.beginPath(); ctx.roundRect(x1,baseY-rfH,bw,rfH,8); ctx.fill();
+
+  // RF shadow
+  ctx.shadowColor='rgba(74,222,128,.25)'; ctx.shadowBlur=10;
+  ctx.fillStyle='rgba(0,0,0,0)';
+  ctx.beginPath(); ctx.roundRect(x1,baseY-rfH,bw,rfH,8); ctx.fill();
+  ctx.shadowBlur=0;
+
+  // RF labels
+  ctx.fillStyle='#15803d'; ctx.font='bold 14px Rubik'; ctx.textAlign='center';
+  ctx.fillText('4%', x1+bw/2, baseY-rfH-10);
+  ctx.fillStyle='#6b7280'; ctx.font='12px Rubik';
+  ctx.fillText('אג"ח ממשלתי', x1+bw/2, baseY+18);
+  ctx.fillStyle='#9ca3af'; ctx.font='11px Rubik';
+  ctx.fillText('✅ ריבית בטוחה', x1+bw/2, baseY+32);
+
+  // Stock bar
+  const rrH=Math.round((s1_req/maxR)*maxBarH);
+  const rfBarH=Math.round((4/maxR)*maxBarH);
+  const premH=rrH-rfBarH;
+
+  // Base part of stock bar
+  const g2=ctx.createLinearGradient(0,baseY-rfBarH,0,baseY);
+  g2.addColorStop(0,'#4ade80'); g2.addColorStop(1,'#bbf7d0');
+  ctx.fillStyle=g2;
+  ctx.beginPath(); ctx.roundRect(x2,baseY-rfBarH,bw,rfBarH,[0,0,8,8]); ctx.fill();
+
+  // Premium part
+  if(premH>0){
+    const premColor=prem<4?'#fca5a5':prem<10?'#fbbf24':'#34d399';
+    const g3=ctx.createLinearGradient(0,baseY-rfBarH-premH,0,baseY-rfBarH);
+    g3.addColorStop(0,premColor); g3.addColorStop(1,premColor+'99');
+    ctx.fillStyle=g3;
+    ctx.beginPath(); ctx.roundRect(x2,baseY-rfBarH-premH,bw,premH,[8,8,0,0]); ctx.fill();
+
+    // Dashed line at RF level on stock bar
+    ctx.strokeStyle='rgba(37,99,235,.5)'; ctx.lineWidth=1.5; ctx.setLineDash([5,3]);
+    ctx.beginPath(); ctx.moveTo(x2,baseY-rfBarH); ctx.lineTo(x2+bw,baseY-rfBarH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Premium label with arrow — using LTR text
+    ctx.save();
+    ctx.direction='ltr';
+    const midY=baseY-rfBarH-premH/2;
+    ctx.fillStyle='#2563eb'; ctx.font='bold 11px Rubik'; ctx.textAlign='left';
+    ctx.fillText(`פרמיה: +${prem}%`, x2+bw+10, midY+4);
+    // Brace
+    ctx.strokeStyle='#2563eb'; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(x2+bw+4,baseY-rfBarH);
+    ctx.lineTo(x2+bw+8,baseY-rfBarH);
+    ctx.lineTo(x2+bw+8,baseY-rfBarH-premH);
+    ctx.lineTo(x2+bw+4,baseY-rfBarH-premH);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Stock total label
+  ctx.fillStyle='#374151'; ctx.font='bold 14px Rubik'; ctx.textAlign='center';
+  ctx.fillText(s1_req+'%', x2+bw/2, baseY-rrH-10);
+  ctx.fillStyle='#6b7280'; ctx.font='12px Rubik';
+  ctx.fillText('מניה', x2+bw/2, baseY+18);
+
+  // Decision emoji
+  const pill2=document.getElementById('s1pill2');
+  if(pill2){
+    if(prem===0) pill2.textContent='⚠️ פרמיה 0% — אין טעם לסכן!';
+    else if(prem<5) pill2.textContent='💭 פרמיה קטנה — האם שווה את הסיכון?';
+    else pill2.textContent='✅ פרמיה הוגנת — מפצה על הסיכון!';
+  }
+
+  // Baseline
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(60,baseY); ctx.lineTo(x2+bw+60,baseY); ctx.stroke();
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 2 — Diversification
+   ══════════════════════════════════════════════════ */
+function renderStep2(){
+  const eb=document.getElementById('explore-body');
+  eb.innerHTML=`
+    <div class="chart-wrap"><canvas id="c2" width="540" height="190" style="display:block;width:100%"></canvas></div>
+    <div class="risk-meter">
+      <div class="risk-meter-label">סיכון התיק הנוכחי</div>
+      <div style="position:relative">
+        <div class="risk-bar-wrap">
+          <div class="risk-bar-fill" id="rbar"></div>
+        </div>
+        <div style="position:absolute;top:-14px;right:0;font-size:10px;color:var(--red);font-weight:700">⬇ סיכון שיטתי (6%)</div>
+      </div>
+      <div class="risk-numbers" style="margin-top:10px">
+        <span class="risk-total" id="rtotal">בחרו מניות →</span>
+        <span class="risk-sys" id="rbreak"></span>
+      </div>
+    </div>
+    <div class="stock-grid" id="sgrid"></div>
+  `;
+  buildStockGrid();
+  updateDiverGraph();
+}
+
+function buildStockGrid(){
+  const g=document.getElementById('sgrid'); if(!g) return;
+  g.innerHTML='';
+  S2_POOL.forEach(s=>{
+    const d=document.createElement('div');
+    d.className='stock-card'+(s2_stocks.has(s.id)?' active':'');
+    d.innerHTML=`<div class="stock-icon">${s.icon}</div><div class="stock-name">${s.name}</div><div class="stock-sector">${s.sector}</div><div class="stock-beta">β=${s.beta}</div>`;
+    d.onclick=()=>{
+      s2_stocks.has(s.id)?s2_stocks.delete(s.id):s2_stocks.add(s.id);
+      buildStockGrid(); updateDiverGraph();
+    };
+    g.appendChild(d);
+  });
+}
+
+function updateDiverGraph(){
+  const n=s2_stocks.size, sysr=6;
+  const specr=n===0?22:Math.max(0,22*Math.pow(0.55,n));
+  const total=sysr+specr;
+  const pct=Math.round((total/28)*100);
+
+  const bar=document.getElementById('rbar');
+  const rt=document.getElementById('rtotal');
+  const rb=document.getElementById('rbreak');
+  if(!bar) return;
+
+  bar.style.width=pct+'%';
+  // Two-color bar using gradient
+  const specPct=Math.round((specr/total)*100);
+  bar.style.background=`linear-gradient(to right, #ef4444 ${specPct}%, #f59e0b)`;
+  if(pct<35) bar.style.background='linear-gradient(to right, #86efac, #22c55e)';
+
+  rt.textContent=n===0?`הוסיפו מניות לתיק`:`סיכון כולל: ${total.toFixed(1)}% (${n} מניה${n>1?'ות':''})`;
+  rb.textContent=`ספציפי: ${specr.toFixed(1)}% | שיטתי (רצפה): ${sysr}%`;
+
+  const cvs=document.getElementById('c2'); if(!cvs) return;
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f9fafb'); bg.addColorStop(1,'#f0f4ff');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const pad=44,pw=W-pad*2,ph=H-pad*2,maxN=8,maxR=30;
+
+  // Grid lines
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  [0,10,20,30].forEach(r=>{
+    const y=pad+ph*(1-r/maxR);
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+pw,y); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='right';
+    ctx.fillText(r+'%',pad-4,y+3);
+  });
+
+  // Shaded region: specific risk (above floor)
+  ctx.fillStyle='rgba(239,68,68,.05)';
+  const floorY=pad+ph*(1-sysr/maxR);
+  const curvePoints=[];
+  for(let ni=0;ni<=maxN;ni++){
+    const sp=ni===0?22:Math.max(0,22*Math.pow(0.55,ni));
+    curvePoints.push({x:pad+ni*(pw/maxN),y:pad+ph*(1-(sysr+sp)/maxR)});
+  }
+  ctx.beginPath();
+  ctx.moveTo(curvePoints[0].x,curvePoints[0].y);
+  curvePoints.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pad+pw,floorY);
+  ctx.lineTo(pad,floorY);
+  ctx.closePath(); ctx.fill();
+
+  // Systematic risk floor — shaded zone
+  ctx.fillStyle='rgba(239,68,68,.06)';
+  ctx.fillRect(pad,floorY,pw,pad+ph-floorY);
+
+  // Floor dashed line
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(pad,floorY); ctx.lineTo(pad+pw,floorY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#ef4444'; ctx.font='bold 10px Rubik'; ctx.textAlign='left';
+  ctx.fillText('⬅ סיכון שיטתי (לא ניתן לביטול)',pad+4,floorY-5);
+
+  // Total risk curve
+  const grad=ctx.createLinearGradient(pad,0,pad+pw,0);
+  grad.addColorStop(0,'#ef4444'); grad.addColorStop(0.5,'#f59e0b'); grad.addColorStop(1,'#2563eb');
+  ctx.strokeStyle=grad; ctx.lineWidth=3; ctx.lineJoin='round';
+  ctx.beginPath();
+  curvePoints.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+
+  // Current dot (animated pulse-like)
+  const cx=pad+n*(pw/maxN);
+  const dotY=pad+ph*(1-Math.min(total,maxR)/maxR);
+  const dotColor=pct>70?'#ef4444':pct>40?'#f59e0b':'#16a34a';
+  ctx.fillStyle=dotColor+'30';
+  ctx.beginPath(); ctx.arc(cx,dotY,12,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=dotColor;
+  ctx.beginPath(); ctx.arc(cx,dotY,7,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(cx,dotY,3,0,Math.PI*2); ctx.fill();
+
+  // Axis label
+  ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='center';
+  ctx.fillText('מספר מניות בתיק',pad+pw/2,H-6);
+  for(let ni=0;ni<=maxN;ni+=2){
+    ctx.fillText(ni,pad+ni*(pw/maxN),H-16);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 3 — Beta regression
+   ══════════════════════════════════════════════════ */
+function renderStep3(){
+  const eb=document.getElementById('explore-body');
+  eb.innerHTML=`
+    <div class="chart-wrap"><canvas id="c3" width="540" height="260" style="display:block;width:100%"></canvas></div>
+    <div class="sliders">
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-label-text">בטא של המניה (β)</span>
+          <span class="slider-val" id="s3v">β = ${s3_beta}</span>
+        </div>
+        <input type="range" min="0" max="2.5" step="0.1" value="${s3_beta}" id="s3sl">
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-pill green">שוק ↑ 10% → <span id="s3up">+${(s3_beta*10).toFixed(1)}%</span></div>
+      <div class="stat-pill red">שוק ↓ 10% → <span id="s3dn" style="color:#dc2626">${(-s3_beta*10).toFixed(1)}%</span></div>
+      <div class="stat-pill" id="s3char"></div>
+    </div>
+  `;
+  updateStep3Char();
+  drawStep3();
+  document.getElementById('s3sl').addEventListener('input',function(){
+    s3_beta=+this.value;
+    document.getElementById('s3v').textContent='β = '+s3_beta;
+    document.getElementById('s3up').textContent='+'+(s3_beta*10).toFixed(1)+'%';
+    document.getElementById('s3dn').textContent=(-(s3_beta*10)).toFixed(1)+'%';
+    updateStep3Char();
+    drawStep3();
+  });
+}
+
+function updateStep3Char(){
+  const el=document.getElementById('s3char'); if(!el) return;
+  if(s3_beta<0.6) el.textContent='🛡️ הגנתי';
+  else if(s3_beta<1.1) el.textContent='⚖️ מאוזן';
+  else if(s3_beta<1.6) el.textContent='⚡ תוקפני';
+  else el.textContent='🚀 תנודתי מאוד';
+}
+
+function drawStep3(){
+  const cvs=document.getElementById('c3'); if(!cvs) return;
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f9fafb'); bg.addColorStop(1,'#f0f4ff');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const pad=48,pw=W-pad*2,ph=H-pad*2,range=20;
+  function toX(v){return pad+(v+range)/(range*2)*pw;}
+  function toY(v){return pad+ph-(v+range)/(range*2)*ph;}
+
+  // Grid
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  [-20,-10,0,10,20].forEach(v=>{
+    ctx.beginPath(); ctx.moveTo(toX(v),pad); ctx.lineTo(toX(v),pad+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad,toY(v)); ctx.lineTo(pad+pw,toY(v)); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik';
+    ctx.textAlign='center'; ctx.fillText(v+'%',toX(v),pad+ph+14);
+    ctx.textAlign='right'; ctx.fillText(v+'%',pad-5,toY(v)+3);
+  });
+
+  // Main axes
+  ctx.strokeStyle='#d1d5db'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(toX(0),pad); ctx.lineTo(toX(0),pad+ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad,toY(0)); ctx.lineTo(pad+pw,toY(0)); ctx.stroke();
+
+  // Scatter (deterministic)
+  const pts=[];
+  for(let i=0;i<28;i++){
+    const seed=i*17+3;
+    const mx=((seed*13)%37)-18;
+    const noise=((seed*7+5)%19)-9;
+    const sy=mx*s3_beta+noise*(1.2-Math.min(1,Math.abs(s3_beta-1)*0.4));
+    pts.push({mx,sy});
+  }
+
+  // Draw scatter with gradient colors
+  pts.forEach(p=>{
+    const inBounds=Math.abs(p.mx)<=range && Math.abs(p.sy)<=range;
+    if(!inBounds) return;
+    const dist=Math.abs(p.sy-(p.mx*s3_beta));
+    const alpha=Math.max(0.2,0.7-dist*0.03);
+    ctx.fillStyle=`rgba(37,99,235,${alpha})`;
+    ctx.beginPath(); ctx.arc(toX(p.mx),toY(p.sy),4.5,0,Math.PI*2); ctx.fill();
+  });
+
+  // Regression line with glow
+  ctx.save();
+  ctx.shadowColor='rgba(37,99,235,.35)'; ctx.shadowBlur=8;
+  const lineColor=s3_beta<0.8?'#16a34a':s3_beta>1.5?'#dc2626':'#2563eb';
+  ctx.strokeStyle=lineColor; ctx.lineWidth=3;
+  ctx.beginPath();
+  const ly0=toY(-range*s3_beta), ly1=toY(range*s3_beta);
+  // Clip to canvas bounds
+  ctx.moveTo(toX(-range),Math.max(pad,Math.min(pad+ph,ly0)));
+  ctx.lineTo(toX(range),Math.max(pad,Math.min(pad+ph,ly1)));
+  ctx.stroke();
+  ctx.restore();
+
+  // Beta label inside chart (safe position)
+  const labelX=toX(10), labelY=toY(10*s3_beta);
+  const safeY=Math.max(pad+20,Math.min(pad+ph-10,labelY-14));
+  ctx.fillStyle=lineColor;
+  ctx.font='bold 12px Rubik'; ctx.textAlign='center';
+  ctx.fillText(`β = ${s3_beta}`,labelX,safeY);
+
+  // Axis labels
+  ctx.fillStyle='#6b7280'; ctx.font='11px Rubik'; ctx.textAlign='center';
+  ctx.fillText('תשואת השוק (%)',pad+pw/2,H-2);
+  ctx.save(); ctx.translate(14,pad+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('תשואת המניה (%)',0,0); ctx.restore();
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 4 — Premium builder
+   ══════════════════════════════════════════════════ */
+function renderStep4(){
+  const eb=document.getElementById('explore-body');
+  const prem=Math.max(0,s4_rm-s4_rf);
+  eb.innerHTML=`
+    <div class="chart-wrap"><canvas id="c4" width="540" height="230" style="display:block;width:100%"></canvas></div>
+    <div class="sliders">
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-label-text">ריבית בסיס R<sub>F</sub></span><span class="slider-val" id="s4rfv">${s4_rf}%</span></div>
+        <input type="range" min="0.5" max="8" step="0.5" value="${s4_rf}" id="s4rf">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-label-text">תשואת שוק E(R<sub>M</sub>)</span><span class="slider-val" id="s4rmv">${s4_rm}%</span></div>
+        <input type="range" min="3" max="18" step="0.5" value="${s4_rm}" id="s4rm">
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-pill">R<sub>F</sub>: <span id="p4rf">${s4_rf}%</span></div>
+      <div class="stat-pill">E(R<sub>M</sub>): <span id="p4rm">${s4_rm}%</span></div>
+      <div class="stat-pill highlight">פרמיית שוק: <span id="p4prem">${prem}%</span></div>
+    </div>
+  `;
+  drawStep4();
+  document.getElementById('s4rf').addEventListener('input',function(){
+    s4_rf=+this.value;
+    document.getElementById('s4rfv').textContent=s4_rf+'%';
+    document.getElementById('p4rf').textContent=s4_rf+'%';
+    document.getElementById('p4prem').textContent=Math.max(0,s4_rm-s4_rf)+'%';
+    drawStep4();
+  });
+  document.getElementById('s4rm').addEventListener('input',function(){
+    s4_rm=+this.value;
+    document.getElementById('s4rmv').textContent=s4_rm+'%';
+    document.getElementById('p4rm').textContent=s4_rm+'%';
+    document.getElementById('p4prem').textContent=Math.max(0,s4_rm-s4_rf)+'%';
+    drawStep4();
+  });
+}
+
+function drawStep4(){
+  const cvs=document.getElementById('c4'); if(!cvs) return;
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f9fafb'); bg.addColorStop(1,'#f0fdf4');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const maxR=20, ph=H-80, by=H-48, bw=76;
+  const rfH=Math.max(4,(s4_rf/maxR)*ph);
+  const rmH=Math.max(rfH,(Math.max(s4_rf,s4_rm)/maxR)*ph);
+  const premH=rmH-rfH;
+
+  const x1=90, x2=260;
+
+  // RF bar
+  const g1=ctx.createLinearGradient(0,by-rfH,0,by);
+  g1.addColorStop(0,'#4ade80'); g1.addColorStop(1,'#bbf7d0');
+  ctx.fillStyle=g1;
+  ctx.beginPath(); ctx.roundRect(x1,by-rfH,bw,rfH,[8,8,4,4]); ctx.fill();
+  ctx.fillStyle='#15803d'; ctx.font='bold 14px Rubik'; ctx.textAlign='center';
+  ctx.fillText(s4_rf+'%',x1+bw/2,by-rfH-12);
+  ctx.fillStyle='#6b7280'; ctx.font='11px Rubik';
+  ctx.fillText('R_F',x1+bw/2,by+18);
+  ctx.fillText('(ריבית בטוחה 🏦)',x1+bw/2,by+31);
+
+  // RM bar base
+  ctx.fillStyle=g1;
+  ctx.beginPath(); ctx.roundRect(x2,by-rfH,bw,rfH,[0,0,4,4]); ctx.fill();
+
+  // Premium layer
+  if(premH>0){
+    const g2=ctx.createLinearGradient(0,by-rfH-premH,0,by-rfH);
+    g2.addColorStop(0,'#60a5fa'); g2.addColorStop(1,'#bfdbfe');
+    ctx.fillStyle=g2;
+    ctx.beginPath(); ctx.roundRect(x2,by-rfH-premH,bw,premH,[8,8,0,0]); ctx.fill();
+
+    // Pattern overlay for premium
+    ctx.fillStyle='rgba(37,99,235,.07)';
+    for(let y2=by-rfH-premH;y2<by-rfH;y2+=6){
+      ctx.fillRect(x2,y2,bw,3);
+    }
+
+    // Separator dashed line
+    ctx.strokeStyle='rgba(37,99,235,.4)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(x2,by-rfH); ctx.lineTo(x2+bw,by-rfH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Premium brace on the right side
+    const bx=x2+bw+10;
+    ctx.strokeStyle='#2563eb'; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(bx,by-rfH);
+    ctx.lineTo(bx+6,by-rfH);
+    ctx.lineTo(bx+6,by-rfH-premH);
+    ctx.lineTo(bx,by-rfH-premH);
+    ctx.stroke();
+    const midBraceY=by-rfH-premH/2;
+    ctx.fillStyle='#2563eb'; ctx.font='bold 11px Rubik'; ctx.textAlign='left';
+    ctx.fillText('פרמיה:',bx+10,midBraceY-3);
+    ctx.fillText(`${Math.max(0,s4_rm-s4_rf).toFixed(1)}%`,bx+10,midBraceY+11);
+  }
+
+  ctx.fillStyle='#1e40af'; ctx.font='bold 14px Rubik'; ctx.textAlign='center';
+  ctx.fillText(Math.max(s4_rf,s4_rm)+'%',x2+bw/2,by-rmH-12);
+  ctx.fillStyle='#6b7280'; ctx.font='11px Rubik';
+  ctx.fillText('E(Rₘ)',x2+bw/2,by+18);
+  ctx.fillText('(תשואת שוק 📈)',x2+bw/2,by+31);
+
+  // Baseline
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(60,by); ctx.lineTo(x2+bw+80,by); ctx.stroke();
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 5 — CAPM live calculator
+   ══════════════════════════════════════════════════ */
+function renderStep5(){
+  const er=(s5_rf+s5_beta*(s5_rm-s5_rf)).toFixed(2);
+  const eb=document.getElementById('explore-body');
+  eb.innerHTML=`
+    <div class="chart-wrap"><canvas id="c5" width="540" height="230" style="display:block;width:100%"></canvas></div>
+    <div class="sliders">
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-label-text">R<sub>F</sub> (ריבית בסיס)</span><span class="slider-val" id="v5rf">${s5_rf}%</span></div>
+        <input type="range" min="1" max="8" step="0.5" value="${s5_rf}" id="sl5rf">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-label-text">E(R<sub>M</sub>) (תשואת שוק)</span><span class="slider-val" id="v5rm">${s5_rm}%</span></div>
+        <input type="range" min="5" max="20" step="0.5" value="${s5_rm}" id="sl5rm">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-label-text">β (בטא הנכס)</span><span class="slider-val" id="v5b">${s5_beta}</span></div>
+        <input type="range" min="0" max="2.5" step="0.1" value="${s5_beta}" id="sl5b">
+      </div>
+    </div>
+    <div class="formula-display">
+      <div class="formula-main" id="s5formula">E(R) = ${s5_rf}% + ${s5_beta} × (${s5_rm}%−${s5_rf}%) = <strong style="font-size:20px">${er}%</strong></div>
+    </div>
+  `;
+  drawStep5();
+  ['rf','rm','b'].forEach(k=>{
+    document.getElementById('sl5'+k).addEventListener('input',function(){
+      if(k==='rf') s5_rf=+this.value;
+      if(k==='rm') s5_rm=+this.value;
+      if(k==='b')  s5_beta=+this.value;
+      document.getElementById('v5rf').textContent=s5_rf+'%';
+      document.getElementById('v5rm').textContent=s5_rm+'%';
+      document.getElementById('v5b').textContent=s5_beta;
+      const r=(s5_rf+s5_beta*(s5_rm-s5_rf)).toFixed(2);
+      const fEl=document.getElementById('s5formula');
+      if(fEl) fEl.innerHTML=`E(R) = ${s5_rf}% + ${s5_beta} × (${s5_rm}%−${s5_rf}%) = <strong style="font-size:20px">${r}%</strong>`;
+      drawStep5();
+    });
+  });
+}
+
+function drawStep5(){
+  const cvs=document.getElementById('c5'); if(!cvs) return;
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f9fafb'); bg.addColorStop(1,'#f5f3ff');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const pad=50,pw=W-pad*2,ph=H-80,maxB=2.5,by=H-40;
+  const maxReturn=Math.max(22,s5_rf+maxB*(s5_rm-s5_rf)+2);
+  function xB(b){return pad+b/maxB*pw;}
+  function yR(r){return by-(r/maxReturn)*ph;}
+
+  // Grid
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  const rStep=5;
+  for(let r=0;r<=Math.ceil(maxReturn/rStep)*rStep;r+=rStep){
+    const y=yR(r); if(y<pad) continue;
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+pw,y); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='right';
+    ctx.fillText(r+'%',pad-4,y+3);
+  }
+  [0,0.5,1,1.5,2,2.5].forEach(b=>{
+    const x=xB(b);
+    ctx.strokeStyle='#e5e7eb';
+    ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,by); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='center';
+    ctx.fillText(b,x,by+14);
+  });
+
+  // SML shaded region below
+  const smlGrad=ctx.createLinearGradient(0,pad,0,by);
+  smlGrad.addColorStop(0,'rgba(37,99,235,.05)');
+  smlGrad.addColorStop(1,'rgba(37,99,235,.0)');
+  ctx.fillStyle=smlGrad;
+  ctx.beginPath();
+  ctx.moveTo(xB(0),yR(s5_rf));
+  ctx.lineTo(xB(maxB),yR(s5_rf+maxB*(s5_rm-s5_rf)));
+  ctx.lineTo(xB(maxB),by);
+  ctx.lineTo(xB(0),by);
+  ctx.closePath(); ctx.fill();
+
+  // SML line with glow
+  ctx.save();
+  ctx.shadowColor='rgba(37,99,235,.3)'; ctx.shadowBlur=8;
+  ctx.strokeStyle='#2563eb'; ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(xB(0),Math.max(pad,yR(s5_rf)));
+  ctx.lineTo(xB(maxB),Math.max(pad,yR(s5_rf+maxB*(s5_rm-s5_rf))));
+  ctx.stroke();
+  ctx.restore();
+
+  // Dotted vertical/horizontal to current point
+  const er=s5_rf+s5_beta*(s5_rm-s5_rf);
+  const dx=xB(s5_beta), dy=yR(er);
+  ctx.strokeStyle='rgba(124,58,237,.4)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(dx,by); ctx.lineTo(dx,dy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad,dy); ctx.lineTo(dx,dy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Asset dot with glow
+  ctx.save();
+  ctx.shadowColor='rgba(124,58,237,.5)'; ctx.shadowBlur=12;
+  ctx.fillStyle='#7c3aed';
+  ctx.beginPath(); ctx.arc(dx,dy,10,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(dx,dy,4,0,Math.PI*2); ctx.fill();
+
+  // SML label
+  const smlY=yR(s5_rf+maxB*(s5_rm-s5_rf));
+  ctx.fillStyle='#2563eb'; ctx.font='bold 12px Rubik'; ctx.textAlign='right';
+  if(smlY>pad+14) ctx.fillText('SML',pad+pw,smlY-8);
+
+  ctx.fillStyle='#16a34a'; ctx.font='10px Rubik'; ctx.textAlign='left';
+  ctx.fillText(`Rf=${s5_rf}%`,xB(0)+4,yR(s5_rf)-8);
+
+  // Current point label
+  const labelX=dx+14, labelY=Math.max(pad+12,dy-8);
+  ctx.fillStyle='#7c3aed'; ctx.font='bold 11px Rubik'; ctx.textAlign='left';
+  ctx.fillText(`E(R)=${er.toFixed(1)}%`,labelX,labelY);
+
+  ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='center';
+  ctx.fillText('בטא (β)',pad+pw/2,H-2);
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 6 — SML with draggable asset
+   ══════════════════════════════════════════════════ */
+function renderStep6(){
+  if(s6_ax===0&&s6_ay===0){s6_ax=1.3;s6_ay=s6_rf+s6_ax*(s6_rm-s6_rf)+3.5;}
+  const eb=document.getElementById('explore-body');
+  eb.innerHTML=`
+    <div class="chart-wrap" id="c6wrap" style="cursor:grab">
+      <canvas id="c6" width="540" height="260" style="display:block;width:100%"></canvas>
+    </div>
+    <div class="drag-hint">גררו את הנקודה הכתומה לכל מקום על הגרף</div>
+    <div class="stat-row">
+      <div class="stat-pill">β: <span id="s6bv">${s6_ax.toFixed(2)}</span></div>
+      <div class="stat-pill">תשואה מוצעת: <span id="s6rv">${s6_ay.toFixed(1)}%</span></div>
+      <div class="stat-pill">נדרש: <span id="s6reqv">${(s6_rf+s6_ax*(s6_rm-s6_rf)).toFixed(1)}%</span></div>
+      <div class="stat-pill" id="alphapill">α: <span id="s6av">+3.5%</span></div>
+    </div>
+    <div class="sml-msg" id="s6msg"></div>
+  `;
+  drawStep6();
+  setupDragStep6();
+}
+
+function drawStep6(){
+  const cvs=document.getElementById('c6'); if(!cvs) return;
+  const ctx=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  ctx.clearRect(0,0,W,H);
+
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f9fafb'); bg.addColorStop(1,'#f0fdf4');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const pad=48,pw=W-pad*2,ph=H-80,by=H-38,maxB=2.5,maxR=22;
+  function xB(b){return pad+b/maxB*pw;}
+  function yR(r){return by-(r/maxR)*ph;}
+
+  // Grid
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  [0,5,10,15,20].forEach(r=>{
+    const y=yR(r); if(y<pad||y>by) return;
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+pw,y); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='right';
+    ctx.fillText(r+'%',pad-4,y+3);
+  });
+  [0,0.5,1,1.5,2,2.5].forEach(b=>{
+    const x=xB(b);
+    ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,by); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='center';
+    ctx.fillText(b,x,by+14);
+  });
+
+  // SML shaded below
+  const above=ctx.createLinearGradient(0,pad,0,by);
+  above.addColorStop(0,'rgba(37,99,235,.04)'); above.addColorStop(1,'rgba(37,99,235,.01)');
+  ctx.fillStyle=above;
+  ctx.beginPath();
+  ctx.moveTo(xB(0),yR(s6_rf)); ctx.lineTo(xB(maxB),yR(s6_rf+maxB*(s6_rm-s6_rf)));
+  ctx.lineTo(xB(maxB),by); ctx.lineTo(xB(0),by); ctx.closePath(); ctx.fill();
+
+  // SML with glow
+  ctx.save();
+  ctx.shadowColor='rgba(37,99,235,.25)'; ctx.shadowBlur=8;
+  ctx.strokeStyle='#2563eb'; ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(xB(0),Math.max(pad,yR(s6_rf)));
+  ctx.lineTo(xB(maxB),Math.max(pad,yR(s6_rf+maxB*(s6_rm-s6_rf))));
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle='#2563eb'; ctx.font='bold 12px Rubik'; ctx.textAlign='right';
+  ctx.fillText('SML',pad+pw,Math.max(pad+12,yR(s6_rf+maxB*(s6_rm-s6_rf))-8));
+
+  // RF label
+  ctx.fillStyle='#16a34a'; ctx.font='bold 10px Rubik'; ctx.textAlign='left';
+  ctx.fillText(`Rf=${s6_rf}%`,xB(0)+4,yR(s6_rf)-8);
+
+  // Market dot β=1
+  const mktX=xB(1), mktY=yR(s6_rm);
+  ctx.fillStyle='rgba(37,99,235,.15)';
+  ctx.beginPath(); ctx.arc(mktX,mktY,10,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#2563eb';
+  ctx.beginPath(); ctx.arc(mktX,mktY,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#6b7280'; ctx.font='9px Rubik'; ctx.textAlign='center';
+  ctx.fillText('שוק (β=1)',mktX,mktY-12);
+
+  // Alpha dashed line
+  const req=s6_rf+s6_ax*(s6_rm-s6_rf);
+  const alpha=s6_ay-req;
+  const ax=xB(s6_ax), aqy=yR(req), aay=yR(Math.max(0,Math.min(maxR,s6_ay)));
+  const aColor=alpha>0.5?'#16a34a':alpha<-0.5?'#dc2626':'#9ca3af';
+  ctx.strokeStyle=aColor; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(ax,aqy); ctx.lineTo(ax,aay); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Alpha endpoint mark on SML
+  ctx.fillStyle='#2563eb'; ctx.beginPath(); ctx.arc(ax,aqy,4,0,Math.PI*2); ctx.fill();
+
+  // Draggable asset dot with glow
+  const dotColor=alpha>0.5?'#d97706':alpha<-0.5?'#dc2626':'#16a34a';
+  ctx.save();
+  ctx.shadowColor=dotColor+'80'; ctx.shadowBlur=14;
+  ctx.fillStyle=dotColor+'30';
+  ctx.beginPath(); ctx.arc(ax,aay,16,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=dotColor;
+  ctx.beginPath(); ctx.arc(ax,aay,10,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(ax,aay,4,0,Math.PI*2); ctx.fill();
+
+  // Alpha text
+  if(Math.abs(alpha)>0.3){
+    ctx.fillStyle=aColor; ctx.font='bold 11px Rubik'; ctx.textAlign='left';
+    const alphaLabel=`α=${alpha>=0?'+':''}${alpha.toFixed(1)}%`;
+    ctx.fillText(alphaLabel,ax+14,aay-4);
+  }
+
+  // Update pills
+  const upd=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  upd('s6bv',s6_ax.toFixed(2));
+  upd('s6rv',s6_ay.toFixed(1)+'%');
+  upd('s6reqv',req.toFixed(1)+'%');
+  upd('s6av',(alpha>=0?'+':'')+alpha.toFixed(1)+'%');
+
+  const ap=document.getElementById('alphapill');
+  if(ap) ap.className='stat-pill'+(alpha>0.5?' highlight':alpha<-0.5?' red':'');
+  const av=document.getElementById('s6av');
+  if(av) av.style.color=aColor;
+
+  const msg=document.getElementById('s6msg');
+  if(msg){
+    if(alpha>0.5) msg.textContent='✅ המניה מעל ה-SML — אלפא חיובית! מחיר נמוך ביחס לסיכון. משקיעים יקנו → מחיר יעלה → תשואה תרד חזרה לקו.';
+    else if(alpha<-0.5) msg.textContent='⚠️ המניה מתחת ה-SML — אלפא שלילית. יקרה מדי. משקיעים ימכרו → מחיר יירד → תשואה תעלה.';
+    else msg.textContent='⚖️ המניה על ה-SML — שיווי משקל מושלם. התשואה המוצעת תואמת בדיוק את הסיכון.';
+    msg.style.borderColor=alpha>0.5?'#bbf7d0':alpha<-0.5?'#fecaca':'#e5e7eb';
+    msg.style.color=alpha>0.5?'#15803d':alpha<-0.5?'#b91c1c':undefined;
+  }
+
+  ctx.fillStyle='#9ca3af'; ctx.font='10px Rubik'; ctx.textAlign='center';
+  ctx.fillText('בטא (β)',pad+pw/2,H-2);
+}
+
+function setupDragStep6(){
+  const cvs=document.getElementById('c6'); if(!cvs) return;
+  const wrap=document.getElementById('c6wrap');
+
+  function canvasPos(e){
+    const r=cvs.getBoundingClientRect();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const px=(cx-r.left)/r.width*540;
+    const py=(cy-r.top)/r.height*260;
+    const pad=48,pw=540-pad*2,ph=260-80,by=260-38,maxB=2.5,maxR=22;
+    const b=Math.max(0,Math.min(maxB,(px-pad)/pw*maxB));
+    const ret=Math.max(0,Math.min(maxR,(by-py)/ph*maxR));
+    return{b,ret};
+  }
+
+  // Check if click is near the draggable dot (larger hit area)
+  function nearDot(e){
+    const {b,ret}=canvasPos(e);
+    return Math.abs(b-s6_ax)<0.4&&Math.abs(ret-s6_ay)<4;
+  }
+
+  const onDown=e=>{if(nearDot(e)){s6_dragging=true;if(wrap)wrap.style.cursor='grabbing';e.preventDefault();}};
+  const onMove=e=>{
+    if(!s6_dragging) return;
+    const {b,ret}=canvasPos(e);
+    s6_ax=b; s6_ay=ret;
+    drawStep6();
+    e.preventDefault();
+  };
+  const onUp=()=>{s6_dragging=false;if(wrap)wrap.style.cursor='grab';};
+
+  cvs.addEventListener('mousedown',onDown);
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('mouseup',onUp);
+  cvs.addEventListener('touchstart',onDown,{passive:false});
+  window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('touchend',onUp);
+
+  // Store for cleanup
+  s6_listeners.push(
+    [cvs,'mousedown',onDown],[window,'mousemove',onMove],[window,'mouseup',onUp],
+    [cvs,'touchstart',onDown],[window,'touchmove',onMove],[window,'touchend',onUp]
+  );
+}
+
+/* ══════════════════════════════════════════════════
+   END SCREEN
+   ══════════════════════════════════════════════════ */
+function showEnd(){
+  launchConfetti(160);
+  setTimeout(()=>launchConfetti(80),800);
+
+  const overlay=document.createElement('div');
+  overlay.className='end-overlay';
+  overlay.innerHTML=`
+    <div class="end-card">
+      <div class="end-trophies">🏆🎓✨</div>
+      <h1 class="end-title">סיימתם את הקורס!</h1>
+      <p class="end-body">עברתם את כל ששת שלבי מודל ה-CAPM — מהאינטואיציה ועד לנוסחה, קו ה-SML, ואלפא. עכשיו אתם יודעים לתמחר סיכון.</p>
+      <div class="formula-box-end">
+        E(R<sub>i</sub>) = R<sub>F</sub> + β<sub>i</sub> · [E(R<sub>M</sub>) − R<sub>F</sub>]
+      </div>
+      <div class="end-grid">
+        <div class="end-grid-item"><div class="end-grid-num">שלב 1</div><div class="end-grid-text">💡 פרמיית סיכון</div></div>
+        <div class="end-grid-item"><div class="end-grid-num">שלב 2</div><div class="end-grid-text">🧺 פיזור וסיכון שיטתי</div></div>
+        <div class="end-grid-item"><div class="end-grid-num">שלב 3</div><div class="end-grid-text">📐 מדד הבטא</div></div>
+        <div class="end-grid-item"><div class="end-grid-num">שלב 4</div><div class="end-grid-text">🏦 R_F ופרמיית שוק</div></div>
+        <div class="end-grid-item"><div class="end-grid-num">שלב 5</div><div class="end-grid-text">🔬 הנוסחה המלאה</div></div>
+        <div class="end-grid-item"><div class="end-grid-num">שלב 6</div><div class="end-grid-text">📊 SML ואלפא</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="location.reload()" style="font-size:14px;padding:12px 32px;width:100%">
+        🔄 חזרה להתחלה
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// Boot
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI & AI: המדריך לסטודנט המבולבל</title>
+    <!-- Google Fonts for warm, clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="light-bg-pattern"></div>
+
+    <!-- Dragging Mascot Helper (Dr. Tsaban Clone) -->
+    <div id="mascot-helper" class="mascot-helper-container">
+        <div class="mascot-avatar-wrapper">
+            <img src="assets/dr_tsaban_helper.png" alt="Mascot Helper" class="mascot-avatar-img">
+            <div id="mascot-tooltip" class="mascot-bubble">היי! אני העוזר האישי שלך. גרור אותי לאן שתרצה! 🎓</div>
+        </div>
+    </div>
+
+    <header class="app-header">
+        <div class="header-logo">
+            <span class="logo-bi">BI</span> <span class="logo-amp">&amp;</span> <span class="logo-ai">AI</span>
+            <span class="logo-sub">הישרדות לסטודנטים</span>
+        </div>
+        <div class="scoreboard">
+            <div class="score-card">
+                <span class="score-label">מדד חוכמה:</span>
+                <span id="wisdom-score" class="score-value">0</span>
+            </div>
+            <div class="score-card">
+                <span class="score-label">רמת בלבול:</span>
+                <span id="confusion-level" class="score-value status-high">100%</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="game-container">
+        <!-- Progress Steps -->
+        <nav class="steps-nav">
+            <div class="step-btn active" data-target="zone-welcome">
+                <div class="step-number">0</div>
+                <div class="step-label">רישום</div>
+            </div>
+            <div class="step-btn locked" data-target="zone-learning-lounge" id="nav-learning">
+                <div class="step-number">1</div>
+                <div class="step-label">סלון הלמידה</div>
+            </div>
+            <div class="step-btn locked" data-target="zone-traditional-bi" id="nav-traditional-bi">
+                <div class="step-number">2</div>
+                <div class="step-label">BI נגד קלאסי</div>
+            </div>
+            <div class="step-btn locked" data-target="zone-etl-simulator" id="nav-etl">
+                <div class="step-number">3</div>
+                <div class="step-label">צינור ה-ETL</div>
+            </div>
+            <div class="step-btn locked" data-target="zone-ai-ml-dl" id="nav-ai">
+                <div class="step-number">4</div>
+                <div class="step-label">שילוש ה-AI</div>
+            </div>
+            <div class="step-btn locked" data-target="zone-survival-quiz" id="nav-quiz">
+                <div class="step-number">5</div>
+                <div class="step-label">בוחן הישרדות</div>
+            </div>
+        </nav>
+
+        <!-- ZONE 0: Welcome / Registration -->
+        <section id="zone-welcome" class="game-section active">
+            <div class="welcome-box main-panel">
+                <div class="badge tag-purple">מדריך חווייתי ללא ידע מוקדם</div>
+                <h1>איך לשרוד בינה עסקית ובינה מלאכותית</h1>
+                <p class="subtitle">הסברים בגובה העיניים, משלים מחיי היום-יום ודוגמאות פשוטות.</p>
+                
+                <div class="registration-card">
+                    <h3>פרטי סטודנט להנפקת תעודת ההסמכה בסיום:</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="student-name">שם מלא בעברית / אנגלית:</label>
+                            <input type="text" id="student-name" placeholder="ישראל ישראלי" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="student-email">כתובת אימייל:</label>
+                            <input type="email" id="student-email" placeholder="israel@gmail.com" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-selection">
+                    <h3>בחרו את דמות הסטודנט שלכם:</h3>
+                    <div class="character-grid">
+                        <div class="char-card active" data-char="clueless">
+                            <div class="char-avatar">🤷‍♂️</div>
+                            <h4>הסטודנט המבולבל</h4>
+                            <p>מדד בלבול: 120% | ידע מוקדם: אפס</p>
+                        </div>
+                        <div class="char-card" data-char="excel-pro">
+                            <div class="char-avatar">📈</div>
+                            <h4>חובב האקסלים</h4>
+                            <p>מדד בלבול: 90% | חושב שאקסל זה BI</p>
+                        </div>
+                        <div class="char-card" data-char="ai-hype">
+                            <div class="char-avatar">🤖</div>
+                            <h4>מכור ל-ChatGPT</h4>
+                            <p>מדד בלבול: 100% | שואל הכל בצ'אט</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="start-game-btn">
+                    <span>הרשמה וכניסה לסלון הלמידה 🚀</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ZONE 1: The Learning Lounge (Pre-simulation Explanations) -->
+        <section id="zone-learning-lounge" class="game-section">
+            <div class="main-panel">
+                <div class="badge tag-blue">סלון הלמידה של ד״ר צבאן</div>
+                <h2>שלב 1: הבנת המושגים בעזרת משלים ודוגמאות</h2>
+                <p>לפני שמתחילים לפתור ולשחק, בואו נבין את החומר בצורה הכי פשוטה שיש.</p>
+
+                <div class="learning-deck">
+                    <!-- Tab Headers for Slides -->
+                    <div class="learning-tabs">
+                        <button class="learn-tab-btn active" data-slide="slide-bi">1. בינה עסקית (BI)</button>
+                        <button class="learn-tab-btn" data-slide="slide-etl">2. מה זה ETL?</button>
+                        <button class="learn-tab-btn" data-slide="slide-ai">3. AI נגד למידת מכונה (ML)</button>
+                        <button class="learn-tab-btn" data-slide="slide-dl">4. למידה עמוקה (DL)</button>
+                    </div>
+
+                    <!-- Slide 1: BI -->
+                    <div class="learning-slide active" id="slide-bi">
+                        <div class="slide-grid">
+                            <div class="slide-text">
+                                <h3>משל המכולת של הרצל: ההבדל בין מערכת קלאסית ל-BI</h3>
+                                <p>
+                                    <strong>המערכת הקלאסית (של פעם):</strong> הרצל בעל המכולת שומר את כל קבלות הקנייה בקופסת קרטון. בסוף החודש הוא עובר קבלה-קבלה, מקליד לאקסל ומחשב כמה חלב הוא מכר. זהו דוח סטטי, נוקשה, שמספר רק <strong>מה היה בעבר</strong>.
+                                </p>
+                                <p>
+                                    <strong>בינה עסקית (BI):</strong> להרצל יש מערכת חכמה שמחוברת לקופה, לרשתות החברתיות (כדי לדעת איזה חטיף טרנדי עכשיו בטיקטוק), ללוח מזג האוויר ואפילו למאגרי מידע כלליים. המערכת מעדכנת גרפים בזמן אמת ומייצרת לו <strong>תחזיות לעתיד</strong>. למשל: "מחר יהיה 38 מעלות ויש שביתה בבתי הספר, מומלץ להזמין 200 ארטיקים יותר מהרגיל".
+                                </p>
+                                <div class="key-point">
+                                    💡 <strong>שורה תחתונה:</strong> מערכת רגילה עובדת ליניארית (הגדרת דוח -> איסוף -> עיבוד). מערכת BI מתחילה מהצורך של מקבלי ההחלטות, היא דינמית ומנבאת את העתיד על בסיס ים של נתונים ממקורות שונים!
+                                </div>
+                            </div>
+                            <div class="slide-visual">
+                                <img src="assets/bi_dashboard_analogy.png" alt="BI Dashboard Analogy" class="img-fluid rounded">
+                                <div class="visual-caption">נתונים ממקורות רבים זורמים לדאשבורד מרכזי</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: ETL -->
+                    <div class="learning-slide" id="slide-etl">
+                        <div class="slide-grid">
+                            <div class="slide-text">
+                                <h3>משל סלט הפירות הענקי: מה זה ETL?</h3>
+                                <p>כדי שמערכת BI תציג דאשבורד יפה, היא צריכה לעבד את הנתונים בצינור שנקרא <strong>ETL</strong>:</p>
+                                <ul>
+                                    <li>
+                                        <strong>Extract (שליפה):</strong> קטיף פירות ממקורות שונים. אנחנו מביאים תפוזים מהפרדס, בננות מהסופר, ותפוחים מהשוק. (במחשב: שליפת נתונים מאינסטגרם, מאקסלים של הארגון, ומנתוני אשראי).
+                                    </li>
+                                    <li>
+                                        <strong>Transform (עיבוד וניקוי):</strong> שטיפת הפירות, קילוף הבננות, וזריקת פירות רקובים לפח. (במחשב: סינון בוטים, הסרת שורות ריקות, ומיון).
+                                    </li>
+                                    <li>
+                                        <strong>Load (טעינה):</strong> סידור הפירות בקערת זכוכית מעוצבת והגשתה לשולחן. (במחשב: טעינת הנתונים הנקיים למערכת Tableau או לדאשבורד נוח למנהלים).
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="slide-visual">
+                                <div class="fruit-salad-drawing">
+                                    <div class="fruit-box ext">🍎 🍌 🍊 <br><small>Extract</small></div>
+                                    <div class="fruit-arrow">➡️</div>
+                                    <div class="fruit-box trans">🧼 🔪 🗑️ <br><small>Transform</small></div>
+                                    <div class="fruit-arrow">➡️</div>
+                                    <div class="fruit-box load font-bold">🥣 ✨ <br><small>Load (Tableau)</small></div>
+                                </div>
+                                <div class="visual-caption">צינור ה-ETL: אוספים, מנקים ומגישים</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: AI vs ML -->
+                    <div class="learning-slide" id="slide-ai">
+                        <div class="slide-grid">
+                            <div class="slide-text">
+                                <h3>בינה מלאכותית (AI) מול למידת מכונה (ML)</h3>
+                                <p>
+                                    <strong>בינה מלאכותית (AI):</strong> שם גג ענק לכל מחשב שמבצע פעולה שמדמה למידה או היגיון אנושי. אפילו קוד פשוט או נוסחת אקסל שאומרת "אם הציון מעל 60 תרשום עובר" זה סוג בסיסי מאוד של AI.
+                                </p>
+                                <p>
+                                    <strong>למידת מכונה (Machine Learning):</strong> תת-תחום של AI. כאן אנחנו <strong>מגדירים למחשב פרמטרים מראש</strong> (למשל: אורך אוזניים, צבע אף, נפח נביחה), והמחשב מנתח אלפי תמונות כדי ללמוד בעצמו איזה שילוב של פרמטרים מגדיר "כלב".
+                                </p>
+                                <div class="key-point">
+                                    🐕 <strong>משל הכלב:</strong> אם נרצה ללמד את המערכת לזהות כלב בלמידת מכונה (ML), אנחנו נגיד לה: "תבדקי את אורך האוזניים ואת צבע האף". היא תלמד ותסיק בעצמה אילו מהפרמטרים הללו באמת קובעים.
+                                </div>
+                            </div>
+                            <div class="slide-visual text-center">
+                                <div class="ai-box-basic">
+                                    <div class="ai-flow-simple">קלט ➡️ נוסחה קבועה מראש ➡️ פלט</div>
+                                    <div class="ml-flow-simple">קלט + פרמטרים מוצעים ➡️ המכונה לומדת קשרים ➡️ מודל חיזוי</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: Deep Learning -->
+                    <div class="learning-slide" id="slide-dl">
+                        <div class="slide-grid">
+                            <div class="slide-text">
+                                <h3>למידה עמוקה (Deep Learning)</h3>
+                                <p>
+                                    <strong>למידה עמוקה (DL):</strong> הרמה המתקדמת ביותר. כאן <strong>אנחנו לא מגדירים פרמטרים בכלל!</strong> אנחנו פשוט מפציצים את המערכת במיליוני תמונות או נתונים גולמיים.
+                                </p>
+                                <p>
+                                    המערכת מבוססת על "רשת נוירונים עמוקה" המדמה את המוח האנושי, והיא מגלה ומאפיינת בעצמה גם את הפרמטרים וגם את הזיהוי ללא כל עזרה ידנית.
+                                </p>
+                                <div class="key-point">
+                                    👶 <strong>משל התינוק:</strong> כשתינוק לומד מה זה "חתול", אף אחד לא מגדיר לו נוסחאות מתמטיות או פרמטרים כמו אורך שפם. הוא פשוט רואה המון חתולים (הפגזת מידע גולמי), והמוח שלו מזהה את הדפוסים לבד. זה בדיוק Deep Learning (וכך גם פועל ChatGPT לעיבוד שפה).
+                                </div>
+                            </div>
+                            <div class="slide-visual">
+                                <img src="assets/ai_concept_analogy.png" alt="AI Neural Net learning" class="img-fluid rounded">
+                                <div class="visual-caption">למידה עמוקה: המכונה מזהה עצמאית את הפאזל של הנתונים</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar text-left">
+                    <button class="btn btn-primary" id="btn-finish-learning">הבנתי את המשלים, בואו נתחיל לשחק! 🎯</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ZONE 2: Traditional vs BI Interactive Game -->
+        <section id="zone-traditional-bi" class="game-section">
+            <div class="main-panel">
+                <div class="badge tag-blue">משחק 1: מיון מאפיינים</div>
+                <h2>מערכת מסורתית (קופסת הקבלות של הרצל) מול מערכת BI (דאשבורד חיזוי)</h2>
+                <p class="drag-instructions-text">💡 <strong>איך משחקים?</strong> גררו פיזית את הכרטיסיות לתוך התיבות המתאימות, או פשוט לחצו עליהן כדי להעביר אותן בין הקטגוריות!</p>
+
+                <div class="comparison-game">
+                    <div class="split-view">
+                        <!-- Traditional System Box -->
+                        <div class="system-box traditional" id="box-traditional">
+                            <h3>📜 מערכת קלאסית / מסורתית</h3>
+                            <div class="flow-chart">
+                                <div class="flow-node">קבלות קבועות</div>
+                                <div class="flow-arrow">⬇️</div>
+                                <div class="flow-node">איסוף ידני</div>
+                                <div class="flow-arrow">⬇️</div>
+                                <div class="flow-node">דוח היסטורי בלבד</div>
+                            </div>
+                            <div class="assigned-features" id="features-traditional"></div>
+                        </div>
+
+                        <!-- BI System Box -->
+                        <div class="system-box bi" id="box-bi">
+                            <h3>⚡ מערכת בינה עסקית (BI)</h3>
+                            <div class="flow-chart">
+                                <div class="flow-node">מה הרצל צריך לדעת?</div>
+                                <div class="flow-arrow">⬇️</div>
+                                <div class="flow-node">חיבור טיקטוק + מזג אוויר</div>
+                                <div class="flow-arrow">⬇️</div>
+                                <div class="flow-node">תחזיות ודאשבורד בזמן אמת</div>
+                            </div>
+                            <div class="assigned-features" id="features-bi"></div>
+                        </div>
+                    </div>
+
+                    <div class="features-pool-section">
+                        <div class="features-pool" id="features-pool"></div>
+                    </div>
+                </div>
+
+                <div class="action-bar text-left">
+                    <button class="btn btn-secondary" id="btn-reset-zone1">אפס שלב 🔄</button>
+                    <button class="btn btn-secondary" id="check-zone1-btn">בדקו תשובות</button>
+                    <button class="btn btn-primary disabled" id="next-zone2-btn">המשך לצינור ה-ETL</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ZONE 3: ETL Pipeline Simulator -->
+        <section id="zone-etl-simulator" class="game-section">
+            <div class="main-panel">
+                <div class="badge tag-blue">משחק 2: מנקים פירות רקובים ב-ETL</div>
+                <h2>צינור ה-ETL של הרצל</h2>
+                <p>אוספים פירות (נתונים גולמיים), מנקים פירות רקובים (בוטים וספאם) וטוענים אותם לקערה (Tableau Dashboard).</p>
+
+                <div class="etl-container">
+                    <div class="etl-controls">
+                        <div class="etl-step-indicator" id="etl-step-extract">
+                            <span class="step-dot">1</span>
+                            <strong>Extract (שליפה)</strong>
+                            <p class="step-desc">אוספים נתונים גולמיים מהשדות.</p>
+                        </div>
+                        <div class="etl-step-indicator" id="etl-step-transform">
+                            <span class="step-dot">2</span>
+                            <strong>Transform (ניקוי ומיון)</strong>
+                            <p class="step-desc">הערכים נערכו לרשימה. לחצו על המקולקלים (האדומים) כדי לסננם!</p>
+                        </div>
+                        <div class="etl-step-indicator" id="etl-step-load">
+                            <span class="step-dot">3</span>
+                            <strong>Load (טעינה לדאשבורד)</strong>
+                            <p class="step-desc">טוענים את הפירות הנקיים ישירות למערכת Tableau.</p>
+                        </div>
+
+                        <div class="etl-action-box">
+                            <button class="btn btn-primary w-100" id="btn-etl-extract">1. שלוף נתונים (Extract)</button>
+                            <button class="btn btn-primary w-100 hidden" id="btn-etl-transform-phase">2. מעבר לשלב הניקוי (Transform)</button>
+                            <button class="btn btn-success w-100 hidden" id="btn-etl-load">3. טען לדאשבורד (Load)</button>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Visual Pipeline & Listing container -->
+                    <div class="etl-visual-pipeline">
+                        <div class="pipeline-pipe" id="pipeline-pipe-element">
+                            <div class="pipe-inlet">מקורות</div>
+                            <div class="pipe-body" id="pipeline-stream">
+                                <div class="empty-pipeline-text">הקטיף טרם החל. לחצו על "שלוף נתונים" כדי להתחיל!</div>
+                            </div>
+                            <div class="pipe-outlet">קערה</div>
+                        </div>
+
+                        <!-- Grid container for Transform (clean) Phase -->
+                        <div class="transform-grid-container hidden" id="transform-grid-view">
+                            <h3>רשימת הערכים שנשלפו (סננו את האדומים):</h3>
+                            <div class="transform-items-grid" id="transform-items-pool">
+                                <!-- Extracted items will be rendered here for easy click-to-filter -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Dashboard -->
+                    <div class="etl-dashboard">
+                        <h3>דאשבורד (Tableau)</h3>
+                        <div class="gauge-wrapper">
+                            <svg class="gauge" viewBox="0 0 100 50">
+                                <path class="gauge-bg" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#e2e8f0" stroke-width="8"></path>
+                                <path class="gauge-fill" id="kpi-gauge-fill" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#blue-gradient)" stroke-width="8" stroke-dasharray="126" stroke-dashoffset="126"></path>
+                                <defs>
+                                    <linearGradient id="blue-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#4facfe" />
+                                        <stop offset="100%" stop-color="#00f2fe" />
+                                    </linearGradient>
+                                </defs>
+                                <text x="50" y="45" class="gauge-text" id="kpi-gauge-val" text-anchor="middle">0%</text>
+                            </svg>
+                            <span class="gauge-label">מדד KPI: יעילות מלאי מכולת</span>
+                        </div>
+
+                        <div class="dashboard-stats">
+                            <div class="stat-row">
+                                <span>סה"כ נאספו:</span>
+                                <span id="stat-total-extracted" class="stat-num">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>בוטים וספאם שנזרקו:</span>
+                                <span id="stat-bots-filtered" class="stat-num text-success">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>נתונים נקיים שנטענו:</span>
+                                <span id="stat-loaded-records" class="stat-num">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar text-left">
+                    <button class="btn btn-secondary" id="btn-reset-zone2">אפס שלב 🔄</button>
+                    <button class="btn btn-primary disabled" id="next-zone3-btn">המשך לבינה מלאכותית (AI)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ZONE 4: AI / ML / DL Simulator -->
+        <section id="zone-ai-ml-dl" class="game-section">
+            <div class="main-panel">
+                <div class="badge tag-purple">משחק 3: סימולציות AI</div>
+                <h2>מנוסחת אקסל ועד לרשתות נוירונים עמוקות</h2>
+                <p>נווטו בין סוגי ה-AI השונים כדי לראות אותם פועלים:</p>
+
+                <div class="ai-tabs">
+                    <button class="tab-btn active" data-tab="tab-ai">1. AI פשוט (נוסחת אקסל)</button>
+                    <button class="tab-btn" data-tab="tab-ml">2. למידת מכונה (ML)</button>
+                    <button class="tab-btn" data-tab="tab-dl">3. למידה עמוקה (DL)</button>
+                </div>
+
+                <!-- TAB 1: General AI -->
+                <div class="tab-content active" id="tab-ai">
+                    <div class="ai-grid">
+                        <div class="ai-info-box">
+                            <h3>נוסחה אוטומטית</h3>
+                            <p>
+                                לקיחת החלטות לפי חוקים קבועים ומוגדרים מראש. אין פה "למידה עצמאית" אלא ביצוע מדויק של פקודה שמישהו הגדיר בקוד.
+                            </p>
+                            <p class="highlight-text">
+                                דוגמה: נוסחה שבודקת אם המרצה זכאי למענק הצטיינות.
+                            </p>
+                        </div>
+                        <div class="ai-interactive-panel">
+                            <h4>נוסחת ה-Excel החכמה</h4>
+                            <div class="form-group">
+                                <label for="excel-rating">דירוג המרצה (1-5):</label>
+                                <input type="number" id="excel-rating" min="1" max="5" value="4.2" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="excel-attendance">אחוז נוכחות סטודנטים (%):</label>
+                                <input type="number" id="excel-attendance" min="0" max="100" value="85">
+                            </div>
+
+                            <div class="excel-formula-box">
+                                <span class="formula-syntax">נוסחה: IF(AND(Rating &gt;= 4.0, Attendance &gt;= 80), "מצטיין! 🎉", "להשתפר ⛔")</span>
+                                <div class="formula-result" id="excel-result">מצטיין! 🎉</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Machine Learning -->
+                <div class="tab-content" id="tab-ml">
+                    <div class="ai-grid">
+                        <div class="ai-info-box">
+                            <h3>אימון מודל לפי פרמטרים מוגדרים</h3>
+                            <p>
+                                אנו מציעים למערכת פרמטרים (כמו גובה, צפיפות שיער, שיטת לימוד והומור) והמערכת מוצאת מתוכם מי באמת משפיע על איכות ההוראה של המרצה.
+                            </p>
+                        </div>
+                        <div class="ai-interactive-panel">
+                            <h4>מודל ML: אינטואיציה נגד מתמטיקה</h4>
+                            <p class="panel-desc">בחרו את הפרמטרים שתרצו להזין לאלגוריתם למידת המכונה:</p>
+                            
+                            <div class="params-checkbox-grid">
+                                <label class="param-cb"><input type="checkbox" id="param-height"> גובה המרצה</label>
+                                <label class="param-cb"><input type="checkbox" id="param-hair" checked> צפיפות שיער המרצה</label>
+                                <label class="param-cb"><input type="checkbox" id="param-complexity" checked> מורכבות הקורס (כמותי / איכותי)</label>
+                                <label class="param-cb"><input type="checkbox" id="param-method" checked> רמת הומור ועניין</label>
+                            </div>
+
+                            <button class="btn btn-secondary w-100" id="btn-train-ml">הרץ אימון מודל (Train)</button>
+
+                            <div class="training-output-box hidden" id="ml-training-log">
+                                <h5>לוג אימון מודל ML:</h5>
+                                <div class="log-lines" id="ml-log-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Deep Learning -->
+                <div class="tab-content" id="tab-dl">
+                    <div class="ai-grid">
+                        <div class="ai-info-box">
+                            <h3>הפגזה בנתונים גולמיים</h3>
+                            <p>
+                                לא מגדירים שום פרמטר. זורקים מיליוני תיוגים, פוסטים חופשיים ותמונות אל רשת הנוירונים והיא לומדת לבד לזהות סנטימנט, ציניות וזיהוי פנים.
+                            </p>
+                        </div>
+                        <div class="ai-interactive-panel">
+                            <h4>סימולטור רשת נוירונים עמוקה</h4>
+                            <button class="btn btn-primary w-100" id="btn-bombard-dl">הפגז מידע גולמי! (Bombard Data)</button>
+
+                            <div class="dl-network-container">
+                                <canvas id="dl-canvas" width="300" height="150"></canvas>
+                                <div class="dl-status-overlay" id="dl-status">ממתין להפגזת מידע...</div>
+                            </div>
+
+                            <div class="dl-discovered-features hidden" id="dl-features-box">
+                                <h5>הנוירונים העמוקים גילו בעצמם מאפיינים נסתרים:</h5>
+                                <div class="tags-row">
+                                    <span class="badge badge-outline">זיהוי ציניות בפוסטים</span>
+                                    <span class="badge badge-outline">ניתוח רגשות שליליים</span>
+                                    <span class="badge badge-outline">זיהוי אוטומטי של תמונות מרצה זועף</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar text-left">
+                    <button class="btn btn-secondary" id="btn-reset-zone3">אפס שלב 🔄</button>
+                    <button class="btn btn-primary disabled" id="next-zone4-btn">עברו לבוחן ההישרדות הסופי</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ZONE 5: Quiz -->
+        <section id="zone-survival-quiz" class="game-section">
+            <div class="main-panel">
+                <div class="badge tag-purple">בוחן הישרדות סופי</div>
+                <h2>בוחן ההסמכה הרשמי</h2>
+                <p>השאלות הבאות בוחנות בדיוק את העקרונות שלמדתם בסלון הלמידה. ענו נכון כדי לקבל את תעודת ההסמכה.</p>
+
+                <div class="quiz-container">
+                    <div class="quiz-question-card">
+                        <div class="question-progress">שאלה <span id="current-question-num">1</span> מתוך <span id="total-questions-num">2</span></div>
+                        <h3 id="question-text">טוען שאלה...</h3>
+                        <div class="answers-list" id="answers-container"></div>
+                    </div>
+
+                    <div class="quiz-feedback-card hidden" id="quiz-feedback">
+                        <div class="feedback-status" id="feedback-status-title">נכון מאוד! 🎉</div>
+                        <div class="meme-generator" id="meme-container">
+                            <div class="meme-image-placeholder" id="meme-visual"></div>
+                            <div class="meme-text-top" id="meme-text-t"></div>
+                            <div class="meme-text-bottom" id="meme-text-b"></div>
+                        </div>
+                        <p class="explanation-text" id="explanation-content"></p>
+                        <button class="btn btn-primary" id="btn-next-question">לשאלה הבאה</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FINAL ACCREDITATION CERTIFICATE SCREEN -->
+        <section id="zone-victory" class="game-section">
+            <div class="main-panel text-center victory-box">
+                <div class="victory-crown">🎓</div>
+                <h1>מזל טוב! השלמתם את ההסמכה בהצלחה</h1>
+                <p class="subtitle">הוכחתם הבנה מלאה בעקרונות ה-BI וה-AI.</p>
+
+                <!-- Dynamic Certificate to view/print -->
+                <div class="certificate-container" id="certificate-print-area">
+                    <div class="certificate-border">
+                        <div class="certificate-inner">
+                            <div class="cert-header">תעודת הסמכה רשמית</div>
+                            <div class="cert-title">בינה עסקית (BI) ובינה מלאכותית (AI)</div>
+                            
+                            <div class="cert-body">
+                                תעודה זו מוענקת בזאת לסטודנט/ית המצטיין/ת:
+                                <div class="cert-student-name" id="cert-name-val">[שם הסטודנט]</div>
+                                <div class="cert-student-email" id="cert-email-val">[אימייל הסטודנט]</div>
+                                <p class="cert-text">
+                                    לאחר שעבר/ה בהצלחה את כל הסימולציות האינטראקטיביות, מיין את מאפייני מערכות ה-BI, ניקה נתוני בוטים בצינור ה-ETL והוכיח הבנה מלאה בהבדלים בין למידת מכונה (ML) ללמידה עמוקה (DL).
+                                </p>
+                            </div>
+
+                            <div class="cert-signatures">
+                                <div class="sig-block">
+                                    <div class="sig-line">ד״ר צבאן</div>
+                                    <div class="sig-title">מרצה בכיר ומפקח אקדמי</div>
+                                </div>
+                                <div class="sig-block">
+                                    <div class="cert-stamp">🏆</div>
+                                    <div class="sig-title">חותמת הסמכה אקדמית</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blocked Certificate Warning (shown if user skipped levels) -->
+                <div class="certificate-blocked-card hidden" id="cert-blocked-card">
+                    <div class="blocked-badge">⚠️ הסמכה מבוטלת</div>
+                    <h3>תעודת ההסמכה אינה זמינה</h3>
+                    <p>
+                        זיהינו שדילגתם על שלבים בתהליך הלמידה. כדי להיות זכאים לתעודת הסמכה רשמית מטעם <strong>ד״ר צבאן</strong>, יש להשלים את כל שלבי הלמידה והמשחקים כסדרם ללא דילוגים!
+                    </p>
+                </div>
+
+                <div class="action-buttons-cert">
+                    <button class="btn btn-success" id="btn-print-certificate">הדפס / שמור כ-PDF 🖨️</button>
+                    <button class="btn btn-secondary" onclick="window.location.reload();">התחל מחדש</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>נבנה עבור סטודנטים שרוצים להבין. כל הזכויות שמורות לשורדי האקדמיה 📚</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

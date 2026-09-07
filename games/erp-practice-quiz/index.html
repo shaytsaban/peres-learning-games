@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלון תרגול - מערכות ליבה ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .correct-anim {
+            animation: pulse-green 0.5s;
+        }
+        .wrong-anim {
+            animation: shake-red 0.5s;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); background-color: #dcfce7; border-color: #22c55e;}
+            100% { transform: scale(1); }
+        }
+        @keyframes shake-red {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); background-color: #fee2e2; border-color: #ef4444;}
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 p-6 text-white text-center">
+            <h1 class="text-3xl font-bold mb-2">שאלון תרגול: מערכות ליבה - ERP</h1>
+            <p class="text-blue-100">בחן את עצמך על סמך חומר הלימוד. לכל שאלה יופיע הסבר מפורט לאחר המענה.</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="p-6 md:p-8">
+            
+            <!-- Progress -->
+            <div class="mb-6 flex justify-between items-center text-sm font-medium text-gray-500">
+                <span id="question-counter">שאלה 1 מתוך 10</span>
+                <span id="score-display">ניקוד: 0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
+                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+            </div>
+
+            <!-- Question Area -->
+            <div id="question-area">
+                <h2 id="question-text" class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 leading-snug"></h2>
+                
+                <!-- Options -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Options will be injected here by JS -->
+                </div>
+            </div>
+
+            <!-- Feedback Area (Hidden by default) -->
+            <div id="feedback-area" class="mt-6 hidden rounded-lg p-5 border-l-4">
+                <h3 id="feedback-title" class="text-lg font-bold mb-2"></h3>
+                <p id="feedback-text" class="text-gray-700 leading-relaxed"></p>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-8 flex justify-between items-center gap-4 flex-wrap">
+                <button id="prev-btn" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md transition-colors">
+                    לשאלה הקודמת
+                </button>
+                <div class="flex-1 flex justify-center">
+                    <button id="reset-btn" class="hidden bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold py-3 px-6 rounded-lg shadow-md transition-colors">
+                        אפס שאלה
+                    </button>
+                </div>
+                <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors">
+                    לשאלה הבאה
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Results Container (Hidden initially) -->
+        <div id="results-container" class="hidden p-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">סיימת את השאלון!</h2>
+            <div class="text-6xl mb-6 flex justify-center items-center">
+                <div id="final-score-circle" class="w-32 h-32 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold border-4 border-blue-500">
+                    100%
+                </div>
+            </div>
+            <p id="final-message" class="text-xl text-gray-600 mb-8"></p>
+            <button onclick="restartQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors">
+                התחל מחדש
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "מהו ההבדל המרכזי בין מערכת ERP למערכת CRM על פי הטקסט?",
+                options: [
+                    "מערכת CRM מיועדת לעובדים בלבד, ואילו ERP מיועדת ללקוחות.",
+                    "מערכת CRM מתמקדת בניהול קשרי לקוחות, בעוד מערכת ERP שואפת להקיף ולנהל את כל התהליכים הארגוניים (משאבי אנוש, מלאי, כספים וכו').",
+                    "מערכת ERP היא זולה ופשוטה להטמעה בהשוואה ל-CRM.",
+                    "אין הבדל, מדובר בשני שמות לאותה מערכת בדיוק."
+                ],
+                correctIndex: 1,
+                explanation: "כפי שהוסבר במבוא, בעוד CRM מתמקדת בלקוחות כדי לשפר התנהלות עסקית, ERP (Enterprise Resource Planning) עוסקת בניהול כלל משאבי הארגון והתהליכים הרחבים יותר כמו כוח אדם, מלאי, שכר וספקים."
+            },
+            {
+                question: "לפניכם מספר טענות:\n1. מערכת ERP מחייבת שכל התהליכים בארגון יהיו אוטומטיים לחלוטין ללא מעורבות אנושית.\n2. אחד ממאפייני ה-ERP הוא אינטגרציה של מידע.\nהטענה/הטענות הנכונה/הנכונות:",
+                options: [
+                    "טענה 1 בלבד",
+                    "טענה 2 בלבד",
+                    "שתי הטענות נכונות",
+                    "אף טענה אינה נכונה"
+                ],
+                correctIndex: 1,
+                explanation: "טענה 1 שגויה - מערכת ERP אכן מאפשרת אוטומציה (זהו המימד המשני), אך אין חובה ש*כל* התהליכים יהיו אוטומטיים ללא אדם. זה תלוי בהגדרות החברה. טענה 2 נכונה - אינטגרציה (שילוב מידע בין מחלקות) היא רכיב קריטי ומימד חובה במערכת."
+            },
+            {
+                question: "כיצד מערכת ERP יכולה להקטין את זמן האספקה של מוצרים ללקוחות בשוטף?",
+                options: [
+                    "על ידי מתן אפשרות למנהלים לבצע בקרה על המטרות ארוכות הטווח של הארגון.",
+                    "על ידי זיהוי אוטומטי של ספקים חדשים באינטרנט.",
+                    "על ידי שילוב מידע לגבי מכירות, הזמנות, מלאי וכספים בצורה מלאה ואוטומטית.",
+                    "על ידי החלפת כל כוח האדם האנושי במחסנים ברובוטים."
+                ],
+                correctIndex: 2,
+                explanation: "התשובה השלישית היא המדויקת ביותר. ברגע שיש תהליכים מהירים של מכירה, הזמנה וניהול מלאי המדברים זה עם זה (אינטגרציה), המחזור העסקי מושלם מוקדם יותר, וכך זמן האספקה מתקצר (תשובה ג' משאלת התרגול בטקסט)."
+            },
+            {
+                question: "חברת 'אלפא' רוצה לרכוש מערכת ERP. המנכ\"ל טוען: 'ההטמעה תהיה קלה, מהירה ותוביל בהכרח מיד לעלייה ברווחי החברה'. האם הוא צודק?",
+                options: [
+                    "כן, מערכות ERP ידועות כפשוטות מאוד ליישום.",
+                    "כן, ברגע שמתקינים ERP הרווחים עולים אוטומטית כי מפטרים עובדים.",
+                    "לא, הקמת מערכת כזו היא מורכבת, יקרה, כרוכה באתגר משמעותי בהטמעה ואינה מבטיחה בהכרח עלייה ברווחים.",
+                    "לא, מערכת ERP כלל לא נועדה לעזור ברווחיות החברה אלא רק ברווחת העובדים."
+                ],
+                correctIndex: 2,
+                explanation: "המנכ\"ל טועה. הטקסט מדגיש כי יצירת מכונת מידע כזו היא מורכבת ביותר, מצריכה הגדרה מדויקת של תהליכים, ולעיתים הטמעות נכשלות וגוררות הפסדי ענק. היא אכן שואפת ליצור יעילות שאולי תוביל לרווח, אך זה אינו מובטח ודורש עבודה קשה."
+            },
+            {
+                question: "מה המשמעות של 'אוטומציה (מיכון)' כממד במערכת ERP?",
+                options: [
+                    "היכולת של המערכת לשתף נתונים בין מחלקת השיווק למחלקת הכספים.",
+                    "הגדרה של כללים לביצוע פעולות באופן אוטומטי, למשל: תשלום אוטומטי לחשבונית מתחת ל-1,000 ש\"ח.",
+                    "העובדה שכל עובד מקבל שם משתמש וסיסמה.",
+                    "היכולת להפיק דוחות אסטרטגיים שנתיים."
+                ],
+                correctIndex: 1,
+                explanation: "אוטומציה משמעותה שכל תהליך שיכול להיות מנוהל ומבוצע אוטומטית בהתאם לכללים מוגדרים מראש (כמו הזמנת סחורה כשיש דרישה, או תשלום אוטומטי עד סכום מסוים) - יתבצע ללא מגע יד אדם. התשובה הראשונה מתארת 'אינטגרציה', לא אוטומציה."
+            },
+            {
+                question: "כיצד מערכת ERP תורמת ל'הקטנת הזמן המוקצה לטיפול בפעילות מנהלית/פקידותית'?",
+                options: [
+                    "היא אוסרת על עובדים לשלוח אימיילים זה לזה.",
+                    "היא מחליפה את מנהלי העבודה בשטח.",
+                    "היא מבטלת לחלוטין את הצורך במחלקת כספים.",
+                    "היא משלבת את המידע באופן מלא ומונעת את הצורך להזין נתונים ידנית מספר פעמים או להעביר אותם בין מחלקות בצורה לא מסודרת."
+                ],
+                correctIndex: 3,
+                explanation: "כאשר המידע עובר באופן אוטומטי בין מודולים (למשל, הזמנה מעדכנת ישירות את המחסן ומוציאה חשבונית), נחסך הצורך בפעולות פקידותיות ידניות (הקלדות חוזרות, מיילים לבירורים) ומוקטנות הטעויות."
+            },
+            {
+                question: "אירוע: איתי מייצר נקניקי גורמה. הוא גילה שהשלב המסובך ביותר הוא ניהול הקשרים עם הלקוחות, מעקב אחר הזמנות, ותיעוד פניות לקוחות. איזו מערכת מתאימה לו?",
+                options: [
+                    "ERP",
+                    "CRM",
+                    "TPS",
+                    "B2B"
+                ],
+                correctIndex: 1,
+                explanation: "למרות שאיתי הוא יצרן, המיקוד של הבעיה שלו באירוע זה הוא בלקוחות: קשר עם לקוחות, שירות, פניות ושביעות רצון. מערכת המתמקדת בניהול קשרי לקוחות היא CRM (Customer Relationship Management)."
+            },
+            {
+                question: "אירוע (המשך לאיתי): העסק של איתי גדל. כעת השלב המסובך הוא ניהול כל התהליכים יחד: ניהול מלאי הבשר, ייצור נקניקים, תיאום הזמנות לאספקה ותשלום לספקים. איזו מערכת הוא צריך כעת?",
+                options: [
+                    "ERP",
+                    "CRM",
+                    "MIS",
+                    "TPS"
+                ],
+                correctIndex: 0,
+                explanation: "כעת, הדגש המרכזי הוא על ניהול כוללני של התהליכים הארגוניים (מלאי, ייצור, אספקה, ספקים) ללא מיקוד ספציפי רק בלקוחות אלא באינטגרציה של כל שרשרת הערך בארגון. לכן המערכת המתאימה היא ERP."
+            },
+            {
+                question: "כיצד מערכת ERP עוזרת למנהלים לזהות 'צווארי בקבוק' (עיכובים) בתהליך העסקי?",
+                options: [
+                    "היא מצלמת את העובדים במצלמות אבטחה.",
+                    "היא מונעת מהם לגשת לנתונים פיננסיים כדי שלא יתבלבלו.",
+                    "היא מספקת נתונים עדכניים הקשורים למגוון מחלקות, מה שמאפשר לנתח באיזה שלב בתהליך (למשל: ייצור או שילוח) נוצר העיכוב או העלות החריגה.",
+                    "מערכת ERP לא עוזרת למנהלים, אלא רק לעובדי קצה."
+                ],
+                correctIndex: 2,
+                explanation: "מאחר שהמערכת מרכזת נתונים מכל המחלקות (אינטגרציה), מנהלים יכולים להסתכל על הנתונים ממבט על, לזהות 'מחוללי עלות עיקריים' ולראות בדיוק באיזו מחלקה נוצר עיכוב או חריגה תקציבית."
+            },
+            {
+                question: "מה הפירוש הדווקני (המילולי) של ראשי התיבות ERP?",
+                options: [
+                    "Electronic Resource Processor",
+                    "Enterprise Resource Planning - מערכת לתכנון משאבי הארגון",
+                    "Employee Record Program - תוכנית לרישום עובדים",
+                    "Efficient Revenue Producer - יצרן הכנסות יעיל"
+                ],
+                correctIndex: 1,
+                explanation: "ראשי התיבות ERP משמעותם Enterprise Resource Planning, או בעברית: מערכת לתכנון משאבי הארגון. כפי שצוין בטקסט, זהו שם 'לא מאוד יצירתי', שכן בפועל המערכת עושה הרבה יותר מרק 'לתכנן'."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let userAnswers = [];
+
+        // Elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreDisplay = document.getElementById('score-display');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreCircle = document.getElementById('final-score-circle');
+        const finalMessage = document.getElementById('final-message');
+
+        function initQuiz() {
+            userAnswers = [];
+            updateScore();
+            loadQuestion();
+        }
+
+        function updateScore() {
+            score = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].correctIndex) {
+                    score++;
+                }
+            }
+            scoreDisplay.innerText = `ניקוד: ${score}`;
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const currentQ = quizData[currentQuestion];
+            
+            // Update UI
+            questionText.innerText = currentQ.question;
+            questionCounter.innerText = `שאלה ${currentQuestion + 1} מתוך ${quizData.length}`;
+            progressBar.style.width = `${((currentQuestion) / quizData.length) * 100}%`;
+            
+            // Clear previous
+            optionsContainer.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+
+            // Handle Prev/Next buttons
+            if (currentQuestion === 0) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.innerText = "הצג תוצאות שאלון";
+            } else {
+                nextBtn.innerText = "לשאלה הבאה";
+            }
+
+            // Generate options
+            currentQ.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn w-full text-right p-4 rounded-lg border-2 border-gray-200 bg-gray-50 hover:bg-blue-50 focus:outline-none text-gray-800 text-lg relative';
+                
+                // Add letter prefix (א, ב, ג, ד)
+                const prefix = String.fromCharCode(1488 + index); // 1488 is Aleph in Unicode
+                button.innerHTML = `<span class="font-bold ml-2 text-blue-600">${prefix}.</span> ${option}`;
+                
+                button.onclick = () => selectOption(index, button);
+                optionsContainer.appendChild(button);
+            });
+
+            // Restore state if already answered
+            if (userAnswers[currentQuestion] !== undefined) {
+                renderAnswerState();
+            }
+        }
+
+        function selectOption(selectedIndex, buttonElement) {
+            if (answered) return;
+            userAnswers[currentQuestion] = selectedIndex;
+            updateScore();
+            renderAnswerState();
+        }
+
+        function renderAnswerState() {
+            answered = true;
+            const selectedIndex = userAnswers[currentQuestion];
+            const currentQ = quizData[currentQuestion];
+            const isCorrect = selectedIndex === currentQ.correctIndex;
+            const buttons = optionsContainer.children;
+
+            // Disable all buttons and show correct/incorrect styling
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                buttons[i].classList.remove('hover:bg-blue-50', 'hover:not(:disabled)');
+                
+                if (i === currentQ.correctIndex) {
+                    buttons[i].classList.add('bg-green-100', 'border-green-500');
+                    if (isCorrect) buttons[i].classList.add('correct-anim');
+                } else if (i === selectedIndex && !isCorrect) {
+                    buttons[i].classList.add('bg-red-100', 'border-red-500', 'wrong-anim');
+                } else {
+                    buttons[i].classList.add('opacity-50');
+                }
+            }
+
+            // Show Feedback
+            feedbackArea.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-500', 'border-red-500');
+            
+            if (isCorrect) {
+                feedbackArea.classList.add('bg-green-50', 'border-green-500');
+                feedbackTitle.innerText = "תשובה נכונה! מצוין 🎉";
+                feedbackTitle.className = "text-lg font-bold mb-2 text-green-700";
+            } else {
+                feedbackArea.classList.add('bg-red-50', 'border-red-500');
+                feedbackTitle.innerText = "תשובה שגויה! 😕";
+                feedbackTitle.className = "text-lg font-bold mb-2 text-red-700";
+            }
+            
+            feedbackText.innerHTML = `<strong>הסבר:</strong> ${currentQ.explanation}`;
+
+            // Show reset button
+            resetBtn.classList.remove('hidden');
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            delete userAnswers[currentQuestion];
+            updateScore();
+            loadQuestion();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            const percentage = Math.round((score / quizData.length) * 100);
+            finalScoreCircle.innerText = `${percentage}%`;
+            
+            if (percentage >= 90) {
+                finalScoreCircle.classList.add('bg-green-100', 'text-green-600', 'border-green-500');
+                finalMessage.innerText = "אלופה / אלוף! שלטת בחומר ה-ERP בצורה מושלמת.";
+            } else if (percentage >= 70) {
+                finalScoreCircle.classList.add('bg-blue-100', 'text-blue-600', 'border-blue-500');
+                finalMessage.innerText = "כל הכבוד! הפגנת ידע טוב מאוד, אבל יש עוד קצת מקום לשיפור.";
+            } else {
+                finalScoreCircle.classList.add('bg-yellow-100', 'text-yellow-600', 'border-yellow-500');
+                finalMessage.innerText = "כדאי לחזור שוב על החומר. מערכות ERP הן עסק מורכב!";
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            updateScore();
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            // Reset final circle styles
+            finalScoreCircle.className = "w-32 h-32 rounded-full flex items-center justify-center font-bold border-4";
+            
+            initQuiz();
+        }
+
+        // Start the quiz
+        initQuiz();
+    </script>
+</body>
+</html>

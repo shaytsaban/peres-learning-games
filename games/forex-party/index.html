@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מסיבת המט״ח של שי ואילנית - שיעור 10</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Press+Start+2P&family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.15);
+            --success: #059669;
+            --success-glow: rgba(5, 150, 105, 0.15);
+            --danger: #dc2626;
+            --danger-glow: rgba(220, 38, 38, 0.15);
+            --accent: #d97706;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: rgba(0, 0, 0, 0.08);
+            --font-main: 'Rubik', sans-serif;
+            --font-decor: 'Outfit', sans-serif;
+            --font-retro: 'Press Start 2P', cursive;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(217, 119, 6, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Light Mode Glass Header */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: var(--font-decor);
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #4f46e5, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            -webkit-text-fill-color: initial;
+            color: #d97706;
+            text-shadow: 0 0 10px rgba(217, 119, 6, 0.2);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--primary);
+            background: rgba(79, 70, 229, 0.08);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Sections */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Light Premium Cards */
+        .hero-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(217, 119, 6, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 2.5rem auto;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, var(--primary), #4338ca);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Characters / Quotes section */
+        .character-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .character-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #d97706, #b45309);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .character-avatar.ilanit {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .character-content {
+            flex-grow: 1;
+        }
+
+        .character-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .character-name.ilanit {
+            color: var(--success);
+        }
+
+        .character-role {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .character-bubble {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-style: italic;
+        }
+
+        /* Pacman Section (Center of screen) */
+        .pacman-section {
+            background: #000; /* Arcade screens are dark for extreme nostalgic contrast */
+            border: 6px solid #4f46e5;
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 2.5rem 0;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .pacman-title {
+            font-family: var(--font-retro);
+            font-size: 1.25rem;
+            color: #ffff00;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255,255,0,0.5);
+        }
+
+        .pacman-canvas-container {
+            position: relative;
+            display: inline-block;
+            background: #000;
+            border: 4px solid #3b82f6;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        canvas {
+            display: block;
+            background: #000;
+        }
+
+        .pacman-controls-hint {
+            color: #10b981;
+            font-family: var(--font-retro);
+            font-size: 0.65rem;
+            margin-top: 1rem;
+            line-height: 1.8;
+        }
+
+        /* SVG Interactive Simulator Card */
+        .chart-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .chart-svg {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+        }
+
+        .axis { stroke: var(--text-muted); stroke-width: 2.5; }
+        .grid-line { stroke: rgba(0, 0, 0, 0.05); stroke-dasharray: 4; }
+        .curve-supply { stroke: var(--success); stroke-width: 4; fill: none; }
+        .curve-demand { stroke: var(--primary); stroke-width: 4; fill: none; }
+        .eq-point { fill: var(--accent); stroke: white; stroke-width: 2.5; }
+        .text-label { fill: var(--text-main); font-family: var(--font-main); font-weight: 600; font-size: 12px; }
+
+        /* Balance of Payments */
+        .bop-container {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .bop-tabs {
+            display: flex;
+            gap: 1rem;
+            background: #f1f5f9;
+            padding: 0.35rem;
+            border-radius: 9999px;
+            border: 1px solid var(--border);
+        }
+
+        .bop-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-main);
+            font-weight: 700;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bop-tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .flow-side {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .flow-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.25s ease;
+        }
+
+        .flow-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        /* Quiz */
+        .quiz-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            text-align: right;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s ease;
+        }
+
+        .option-btn:hover {
+            background: #f1f5f9;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background: #d1fae5 !important;
+            border-color: var(--success) !important;
+            color: #065f46 !important;
+        }
+
+        .option-btn.incorrect {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #991b1b !important;
+        }
+
+        /* Retro Arcade Controls Button */
+        .arcade-btn {
+            background: #ffff00;
+            color: #000;
+            font-family: var(--font-retro);
+            font-size: 0.8rem;
+            padding: 0.75rem 1.5rem;
+            border: 3px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #3b82f6;
+            margin: 0.5rem;
+            transition: all 0.1s ease;
+        }
+
+        .arcade-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header navigation -->
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-hotdog"></i>
+            <span>שער המט״ח של שי (Light Retro)</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchSection('intro')">
+                <i class="fa-solid fa-door-open"></i> מבוא
+            </button>
+            <button class="nav-btn" onclick="switchSection('bop')">
+                <i class="fa-solid fa-scale-balanced"></i> מאזן התשלומים
+            </button>
+            <button class="nav-btn" onclick="switchSection('pacman-container')">
+                <i class="fa-solid fa-gamepad"></i> משחק המט״ח-מן!
+            </button>
+            <button class="nav-btn" onclick="switchSection('simulator')">
+                <i class="fa-solid fa-chart-line"></i> סימולטור עקומות
+            </button>
+            <button class="nav-btn" onclick="switchSection('quiz')">
+                <i class="fa-solid fa-graduation-cap"></i> אתגר המט״ח
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Intro Section -->
+        <section id="intro" class="page-section active">
+            <div class="hero-card">
+                <span class="badge"><i class="fa-solid fa-sun"></i> שיעור 10 • שוק מט״ח חלק א׳ (מצב בהיר)</span>
+                <h1 class="hero-title">מסיבת המט״ח והנקניקיות הכלכלית!</h1>
+                <p class="hero-subtitle">
+                    בואו נבין את כוחות ההיצע והביקוש, מאזן התשלומים ונסו לאכול את האינפלציה במשחק רטרו מט״ח-מן מטורף.
+                </p>
+                <button class="btn-premium" onclick="switchSection('bop')">
+                    בואו נתחיל במאזן התשלומים <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- Humorous Character Bubble -->
+            <div class="character-card">
+                <img src="dr_shay.png" alt="Dr. Shay" style="width: 120px; height: 120px; border-radius: 20px; border: 3px solid var(--accent); box-shadow: 0 8px 16px rgba(0,0,0,0.06);">
+                <div class="character-content">
+                    <div class="character-name">ד״ר שי צבאן</div>
+                    <div class="character-role">המרצה והמנטור שלכם</div>
+                    <div class="character-bubble">
+                        "שוק המט"ח הוא כמו מסיבת נקניקיות בינלאומית: לכל נקניק יש את הריקוד שלו, וכל שינוי במקצב של אחת מהנקניקיות משנה לגמרי את הקצב של הכלכלה כולה!"
+                    </div>
+                </div>
+            </div>
+            
+            <div class="character-card" style="margin-top: 1.5rem;">
+                <img src="ilanit.png" alt="Ilanit" style="width: 120px; height: 120px; border-radius: 20px; border: 3px solid var(--success); box-shadow: 0 8px 16px rgba(0,0,0,0.06);">
+                <div class="character-content">
+                    <div class="character-name ilanit">אילנית הכלכלנית</div>
+                    <div class="character-role">אנליסטית מאקרו בכירה</div>
+                    <div class="character-bubble">
+                        "זכרו כלל ברזל חשבונאי: כל עסקה שמביאה דולרים לישראל (כמו יצוא או השקעה זרה) היא תנועה נכנסת המגדילה את היצע המט״ח. כל עסקה שמוציאה דולרים החוצה (כמו יבוא או השקעות בחו״ל) היא תנועה יוצאת המגדילה את הביקוש למט״ח."
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Balance of Payments Section -->
+        <section id="bop" class="page-section">
+            <div class="bop-container">
+                <div class="bop-tabs" style="margin-bottom: 1.5rem;">
+                    <button id="tab-current" class="bop-tab-btn active" onclick="setBopTab('current')">החשבון השוטף</button>
+                    <button id="tab-capital" class="bop-tab-btn" onclick="setBopTab('capital')">חשבון ההון והפיננסים</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="flow-side">
+                        <h3 style="color: var(--success); margin-bottom: 1rem;"><i class="fa-solid fa-circle-arrow-down"></i> מט״ח נכנס</h3>
+                        <div id="incoming-list"></div>
+                    </div>
+                    <div class="flow-side">
+                        <h3 style="color: var(--danger); margin-bottom: 1rem;"><i class="fa-solid fa-circle-arrow-up"></i> מט״ח יוצא</h3>
+                        <div id="outgoing-list"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn-premium" onclick="switchSection('pacman-container')">המשך למשחק מט״ח-מן <i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+        </section>
+
+        <!-- PACMAN GAME SECTION -->
+        <section id="pacman-container" class="page-section">
+            <div class="pacman-section">
+                <h2 class="pacman-title">מט״ח-מן: לאכול את האינפלציה!</h2>
+                <p style="font-family: var(--font-retro); font-size: 0.6rem; color: #fff; margin-bottom: 1rem;">
+                    שלטו במט״ח-מן (שקל) ואכלו את מטבעות הדולר ($). הימנעו מרוחות הרפאים (פיחות, אינפלציה וריבית גבוהה)!
+                </p>
+
+                <div class="pacman-canvas-container">
+                    <canvas id="pacmanCanvas" width="400" height="400"></canvas>
+                </div>
+
+                <div>
+                    <button class="arcade-btn" onclick="controlPacman('UP')">▲ למעלה</button><br>
+                    <button class="arcade-btn" onclick="controlPacman('LEFT')">◀ שמאלה</button>
+                    <button class="arcade-btn" onclick="controlPacman('RIGHT')">ימינה ▶</button><br>
+                    <button class="arcade-btn" onclick="controlPacman('DOWN')">▼ למטה</button>
+                </div>
+
+                <div class="pacman-controls-hint">
+                    השתמשו בכפתורי המקלדת (חצים) או בכפתורים למעלה כדי לשלוט בשקל!<br>
+                    סקור נוכחי: <span id="pacman-score" style="color: #ffff00;">0</span> | פסילות: <span id="pacman-lives" style="color: #ff0000;">3</span>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn-premium" onclick="switchSection('simulator')">המשך לסימולטור עקומות <i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+        </section>
+
+        <!-- Curve Simulator Section -->
+        <section id="simulator" class="page-section">
+            <div class="chart-card">
+                <h2 style="margin-bottom: 1rem;">סימולטור שיווי משקל שוק המט״ח (שקל/דולר)</h2>
+                
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <button class="btn-premium" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="triggerSimEvent('init')">מוצא</button>
+                    <button class="btn-premium" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--success);" onclick="triggerSimEvent('foreign_invest')">השקעות זרות (אלונה)</button>
+                    <button class="btn-premium" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--accent);" onclick="triggerSimEvent('decrease_imports')">ירידה בייבוא</button>
+                    <button class="btn-premium" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--danger);" onclick="triggerSimEvent('increase_foreign_invest_abroad')">השקעות זרים בחו״ל</button>
+                </div>
+
+                <svg class="chart-svg" viewBox="0 0 400 400">
+                    <line x1="50" y1="350" x2="370" y2="350" class="axis" />
+                    <line x1="50" y1="30" x2="50" y2="350" class="axis" />
+                    
+                    <path id="curve-s" d="M 80,320 L 320,80" class="curve-supply" />
+                    <path id="curve-d" d="M 80,80 L 320,320" class="curve-demand" />
+                    
+                    <circle id="eq-point" cx="200" cy="200" r="7" class="eq-point" />
+                    <text id="eq-label" x="215" y="195" class="text-label">A</text>
+                </svg>
+
+                <div style="margin-top: 1rem; font-weight: 700; color: var(--primary);" id="sim-hud-status">
+                    שער חליפין מאוזן: 3.80 ש״ח לדולר
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn-premium" onclick="switchSection('quiz')">המשך לחידון המט״ח <i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="page-section">
+            <div class="quiz-card">
+                <div id="question-text" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem;">טוען שאלה...</div>
+                <div id="options-grid" style="display: grid; grid-template-columns: 1fr; gap: 1rem;"></div>
+                <div style="text-align: left; margin-top: 2rem;">
+                    <button id="next-question-btn" class="btn-premium" onclick="handleNextQuestion()" disabled>הבא</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Web Audio & Confetti scripts -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === 'correct') {
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'incorrect') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+    </script>
+
+    <!-- PACMAN GAME ENGINE -->
+    <script>
+        const canvas = document.getElementById('pacmanCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let pacman = { x: 200, y: 200, size: 14, dx: 0, dy: 0, score: 0, lives: 3 };
+        let coins = [];
+        let ghosts = [
+            { x: 50, y: 50, color: '#ff0000', label: 'אינפלציה', dx: 1.5, dy: 1.5 },
+            { x: 350, y: 50, color: '#00ffff', label: 'פיחות', dx: -1.5, dy: 1.5 },
+            { x: 50, y: 350, color: '#ffb8ff', label: 'ריבית', dx: 1.5, dy: -1.5 }
+        ];
+
+        // Populate coins
+        function initCoins() {
+            coins = [];
+            for (let i = 40; i < 380; i += 40) {
+                for (let j = 40; j < 380; j += 40) {
+                    if (Math.abs(i - 200) > 30 || Math.abs(j - 200) > 30) {
+                        coins.push({ x: i, y: j, active: true });
+                    }
+                }
+            }
+        }
+
+        function controlPacman(dir) {
+            if (dir === 'UP') { pacman.dx = 0; pacman.dy = -3; }
+            if (dir === 'DOWN') { pacman.dx = 0; pacman.dy = 3; }
+            if (dir === 'LEFT') { pacman.dx = -3; pacman.dy = 0; }
+            if (dir === 'RIGHT') { pacman.dx = 3; pacman.dy = 0; }
+        }
+
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') controlPacman('UP');
+            if (e.key === 'ArrowDown') controlPacman('DOWN');
+            if (e.key === 'ArrowLeft') controlPacman('LEFT');
+            if (e.key === 'ArrowRight') controlPacman('RIGHT');
+        });
+
+        function gameLoop() {
+            // Background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw boundaries
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+            // Move Pacman
+            pacman.x += pacman.dx;
+            pacman.y += pacman.dy;
+
+            // Boundaries collision
+            if (pacman.x < 20) pacman.x = 20;
+            if (pacman.x > 380) pacman.x = 380;
+            if (pacman.y < 20) pacman.y = 20;
+            if (pacman.y > 380) pacman.y = 380;
+
+            // Draw Pacman
+            ctx.beginPath();
+            ctx.arc(pacman.x, pacman.y, pacman.size, 0.2 * Math.PI, 1.8 * Math.PI);
+            ctx.lineTo(pacman.x, pacman.y);
+            ctx.fillStyle = '#ffff00';
+            ctx.fill();
+
+            // Draw coins ($)
+            ctx.fillStyle = '#10b981';
+            ctx.font = '12px var(--font-main)';
+            coins.forEach(coin => {
+                if (coin.active) {
+                    ctx.fillText('$', coin.x, coin.y);
+                    // Check collision
+                    let dist = Math.hypot(pacman.x - coin.x, pacman.y - coin.y);
+                    if (dist < 15) {
+                        coin.active = false;
+                        pacman.score += 10;
+                        document.getElementById('pacman-score').innerText = pacman.score;
+                        playSound('correct');
+                    }
+                }
+            });
+
+            // Draw & move ghosts
+            ghosts.forEach(ghost => {
+                ghost.x += ghost.dx;
+                ghost.y += ghost.dy;
+
+                // Bounce ghosts off walls
+                if (ghost.x < 20 || ghost.x > 380) ghost.dx *= -1;
+                if (ghost.y < 20 || ghost.y > 380) ghost.dy *= -1;
+
+                ctx.fillStyle = ghost.color;
+                ctx.beginPath();
+                ctx.arc(ghost.x, ghost.y, 12, Math.PI, 0, false);
+                ctx.lineTo(ghost.x + 12, ghost.y + 12);
+                ctx.lineTo(ghost.x - 12, ghost.y + 12);
+                ctx.fill();
+
+                // Ghost Label
+                ctx.fillStyle = '#fff';
+                ctx.font = '8px var(--font-main)';
+                ctx.fillText(ghost.label, ghost.x - 18, ghost.y - 15);
+
+                // Pacman collision
+                let dist = Math.hypot(pacman.x - ghost.x, pacman.y - ghost.y);
+                if (dist < 20) {
+                    pacman.lives--;
+                    document.getElementById('pacman-lives').innerText = pacman.lives;
+                    playSound('incorrect');
+                    pacman.x = 200; pacman.y = 200;
+                    pacman.dx = 0; pacman.dy = 0;
+
+                    if (pacman.lives <= 0) {
+                        // Resets game internally without blocking alert
+                        pacman.lives = 3;
+                        pacman.score = 0;
+                        document.getElementById('pacman-score').innerText = 0;
+                        document.getElementById('pacman-lives').innerText = 3;
+                        initCoins();
+                    }
+                }
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start Pacman
+        initCoins();
+        gameLoop();
+    </script>
+
+    <!-- General App Logic -->
+    <script>
+        const bopData = {
+            current: {
+                incoming: [{ title: "יצוא סחורות ושירותים", desc: "מכירת מוצרי הייטק לחו״ל שמביאה דולרים לישראל." }],
+                outgoing: [{ title: "יבוא סחורות ושירותים", desc: "רכישת מכוניות ומכשירי חשמל מחו״ל שמצריכה תשלום דולרים." }]
+            },
+            capital: {
+                incoming: [{ title: "השקעות זרות בישראל", desc: "השקעות של חברות זרות במשק המקומי (מפעל הנקניקיות של אלונה)." }],
+                outgoing: [{ title: "השקעות ישראלים בחו״ל", desc: "רכישת מניות של תושבים מקומיים בבורסה באמריקה." }]
+            }
+        };
+
+        function setBopTab(tab) {
+            document.getElementById('tab-current').classList.toggle('active', tab === 'current');
+            document.getElementById('tab-capital').classList.toggle('active', tab === 'capital');
+            
+            const incomingList = document.getElementById('incoming-list');
+            const outgoingList = document.getElementById('outgoing-list');
+            incomingList.innerHTML = '';
+            outgoingList.innerHTML = '';
+
+            bopData[tab].incoming.forEach(item => {
+                incomingList.innerHTML += `<div class="flow-item"><strong>${item.title}</strong><p style="font-size:0.85rem;color:var(--text-muted);">${item.desc}</p></div>`;
+            });
+            bopData[tab].outgoing.forEach(item => {
+                outgoingList.innerHTML += `<div class="flow-item"><strong>${item.title}</strong><p style="font-size:0.85rem;color:var(--text-muted);">${item.desc}</p></div>`;
+            });
+        }
+        setBopTab('current');
+
+        function switchSection(sect) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sect).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(sect)) btn.classList.add('active');
+            });
+        }
+
+        // Simulator Event
+        function triggerSimEvent(event) {
+            const sCurve = document.getElementById('curve-s');
+            const dCurve = document.getElementById('curve-d');
+            const eqPoint = document.getElementById('eq-point');
+            const eqLabel = document.getElementById('eq-label');
+            const hud = document.getElementById('sim-hud-status');
+
+            if (event === 'init') {
+                sCurve.setAttribute('d', 'M 80,320 L 320,80');
+                dCurve.setAttribute('d', 'M 80,80 L 320,320');
+                eqPoint.setAttribute('cx', 200); eqPoint.setAttribute('cy', 200);
+                eqLabel.setAttribute('x', 215); eqLabel.setAttribute('y', 195);
+                hud.innerText = "שער חליפין מאוזן: 3.80 ש״ח לדולר";
+            } else if (event === 'foreign_invest') {
+                sCurve.setAttribute('d', 'M 140,320 L 350,110');
+                eqPoint.setAttribute('cx', 245); eqPoint.setAttribute('cy', 155);
+                eqLabel.setAttribute('x', 260); eqLabel.setAttribute('y', 150);
+                hud.innerText = "ייסוף! שער החליפין ירד ל-3.40 ש״ח לדולר (השקל התחזק)";
+            } else if (event === 'decrease_imports') {
+                dCurve.setAttribute('d', 'M 50,50 L 290,290');
+                eqPoint.setAttribute('cx', 170); eqPoint.setAttribute('cy', 230);
+                eqLabel.setAttribute('x', 185); eqLabel.setAttribute('y', 225);
+                hud.innerText = "ייסוף! שער החליפין ירד ל-3.50 ש״ח לדולר (השקל התחזק)";
+            } else if (event === 'increase_foreign_invest_abroad') {
+                dCurve.setAttribute('d', 'M 110,110 L 350,350');
+                eqPoint.setAttribute('cx', 230); eqPoint.setAttribute('cy', 170);
+                eqLabel.setAttribute('x', 245); eqLabel.setAttribute('y', 165);
+                hud.innerText = "פיחות! שער החליפין עלה ל-4.10 ש״ח לדולר (השקל נחלש)";
+            }
+        }
+
+        // Quiz
+        const quiz = [
+            {
+                q: "מה מבטא החשבון השוטף במאזן התשלומים?",
+                options: ["הלוואות מחו״ל", "השקעות זרות", "הייצוא והייבוא של סחורות ושירותים", "שינוי ביתרות בנק ישראל"],
+                correct: 2
+            }
+        ];
+        let quizIdx = 0;
+        function loadQuiz() {
+            const q = quiz[quizIdx];
+            document.getElementById('question-text').innerText = q.q;
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                grid.innerHTML += `<button class="option-btn" onclick="checkQuiz(${idx})">${opt}</button>`;
+            });
+        }
+        function checkQuiz(idx) {
+            const q = quiz[quizIdx];
+            const buttons = document.querySelectorAll('.option-btn');
+            if (idx === q.correct) {
+                buttons[idx].classList.add('correct');
+                playSound('correct');
+                confetti();
+            } else {
+                buttons[idx].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                playSound('incorrect');
+            }
+            document.getElementById('next-question-btn').disabled = false;
+        }
+        function handleNextQuestion() {
+            alert('מעולה! עברתם את חידון הלומדה בהצלחה!');
+        }
+        loadQuiz();
+    </script>
+</body>
+</html>

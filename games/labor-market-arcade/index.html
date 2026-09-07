@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>שוק העבודה ועוני — ARCADE</title>
+  <meta name="description" content="משחק לימוד אינטראקטיבי בסגנון ארקייד על שוק העבודה ועוני — שיעור 12." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&family=Secular+One&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- Confetti -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- moving neon grid + scanlines -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <main id="app" class="app">
+
+    <!-- ============ START / LOGIN SCREEN ============ -->
+    <section id="screen-start" class="screen is-active">
+      <div class="arcade-cabinet">
+        <div class="marquee">
+          <span class="marquee-coin">🪙</span>
+          <h1 class="game-title">
+            <span class="title-line title-1">שוק העבודה</span>
+            <span class="title-amp">&amp;</span>
+            <span class="title-line title-2">עוני</span>
+          </h1>
+          <p class="game-sub">A R C A D E · שיעור 12</p>
+        </div>
+
+        <div class="pixel-scene" aria-hidden="true">
+          <span class="floaty f1">🏭</span>
+          <span class="floaty f2">💰</span>
+          <span class="floaty f3">📈</span>
+          <span class="floaty f4">⚖️</span>
+          <span class="floaty f5">🧮</span>
+        </div>
+
+        <form id="login-form" class="login-card" autocomplete="on" novalidate>
+          <p class="insert-coin">★ הכנס פרטים כדי להתחיל ★</p>
+
+          <label class="field">
+            <span class="field-label">שם השחקן/ית</span>
+            <input id="player-name" name="name" type="text" inputmode="text"
+                   placeholder="איך קוראים לך?" maxlength="40" required />
+            <span class="field-error" data-for="name"></span>
+          </label>
+
+          <label class="field">
+            <span class="field-label">אימייל</span>
+            <input id="player-email" name="email" type="email" inputmode="email"
+                   placeholder="name@example.com" maxlength="60" required dir="ltr" />
+            <span class="field-error" data-for="email"></span>
+          </label>
+
+          <button type="submit" class="btn btn-start">
+            <span class="btn-glitch" data-text="PRESS START">PRESS START</span>
+          </button>
+
+          <p class="login-foot">3 חיים · 6 שלבים · 22 שאלות · המון קונפטי 🎉</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ MAP / LEVEL SELECT ============ -->
+    <section id="screen-map" class="screen">
+      <header class="map-head">
+        <h2 class="screen-title">בחר/י שלב</h2>
+        <p id="map-greeting" class="map-greeting"></p>
+      </header>
+      <div id="map-grid" class="map-grid"><!-- worlds injected --></div>
+      <div class="map-actions">
+        <button id="btn-reset" class="btn btn-ghost btn-sm" type="button">איפוס התקדמות</button>
+      </div>
+    </section>
+
+    <!-- ============ LEARN SCREEN ============ -->
+    <section id="screen-learn" class="screen">
+      <div class="learn-wrap">
+        <div id="learn-badge" class="stage-badge"></div>
+        <h2 id="learn-title" class="learn-title"></h2>
+        <div id="learn-body" class="learn-body"><!-- blocks injected --></div>
+        <div class="learn-foot">
+          <button id="btn-learn-start" class="btn btn-go" type="button">
+            <span>קדימה לשאלות</span> <span class="arrow">←</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUIZ SCREEN ============ -->
+    <section id="screen-quiz" class="screen">
+      <div class="quiz-wrap">
+        <div class="quiz-top">
+          <div id="quiz-stage" class="stage-badge"></div>
+          <div class="quiz-progress">
+            <span id="quiz-counter" class="quiz-counter"></span>
+            <div class="qbar"><div id="quiz-bar" class="qbar-fill"></div></div>
+          </div>
+        </div>
+
+        <div id="quiz-context" class="quiz-context" hidden></div>
+        <h3 id="quiz-prompt" class="quiz-prompt"></h3>
+
+        <div id="quiz-options" class="quiz-options"><!-- options injected --></div>
+
+        <!-- feedback / explanation -->
+        <div id="quiz-feedback" class="feedback" hidden>
+          <div id="feedback-banner" class="feedback-banner"></div>
+          <h4 id="feedback-title" class="feedback-title"></h4>
+          <div id="feedback-html" class="feedback-html"></div>
+          <div id="feedback-peroption" class="feedback-peroption"></div>
+          <button id="btn-next" class="btn btn-go" type="button">
+            <span id="btn-next-label">השאלה הבאה</span> <span class="arrow">←</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STAGE CLEAR ============ -->
+    <section id="screen-stage-clear" class="screen">
+      <div class="clear-card">
+        <div class="clear-emoji">🏅</div>
+        <h2 class="clear-title">STAGE CLEAR!</h2>
+        <p id="clear-stage-name" class="clear-stage-name"></p>
+        <div class="clear-stats">
+          <div class="cstat"><span id="clear-correct" class="cstat-num">0/0</span><span class="cstat-lbl">תשובות נכונות</span></div>
+          <div class="cstat"><span id="clear-xp" class="cstat-num">+0</span><span class="cstat-lbl">XP בשלב</span></div>
+          <div class="cstat"><span id="clear-streak" class="cstat-num">0</span><span class="cstat-lbl">שיא רצף</span></div>
+        </div>
+        <button id="btn-clear-cont" class="btn btn-go" type="button">המשך</button>
+      </div>
+    </section>
+
+    <!-- ============ GAME OVER ============ -->
+    <section id="screen-gameover" class="screen">
+      <div class="over-card">
+        <div class="over-emoji">💥</div>
+        <h2 class="over-title">GAME OVER</h2>
+        <p class="over-text">נגמרו החיים — אבל בלימוד אין הפסד אמיתי!<br>קבל/י 3 חיים חדשים והמשך/י בדיוק מאיפה שעצרת.</p>
+        <button id="btn-continue" class="btn btn-start" type="button">
+          <span class="btn-glitch" data-text="CONTINUE? ❤❤❤">CONTINUE? ❤❤❤</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ VICTORY / CERTIFICATE ============ -->
+    <section id="screen-win" class="screen">
+      <div class="win-card">
+        <h2 class="win-title">🎉 ניצחת! 🎉</h2>
+        <p id="win-greeting" class="win-greeting"></p>
+
+        <div class="win-stats">
+          <div class="wstat"><span id="win-score" class="wstat-num">0</span><span class="wstat-lbl">ניקוד סופי</span></div>
+          <div class="wstat"><span id="win-acc" class="wstat-num">0%</span><span class="wstat-lbl">דיוק</span></div>
+          <div class="wstat"><span id="win-rank" class="wstat-num">—</span><span class="wstat-lbl">דרגה</span></div>
+        </div>
+
+        <div class="cert-frame">
+          <canvas id="cert-canvas" width="1000" height="700" aria-label="תעודת סיום"></canvas>
+        </div>
+
+        <div class="win-actions">
+          <button id="btn-download-cert" class="btn btn-go" type="button">⬇️ הורד/י תעודה</button>
+          <button id="btn-play-again" class="btn btn-ghost" type="button">🔁 שחק/י שוב</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ PERSISTENT HUD ============ -->
+  <div id="hud" class="hud" hidden>
+    <div class="hud-left">
+      <span class="hud-player">👾 <b id="hud-name"></b></span>
+    </div>
+    <div class="hud-mid">
+      <div class="hud-xp">
+        <span class="hud-lvl">LV <b id="hud-level">1</b></span>
+        <div class="xpbar"><div id="xpbar-fill" class="xpbar-fill"></div></div>
+        <span id="hud-xp-num" class="hud-xp-num">0 XP</span>
+      </div>
+    </div>
+    <div class="hud-right">
+      <span id="hud-lives" class="hud-lives" aria-label="חיים"></span>
+      <span class="hud-score">💎 <b id="hud-score">0</b></span>
+    </div>
+  </div>
+
+  <!-- streak toast -->
+  <div id="streak-toast" class="streak-toast" hidden></div>
+
+  <!-- sound toggle -->
+  <button id="sound-toggle" class="sound-toggle" type="button" aria-label="הפעל/כבה צליל" title="צליל">🔊</button>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

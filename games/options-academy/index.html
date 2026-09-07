@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptionsAcademy - Friendly Options Trading Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Stock Price History -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons for clean look -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon"><i data-lucide="trending-up"></i></div>
+                <div class="logo-text">
+                    <h1>OptionsAcademy</h1>
+                    <span>Student Trading Simulator</span>
+                </div>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-card tooltip" data-tooltip="Your usable cash to buy options or stocks">
+                    <span class="stat-label">Available Cash</span>
+                    <span class="stat-value" id="cash-balance">$10,000.00</span>
+                </div>
+                <div class="stat-card tooltip" data-tooltip="Total value of cash + active options contracts">
+                    <span class="stat-label">Portfolio Value</span>
+                    <span class="stat-value" id="portfolio-value">$10,000.00</span>
+                </div>
+                <div class="stat-card tooltip" data-tooltip="Your total profit or loss since starting">
+                    <span class="stat-label">Total Return</span>
+                    <span class="stat-value text-neutral" id="total-return">$0.00 (0.00%)</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button id="btn-fast-forward" class="btn btn-secondary tooltip" data-tooltip="Accelerate time by 1 day to see decay and expiration">
+                    <i data-lucide="fast-forward"></i>
+                    <span>+1 Day</span>
+                </button>
+                <button id="btn-reset" class="btn btn-danger-outline tooltip" data-tooltip="Reset simulator to starting cash">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="app-main">
+            <!-- LEFT PANEL: Missions & Guidance -->
+            <section class="sidebar-panel">
+                <!-- Companion Module -->
+                <div class="card owl-card">
+                    <div class="owl-header">
+                        <img src="coach_davidi.png" class="owl-avatar-img" alt="Coach Davidi">
+                        <div class="owl-title">
+                            <h3>Coach Davidi</h3>
+                            <span>Your Options Coach</span>
+                        </div>
+                    </div>
+                    <div class="owl-bubble">
+                        <p id="opti-speech">Welcome to OptionsAcademy! I am Coach Davidi. Options can seem scary, but they are just agreements to buy or sell stuff. Let's start with <strong>Mission 1</strong> to learn the basics!</p>
+                        <button id="btn-eli5-toggle" class="btn btn-eli5 btn-sm">
+                            <i data-lucide="sparkles"></i> Translate to Plain English (ELI5)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Guided Missions -->
+                <div class="card missions-card">
+                    <div class="card-header">
+                        <i data-lucide="compass"></i>
+                        <h2>Learning Missions</h2>
+                    </div>
+                    <div class="missions-list">
+                        <div class="mission-item active" data-mission="1">
+                            <div class="mission-status"><i data-lucide="circle-dot"></i></div>
+                            <div class="mission-info">
+                                <span class="mission-tag">Mission 1</span>
+                                <h4>Buy Your First Call Option</h4>
+                                <p class="mission-desc">Bet that Apple (AAPL) stock will rise and buy a Call Option contract.</p>
+                                <div class="mission-progress-bar"><div class="progress" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div class="mission-item locked" data-mission="2">
+                            <div class="mission-status"><i data-lucide="lock"></i></div>
+                            <div class="mission-info">
+                                <span class="mission-tag">Mission 2</span>
+                                <h4>Protect with a Put Option</h4>
+                                <p class="mission-desc">Protect against a Tesla stock drop by buying a Put Option contract.</p>
+                                <div class="mission-progress-bar"><div class="progress" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div class="mission-item locked" data-mission="3">
+                            <div class="mission-status"><i data-lucide="lock"></i></div>
+                            <div class="mission-info">
+                                <span class="mission-tag">Mission 3</span>
+                                <h4>Income with Covered Calls</h4>
+                                <p class="mission-desc">Generate premium income by writing a Call option against stock you own.</p>
+                                <div class="mission-progress-bar"><div class="progress" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div class="mission-item locked" data-mission="4">
+                            <div class="mission-status"><i data-lucide="lock"></i></div>
+                            <div class="mission-info">
+                                <span class="mission-tag">Mission 4</span>
+                                <h4>The Bull Call Spread</h4>
+                                <p class="mission-desc">Reduce premium cost by combining a bought call with a sold call.</p>
+                                <div class="mission-progress-bar"><div class="progress" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER & RIGHT: Workspace & Trade Board -->
+            <section class="workspace-panel">
+                <!-- Top Tabs & Selector -->
+                <div class="workspace-header-bar">
+                    <div class="asset-selector-wrapper">
+                        <label for="asset-select">Asset to Trade:</label>
+                        <select id="asset-select" class="custom-select">
+                            <option value="AAPL">🍏 Apple Inc. (AAPL) — $150.00</option>
+                            <option value="TSLA">⚡ Tesla Motors (TSLA) — $200.00</option>
+                            <option value="SPY">🏛️ S&P 500 Index (SPY) — $410.00</option>
+                        </select>
+                    </div>
+                    <div class="market-status-tag">
+                        <span class="status-dot pulsing"></span>
+                        <span>SIMULATOR LIVE</span>
+                    </div>
+                </div>
+
+                <!-- Row 1: Stock Price Chart & Option Chain -->
+                <div class="workspace-grid-row">
+                    <!-- Stock Price Chart Card -->
+                    <div class="card chart-card">
+                        <div class="card-header justify-between">
+                            <div class="flex-align">
+                                <i data-lucide="line-chart"></i>
+                                <h2 id="chart-title">AAPL Price History</h2>
+                            </div>
+                            <span class="price-badge" id="current-asset-price">$150.00</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                        <!-- Live ticker news banner -->
+                        <div class="ticker-news">
+                            <i data-lucide="bell" class="news-bell-icon"></i>
+                            <div class="news-scroll">
+                                <span id="news-text">Apple announces new AI features; stock showing positive momentum.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Strategy Payoff Visualizer Card -->
+                    <div class="card payoff-card">
+                        <div class="card-header">
+                            <i data-lucide="activity"></i>
+                            <h2>Visual Option Payoff (P&L Diagram)</h2>
+                        </div>
+                        <div class="payoff-visualizer-container">
+                            <canvas id="payoffChart" width="450" height="230"></canvas>
+                            <div id="payoff-details" class="payoff-details-overlay">
+                                <div><strong>Max Profit:</strong> <span id="payoff-max-profit">Unlimited</span></div>
+                                <div><strong>Max Loss:</strong> <span id="payoff-max-loss">-$250.00</span></div>
+                                <div><strong>Breakeven:</strong> <span id="payoff-breakeven">$152.50</span></div>
+                            </div>
+                        </div>
+                        <div class="payoff-legend">
+                            <span class="legend-item"><span class="legend-color profit-bg"></span> Profit</span>
+                            <span class="legend-item"><span class="legend-color loss-bg"></span> Loss</span>
+                            <span class="legend-item"><span class="legend-color current-price-bg"></span> Current Price</span>
+                            <span class="legend-item"><span class="legend-color strike-bg"></span> Strike Price</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Option Chain board & Strategy builder -->
+                <div class="card option-chain-card">
+                    <div class="card-header justify-between">
+                        <div class="flex-align">
+                            <i data-lucide="table"></i>
+                            <h2>Option Chain Board (15 Days to Expiration)</h2>
+                        </div>
+                        <div class="chain-filters">
+                            <span class="filter-label">Highlight ITM:</span>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-itm-highlights" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="chain-table-wrapper">
+                        <table class="option-chain-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="3" class="header-calls">CALL OPTIONS (Buy if Bullish)</th>
+                                    <th class="header-strike">STRIKE</th>
+                                    <th colspan="3" class="header-puts">PUT OPTIONS (Buy if Bearish)</th>
+                                </tr>
+                                <tr>
+                                    <th>Bid (Sell)</th>
+                                    <th>Ask (Buy)</th>
+                                    <th>ITM%</th>
+                                    <th>Price</th>
+                                    <th>ITM%</th>
+                                    <th>Bid (Sell)</th>
+                                    <th>Ask (Buy)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="option-chain-rows">
+                                <!-- Generated Dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Row 3: Portfolio & Current Trades -->
+                <div class="card portfolio-card">
+                    <div class="card-header justify-between">
+                        <div class="flex-align">
+                            <i data-lucide="briefcase"></i>
+                            <h2>Your Open Trading Positions</h2>
+                        </div>
+                        <span class="pos-count-badge" id="positions-count">0 Positions</span>
+                    </div>
+                    
+                    <div class="portfolio-table-wrapper">
+                        <table class="portfolio-table">
+                            <thead>
+                                <tr>
+                                    <th>Strategy/Asset</th>
+                                    <th>Type</th>
+                                    <th>Strike</th>
+                                    <th>Qty</th>
+                                    <th>Avg Cost</th>
+                                    <th>Current Value</th>
+                                    <th>Days Left</th>
+                                    <th>Total Return</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfolio-rows">
+                                <tr>
+                                    <td colspan="9" class="empty-portfolio-msg">
+                                        <i data-lucide="inbox"></i>
+                                        <p>No open positions. Use the Option Chain above to purchase your first contract!</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- TRANSACTION MODAL -->
+    <div id="trade-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-trade-title">Buy Call - AAPL $150.00 Strike</h3>
+                <button class="modal-close-btn" id="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-guide-tip" id="modal-opti-tip">
+                    <img src="coach_davidi.png" class="owl-mini-avatar-img" alt="Coach Davidi">
+                    <p id="modal-tip-text">Buying a call gives you the right to buy Apple at $150.00. You profit if the stock rises above $152.50!</p>
+                </div>
+                
+                <div class="trade-inputs">
+                    <div class="input-group">
+                        <label for="trade-qty">Contracts (1 contract = 100 shares):</label>
+                        <div class="qty-control">
+                            <button class="qty-btn" id="qty-minus">-</button>
+                            <input type="number" id="trade-qty" value="1" min="1" max="100">
+                            <button class="qty-btn" id="qty-plus">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-summary-card">
+                        <div class="summary-row">
+                            <span>Premium (Per Share):</span>
+                            <strong id="modal-premium-price">$2.50</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Contract Size:</span>
+                            <span>100 Shares</span>
+                        </div>
+                        <hr class="summary-divider">
+                        <div class="summary-row total-row">
+                            <span>Total Premium Cost:</span>
+                            <strong id="modal-total-cost" class="text-call">$250.00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+                <button class="btn btn-call" id="btn-modal-confirm">Confirm Trade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ELI5 GLOSSARY FLOATER -->
+    <div id="glossary-floater" class="glossary-wrapper collapsed">
+        <button id="btn-glossary-toggle" class="glossary-trigger">
+            <i data-lucide="book-open"></i>
+            <span>Jargon Decoder</span>
+        </button>
+        <div class="glossary-content">
+            <h3>📖 Option Jargon Decoder</h3>
+            <div class="glossary-search-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" id="glossary-search" placeholder="Search terms (e.g. Strike, Premium)...">
+            </div>
+            <div class="glossary-list" id="glossary-list-items">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

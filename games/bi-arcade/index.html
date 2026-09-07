@@ -1,0 +1,1162 @@
+<!DOCTYPE html>  
+<html lang="he" dir="rtl">
+<head> 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BI ARCADE 🕹️ — משחק הלמידה לבחינת הגמר בבינה עסקית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Heebo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --neon-pink:#ff2e88; --neon-cyan:#00f0ff; --neon-yellow:#ffe600;
+  --neon-green:#39ff14; --neon-purple:#b26bff; --neon-orange:#ff9d00;
+  --bg:#07060f; --panel:#12102a; --panel2:#1a1740;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:#fff;font-family:'Heebo',sans-serif;min-height:100%;}
+body{overflow-x:hidden;}
+.pixel{font-family:'Press Start 2P',monospace;}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#crt{position:fixed;inset:0;z-index:999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);
+  mix-blend-mode:multiply;}
+#app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:12px 14px 60px;}
+.screen{display:none;animation:fadein .35s ease;}
+.screen.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:.15}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease;}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .3s ease;}
+
+/* ===== header / marquee ===== */
+.marquee{
+  text-align:center;padding:18px 10px 8px;
+}
+.marquee h1{
+  margin:0;font-size:clamp(26px,6vw,54px);letter-spacing:2px;font-weight:900;
+  background:linear-gradient(180deg,var(--neon-yellow),var(--neon-orange) 45%,var(--neon-pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(255,46,136,.55));
+}
+.marquee .sub{color:var(--neon-cyan);font-weight:600;margin-top:6px;font-size:clamp(13px,2.4vw,18px);text-shadow:0 0 10px rgba(0,240,255,.6);}
+.insert{color:var(--neon-yellow);margin-top:10px;font-size:11px;animation:blink 1.2s step-end infinite;}
+
+/* ===== cabinet menu ===== */
+.cab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px;}
+.cab{
+  position:relative;border:3px solid var(--c,var(--neon-cyan));border-radius:16px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  padding:18px 16px 14px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;
+  box-shadow:0 0 0 rgba(0,0,0,0), inset 0 0 30px rgba(0,0,0,.5);
+  text-align:center;
+}
+.cab:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 0 24px var(--c,var(--neon-cyan));}
+.cab .icon{font-size:44px;animation:floaty 3s ease-in-out infinite;}
+.cab h3{margin:8px 0 4px;color:var(--c,var(--neon-cyan));font-size:19px;}
+.cab .en{font-size:9px;color:#9ad;opacity:.85;letter-spacing:1px;}
+.cab p{margin:8px 0 8px;color:#cfd3ff;font-size:13.5px;min-height:38px;}
+.cab .hs{font-size:11px;color:var(--neon-yellow);}
+.badge{position:absolute;top:-12px;left:12px;background:var(--neon-pink);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;box-shadow:0 0 10px var(--neon-pink);}
+
+/* ===== HUD ===== */
+.hud{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  background:var(--panel);border:2px solid #2c2963;border-radius:12px;padding:8px 12px;margin-bottom:12px;}
+.hud .item{font-size:13px;color:#cfd3ff;font-weight:600;}
+.hud .item b{color:var(--neon-yellow);font-size:16px;}
+.hud .lives{font-size:18px;letter-spacing:2px;}
+.hud .combo{color:var(--neon-green);font-weight:900;}
+.btn{
+  font-family:'Heebo',sans-serif;font-weight:800;font-size:15px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));color:#fff;
+  border:2px solid var(--neon-cyan);border-radius:12px;padding:10px 18px;cursor:pointer;
+  transition:all .12s ease;
+}
+.btn:hover{box-shadow:0 0 14px var(--neon-cyan);transform:translateY(-2px);}
+.btn.small{padding:6px 12px;font-size:13px;}
+.btn.pink{border-color:var(--neon-pink);}
+.btn.pink:hover{box-shadow:0 0 14px var(--neon-pink);}
+.btn.green{border-color:var(--neon-green);}
+.btn.green:hover{box-shadow:0 0 14px var(--neon-green);}
+.btn.yellow{border-color:var(--neon-yellow);}
+.btn.yellow:hover{box-shadow:0 0 14px var(--neon-yellow);}
+.btn.big{font-size:19px;padding:14px 30px;}
+.topbar{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+
+/* ===== question panel ===== */
+.qpanel{background:var(--panel);border:2px solid #2c2963;border-radius:16px;padding:16px 18px;margin-bottom:12px;}
+.qtag{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;background:#2c2963;color:var(--neon-cyan);margin-bottom:8px;}
+.qtext{font-size:clamp(15px,2.6vw,19px);font-weight:600;line-height:1.55;white-space:pre-line;}
+.timerbar{height:10px;border-radius:999px;background:#221f4d;overflow:hidden;margin:10px 0 4px;}
+.timerbar>div{height:100%;width:100%;background:linear-gradient(90deg,var(--neon-green),var(--neon-yellow),var(--neon-pink));transition:width .2s linear;}
+.answers{display:flex;flex-direction:column;gap:10px;}
+.ans{
+  text-align:right;font-family:'Heebo';font-size:15.5px;font-weight:600;line-height:1.45;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));color:#fff;
+  border:2px solid #4740a8;border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .12s;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.ans:hover{border-color:var(--neon-cyan);box-shadow:0 0 12px rgba(0,240,255,.35);transform:translateX(-3px);}
+.ans .key{flex:0 0 auto;font-family:'Press Start 2P';font-size:11px;color:var(--neon-yellow);padding-top:3px;}
+.ans.correct{border-color:var(--neon-green);box-shadow:0 0 16px var(--neon-green);background:rgba(57,255,20,.12);}
+.ans.wrong{border-color:var(--neon-pink);box-shadow:0 0 16px var(--neon-pink);background:rgba(255,46,136,.12);}
+.ans:disabled{cursor:default;opacity:.9;}
+
+/* invader descent */
+.invaderZone .ans{animation:descend var(--fall,18s) linear forwards;}
+@keyframes descend{from{transform:translateY(0)}to{transform:translateY(26px)}}
+
+/* ===== explanation ===== */
+.explain{border:2px dashed var(--neon-yellow);border-radius:14px;background:rgba(255,230,0,.06);
+  padding:12px 14px;margin-top:12px;font-size:14.5px;line-height:1.6;color:#ffeead;}
+.explain .t{font-weight:900;color:var(--neon-yellow);margin-bottom:4px;}
+.feedback{font-size:26px;font-weight:900;text-align:center;margin:8px 0;}
+.feedback.good{color:var(--neon-green);text-shadow:0 0 14px var(--neon-green);}
+.feedback.bad{color:var(--neon-pink);text-shadow:0 0 14px var(--neon-pink);}
+
+/* ===== TF big buttons ===== */
+.tfbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.tfbtn{font-size:24px;font-weight:900;padding:22px;border-radius:16px;cursor:pointer;border:3px solid;transition:all .12s;font-family:'Heebo';}
+.tfbtn.true{background:rgba(57,255,20,.1);border-color:var(--neon-green);color:var(--neon-green);}
+.tfbtn.false{background:rgba(255,46,136,.1);border-color:var(--neon-pink);color:var(--neon-pink);}
+.tfbtn:hover{transform:scale(1.03);}
+.tfbtn.true:hover{box-shadow:0 0 20px var(--neon-green);}
+.tfbtn.false:hover{box-shadow:0 0 20px var(--neon-pink);}
+
+/* ===== join tables ===== */
+.tables{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0;}
+.jtable{border-collapse:collapse;background:var(--panel2);border:2px solid var(--neon-purple);border-radius:10px;overflow:hidden;}
+.jtable caption{font-weight:900;color:var(--neon-purple);padding:6px;font-size:14px;}
+.jtable th{background:#2c2963;color:var(--neon-cyan);padding:6px 16px;font-size:13px;}
+.jtable td{border-top:1px solid #3a3580;padding:5px 16px;text-align:center;font-size:14px;}
+.jointype{font-size:22px;font-weight:900;color:var(--neon-orange);text-align:center;margin:8px 0;text-shadow:0 0 12px rgba(255,157,0,.6);}
+.numopts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;}
+.numopts .ans{justify-content:center;font-size:22px;font-weight:900;text-align:center;}
+
+/* ===== pipeline runner ===== */
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0;}
+.chip{border:2px solid var(--neon-cyan);background:var(--panel2);color:#fff;border-radius:999px;
+  padding:10px 16px;font-weight:700;font-size:14.5px;cursor:pointer;transition:all .12s;font-family:'Heebo';}
+.chip:hover{box-shadow:0 0 12px var(--neon-cyan);transform:translateY(-2px);}
+.chip.used{opacity:.25;pointer-events:none;}
+.slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;min-height:52px;
+  background:var(--panel);border:2px dashed #4740a8;border-radius:14px;padding:10px;}
+.slot-item{background:rgba(57,255,20,.12);border:2px solid var(--neon-green);border-radius:999px;padding:8px 14px;font-weight:700;font-size:13.5px;}
+.arrow{color:var(--neon-yellow);font-size:18px;font-weight:900;}
+
+/* ===== boss ===== */
+.bossbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bossbar .face{font-size:38px;filter:drop-shadow(0 0 8px var(--neon-pink));}
+.hpbar{flex:1;height:20px;border-radius:999px;background:#221f4d;overflow:hidden;border:2px solid var(--neon-pink);}
+.hpbar>div{height:100%;background:linear-gradient(90deg,var(--neon-pink),var(--neon-orange));transition:width .4s ease;}
+.playerbar .hpbar{border-color:var(--neon-green);}
+.playerbar .hpbar>div{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+
+/* ===== results ===== */
+.result-card{background:var(--panel);border:3px solid var(--neon-yellow);border-radius:20px;padding:26px;text-align:center;margin-top:16px;}
+.result-card .grade{font-size:64px;font-weight:900;color:var(--neon-yellow);text-shadow:0 0 20px rgba(255,230,0,.7);}
+.result-card .msg{font-size:20px;font-weight:700;margin:8px 0;color:var(--neon-cyan);}
+.topicgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;}
+.topicbox{background:var(--panel2);border:2px solid #4740a8;border-radius:12px;padding:10px;font-size:13px;}
+.topicbox b{display:block;color:var(--neon-cyan);margin-bottom:4px;}
+.pbar{height:8px;background:#221f4d;border-radius:99px;overflow:hidden;margin-top:6px;}
+.pbar>div{height:100%;background:var(--neon-green);}
+
+/* review list */
+.review-item{background:var(--panel);border:2px solid #2c2963;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14px;line-height:1.55;}
+.review-item.ok{border-color:rgba(57,255,20,.5);}
+.review-item.bad{border-color:rgba(255,46,136,.5);}
+
+footer{position:relative;z-index:1;text-align:center;color:#7f7ab8;font-size:12px;padding:20px;}
+.soundbtn{position:fixed;top:10px;left:10px;z-index:1000;}
+@media (max-width:560px){
+  .numopts{grid-template-columns:repeat(2,1fr);}
+  .tfbtns{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="crt"></div>
+<button class="btn small soundbtn" id="soundBtn" onclick="Audio2.toggle()">🔊 מוזיקה</button>
+
+<div id="app">
+
+  <!-- ============ MENU ============ -->
+  <section id="scr-menu" class="screen active">
+    <div class="marquee">
+      <div class="pixel" style="color:var(--neon-cyan);font-size:12px;letter-spacing:3px;">★ SHAY'S ★</div>
+      <h1>BI ARCADE</h1>
+      <div class="sub">מכונת המשחקים הרשמית לבחינת הגמר בבינה עסקית — 2026ב</div>
+      <div class="pixel insert">▶ INSERT COIN = לחצו על מכונה ◀</div>
+    </div>
+    <div class="cab-grid">
+      <div class="cab" style="--c:var(--neon-cyan)" onclick="Invaders.start()">
+        <div class="badge">רב-ברירה</div>
+        <div class="icon">👾</div>
+        <h3>BI INVADERS</h3>
+        <div class="pixel en">SPACE SHOOTER</div>
+        <p>חייזרי שאלות אמריקאיות (א-ה) תוקפים! פגעו בתשובה הנכונה לפני שנגמר הזמן.</p>
+        <div class="hs">🏆 שיא: <span id="hs-invaders">0</span></div>
+      </div>
+      <div class="cab" style="--c:var(--neon-green)" onclick="Turbo.start()">
+        <div class="badge">נכון / שגוי</div>
+        <div class="icon">🏎️</div>
+        <h3>טורבו טענות</h3>
+        <div class="pixel en">SPEED RUN</div>
+        <p>טענות במהירות מטורפת — נכון או שגוי? קומבו מכפיל ניקוד. אל תרימו רגל מהגז!</p>
+        <div class="hs">🏆 שיא: <span id="hs-turbo">0</span></div>
+      </div>
+      <div class="cab" style="--c:var(--neon-purple)" onclick="Dojo.start()">
+        <div class="badge">Join-ים</div>
+        <div class="icon">🥋</div>
+        <h3>JOIN DOJO</h3>
+        <div class="pixel en">TABLE FIGHTER</div>
+        <p>שתי טבלאות נכנסות לזירה. Inner? Left? Right? Full Outer? כמה שורות ייצאו חיות?</p>
+        <div class="hs">🏆 שיא: <span id="hs-dojo">0</span></div>
+      </div>
+      <div class="cab" style="--c:var(--neon-orange)" onclick="Runner.start()">
+        <div class="badge">סדר שלבים</div>
+        <div class="icon">🏃</div>
+        <h3>PIPELINE RUNNER</h3>
+        <div class="pixel en">ORDER PUZZLE</div>
+        <p>מקורות נתונים, ETL, מחסן, DIKW, אפיון... סדרו את הצנרת לפני שהנתונים נשפכים!</p>
+        <div class="hs">🏆 שיא: <span id="hs-runner">0</span></div>
+      </div>
+      <div class="cab" style="--c:var(--neon-pink)" onclick="Boss.start()">
+        <div class="badge">20 שאלות · 5 נק׳</div>
+        <div class="icon">🐲</div>
+        <h3>BOSS EXAM</h3>
+        <div class="pixel en">FINAL BOSS</div>
+        <p>סימולציית בחינה אמיתית לפי משקלי המיקוד. הביסו את הדרקון וקבלו ציון 0-100!</p>
+        <div class="hs">🏆 ציון שיא: <span id="hs-boss">—</span></div>
+      </div>
+      <div class="cab" style="--c:var(--neon-yellow)" onclick="Stats.show()">
+        <div class="icon">📊</div>
+        <h3>מפת המיקוד שלי</h3>
+        <div class="pixel en">PLAYER STATS</div>
+        <p>דשבורד אישי (כמה BI מצידנו): אחוזי הצלחה לפי נושא — איפה אתם תותחים ואיפה לחזק.</p>
+        <div class="hs">תובנות מניעות פעולה 😉</div>
+      </div>
+    </div>
+    <p style="text-align:center;color:#8f8ad0;font-size:12.5px;margin-top:18px;">
+      מבוסס אך ורק על המיקוד לבחינת הגמר (2026ב) ועל סגנון השאלות של הבחינות לדוגמה.<br>
+      אין במשחק: Excel, Bins, Calculated Fields, Quick Table Calculation — כי אין אותם בבחינה. 🎯
+    </p>
+  </section>
+
+  <!-- ============ GAME (shared quiz screen) ============ -->
+  <section id="scr-game" class="screen">
+    <div class="topbar">
+      <button class="btn small pink" onclick="Game.quit()">⬅ יציאה לתפריט</button>
+      <div class="pixel" id="game-title" style="color:var(--neon-cyan);font-size:12px;"></div>
+    </div>
+    <div class="hud">
+      <div class="item">ניקוד: <b id="hud-score">0</b></div>
+      <div class="item combo" id="hud-combo"></div>
+      <div class="item">שאלה: <b id="hud-qnum">1</b></div>
+      <div class="item lives" id="hud-lives">❤️❤️❤️</div>
+    </div>
+    <div id="boss-area" style="display:none">
+      <div class="bossbar"><span class="face" id="boss-face">🐲</span><div class="hpbar"><div id="boss-hp"></div></div><b id="boss-hp-txt" style="color:var(--neon-pink)"></b></div>
+      <div class="bossbar playerbar"><span class="face">🧑‍🎓</span><div class="hpbar"><div id="player-hp"></div></div><b id="player-hp-txt" style="color:var(--neon-green)"></b></div>
+    </div>
+    <div class="qpanel" id="qpanel">
+      <span class="qtag" id="q-topic"></span>
+      <div class="qtext" id="q-text"></div>
+      <div class="timerbar" id="timer-wrap"><div id="timer-fill"></div></div>
+      <div id="q-extra"></div>
+    </div>
+    <div class="answers" id="answers"></div>
+    <div id="feedback-zone"></div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn big green" id="next-btn" style="display:none" onclick="Game.next()">המשך ▶</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULT ============ -->
+  <section id="scr-result" class="screen">
+    <div class="result-card pop">
+      <div class="pixel" style="color:var(--neon-pink);font-size:14px;">GAME OVER</div>
+      <div class="grade" id="res-score">0</div>
+      <div class="msg" id="res-msg"></div>
+      <div id="res-extra"></div>
+      <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn big yellow" id="res-retry">🔄 עוד פעם!</button>
+        <button class="btn big" onclick="Game.quit()">🕹️ תפריט ראשי</button>
+      </div>
+    </div>
+    <div id="res-review" style="margin-top:16px;"></div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section id="scr-stats" class="screen">
+    <div class="topbar">
+      <button class="btn small pink" onclick="Game.quit()">⬅ יציאה לתפריט</button>
+      <div class="pixel" style="color:var(--neon-yellow);font-size:12px;">PLAYER STATS</div>
+    </div>
+    <div class="qpanel">
+      <h2 style="margin:0 0 6px;color:var(--neon-yellow);">📊 מפת המיקוד שלי</h2>
+      <p style="color:#cfd3ff;font-size:14px;margin:0 0 12px;">אחוז תשובות נכונות לפי נושא, מכל המשחקים. המיקוד ממליץ להתחיל מהנושאים הכבדים (שיעור 1: 5-7 שאלות!).</p>
+      <div class="topicgrid" id="stats-grid"></div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn small pink" onclick="Stats.reset()">🗑️ איפוס נתונים</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<footer>BI ARCADE · נבנה מהמיקוד של הקורס בינה עסקית 2026ב · בהצלחה בבחינה! 🎓</footer>
+<script>
+/* =====================================================================
+   מאגר השאלות — מבוסס אך ורק על המיקוד 2026ב ועל סגנון הבחינה לדוגמה
+   topics: intro=שיעור 1 | charts=שיעור 3 | gas=שיעור 5 | kpi=שיעור 8 | join=שיעור 10
+   ===================================================================== */
+const TOPICS = {
+  intro:  {name:'בינה עסקית — מה זה בכלל (שיעור 1)', color:'#00f0ff', weight:6},
+  charts: {name:'הגדרות נתונים ותרשימים (שיעור 3)',  color:'#39ff14', weight:4},
+  gas:    {name:'Google Apps Script (שיעור 5)',       color:'#ffe600', weight:2},
+  kpi:    {name:'KPI בהרחבה (שיעור 8)',               color:'#ff9d00', weight:4},
+  join:   {name:'איחוד טבלאות — Join (שיעור 10)',     color:'#b26bff', weight:4},
+};
+
+/* ---------- שאלות רב-ברירה (5 אפשרויות, כמו בבחינה) ---------- */
+/* {t:topic, q, o:[5], c:index, e:explanation} */
+const MCQ = [
+
+/* ============ שיעור 1 — בינה עסקית ============ */
+{t:'intro', q:'תובנה מניעת פעולה (Actionable Insight) מאופיינת בשלושה מרכיבים. מהם?',
+ o:['כמותית, מהירה, ויזואלית','ספציפית, ברת-ביצוע, מבוססת ראיות (נתונים)','אינטואיטיבית, ניהולית, שיווקית','גמישה, זולה, מבוססת ענן','מדויקת, ארוכת טווח, מבוססת Excel'],
+ c:1, e:'ההגדרה מהמיקוד (הפסקה הכתומה!): (1) ספציפית — מתייחסת לבעיה קונקרטית; (2) ברת-ביצוע — אפשר לפעול לפיה; (3) מבוססת ראיות — נתמכת בנתונים ולא באינטואיציה בלבד.'},
+
+{t:'intro', q:'איזה מההיגדים הבאים משקף תובנה מניעת פעולה (Actionable Insight)?',
+ o:['"המכירות ירדו, צריך להשתפר"','"לדעתי הלקוחות שלנו לא מרוצים לאחרונה"','"שיעור הנטישה עלה ל-12%; 80% מהנוטשים לא השתמשו באפליקציה בחודש הראשון — נשלח להם מדריך שימוש ביום הראשון"','"הנתונים מוצגים בדשבורד בזמן אמת"','"נגדיל את התקציב כי ככה מרגיש נכון"'],
+ c:2, e:'רק היגד ג מקיים את שלושת התנאים: ספציפי (12%, חודש ראשון), בר-ביצוע (לשלוח מדריך) ומבוסס נתונים (80% נוטשים). היתר כלליים או מבוססי אינטואיציה.'},
+
+{t:'intro', q:'מהם ראשי התיבות של מודל DIKW?',
+ o:['Data, Integration, KPI, Warehouse','Dashboard, Insight, Knowledge, Wisdom','Data, Information, Knowledge, Wisdom','Data, Information, KPI, Warehouse','Dimension, Information, Knowledge, Warehouse'],
+ c:2, e:'DIKW = Data (נתונים), Information (מידע), Knowledge (ידע), Wisdom (בינה/חכמה). מודל המבחין בין רמות שונות של "ידע".'},
+
+{t:'intro', q:'בדוגמת המסעדה מפירמידת DIKW: "1200 שקלים פדיון לשולחן מספר 4 במסעדה" — לאיזו שכבה זה שייך?',
+ o:['Data — נתונים','Information — מידע','Knowledge — ידע','Wisdom — בינה','Actionable Insight'],
+ c:1, e:'Information = נתונים שעברו עיבוד וקיבלו הקשר ומשמעות. המספר "1200" לבדו הוא Data; "1200 שקלים פדיון לשולחן 4" — זה כבר הקשר = מידע.'},
+
+{t:'intro', q:'"הפדיון הממוצע בשולחנות משפחתיים בימי שלישי נמוך ב-30% משאר השבוע" — לאיזו שכבת DIKW זה שייך?',
+ o:['Data','Information','Knowledge','Wisdom','אף אחת מהשכבות'],
+ c:2, e:'Knowledge = הבנת המידע בתוך הקשר רחב יותר, זיהוי תבניות או מגמות. כאן זוהתה מגמה (ימי שלישי נמוכים ב-30%) — זה ידע.'},
+
+{t:'intro', q:'"נשיק מבצע ארוחות ילדים בחינם ביום שלישי כדי להעלות את הפדיון" — לאיזו שכבת DIKW זה שייך?',
+ o:['Data','Information','Knowledge','Wisdom / בינה — הפעלת הידע לקבלת החלטה','זו בכלל שכבת ETL'],
+ c:3, e:'Wisdom = הפעלת הידע לצורך קבלת החלטה או נקיטת פעולה — כלומר Actionable Insight. וזו בדיוק הדוגמה מהמיקוד.'},
+
+{t:'intro', q:'המושג Actionable Insight מקושר לאיזו שכבה בפירמידת DIKW?',
+ o:['Data','Information','Knowledge','Wisdom','המושג אינו קשור לפירמידה'],
+ c:3, e:'כמו בבחינה לדוגמה: תובנות מניעות פעולה נגזרות מתוצרי המידע ברמה הגבוהה ביותר — Wisdom / תבונה.'},
+
+{t:'intro', q:'איזה משפט מהמיקוד חובה להכיר לגבי מערכות BI ופירמידת DIKW?',
+ o:['מערכות BI מחליפות את הצורך בנתונים גולמיים','מערכות BI הן ה"גשר" שמאפשר לעבור מרמת הנתונים הגולמיים "כלפי מעלה" עד וכולל תובנות מניעות פעולה','מערכות BI פועלות רק בשכבת ה-Data','מערכות BI רלוונטיות רק לשכבת ה-Wisdom','פירמידת DIKW איננה קשורה ל-BI'],
+ c:1, e:'ציטוט כמעט מדויק מהמיקוד: מערכות BI הן ה"גשר" מרמת הנתונים הגולמיים ועד הרמה הגבוהה ביותר — תובנות מניעות פעולה.'},
+
+{t:'intro', q:'מהו הסדר הנכון של רכיבי ה-Pipeline בארכיטקטורה בסיסית של מערכת BI?',
+ o:['מחסן נתונים ← ETL ← מקורות נתונים ← דשבורדים ← שכבה סמנטית','מקורות נתונים ← ETL ← מחסן נתונים ← שכבת מודלים סמנטיים ← דשבורדים ודוחות','ETL ← מקורות נתונים ← דשבורדים ← מחסן נתונים ← שכבה סמנטית','מקורות נתונים ← מחסן נתונים ← ETL ← דשבורדים ← שכבה סמנטית','דשבורדים ← שכבה סמנטית ← מחסן ← ETL ← מקורות'],
+ c:1, e:'שרשרת הערך של הנתונים: (1) מקורות נתונים (קופות, CRM, אתר, ERP, רשתות, IoT) ← (2) תהליך ETL ← (3) מחסן נתונים DWH ← (4) שכבת מודלים סמנטיים ← (5) שכבת התצוגה: Dashboards & Reports.'},
+
+{t:'intro', q:'מה תפקידה של שכבת המודלים הסמנטיים (Semantic Layer) ב-Pipeline?',
+ o:['לשאוב נתונים ממקורות שונים','לאחסן נתונים מכל הארגון','לתרגם את השמות הטכניים לשפה עסקית','להציג דשבורדים למנהל','לנקות נתונים פגומים'],
+ c:2, e:'מהמיקוד: השכבה הסמנטית מתרגמת את השמות הטכניים לשפה עסקית. השאיבה והניקוי = ETL, האחסון = DWH, התצוגה = Dashboards & Reports.'},
+
+{t:'intro', q:'תהליך ה-ETL הוא השלב שבו:',
+ o:['מציגים דשבורד למנהל ב-Tableau','"שואבים" נתונים ממקורות שונים, "מנקים" אותם ו"טוענים" אותם למקום מרכזי','מתרגמים שמות טכניים לשפה עסקית','מגדירים KPI לפרויקט','בונים Frontend על בסיס HTML'],
+ c:1, e:'ETL = Extract, Transform, Load — בדיוק כפי שמנוסח במיקוד: שואבים ממקורות שונים, מנקים, וטוענים למקום מרכזי.'},
+
+{t:'intro', q:'אילו מהבאים הוצגו במיקוד כדוגמאות למקורות נתונים (Data Sources) של הארגון?',
+ o:['רק קבצי CSV','קופות רושמות, מערכות CRM, אתר אינטרנט, מערכות ERP (כגון SAP, Priority), רשתות חברתיות וחיישני IoT','Tableau ו-Power BI','Snowflake ו-BigQuery בלבד','דוחות מודפסים תקופתיים'],
+ c:1, e:'אלו בדיוק הדוגמאות מהמיקוד למערכות התפעוליות של הארגון. Tableau/Power BI הם שכבת תצוגה; Snowflake/BigQuery הם מחסני נתונים.'},
+
+{t:'intro', q:'מערכת OLTP (Online Transaction Processing) מתאפיינת ב:',
+ o:['ניתוח כמויות גדולות של נתונים לאורך שנים','עיבוד פעולות בודדות בזמן אמת — כמו קופאית שסורקת מוצר בסופר','תרגום שמות טכניים לשפה עסקית','הצגת דשבורדים למנכ"ל','אחסון נתונים לא מובנים'],
+ c:1, e:'ה-T = Transaction. עיבוד פעולות בודדות בזמן אמת, פעולות מהירות, קטנות וממוקדות (סורקת בסופר, שעבוד מזין חשבונית ל-SAP).'},
+
+{t:'intro', q:'מערכת OLAP (Online Analytical Processing) מתאפיינת ב:',
+ o:['תיעוד עסקאות בודדות בזמן אמת','שמירה מהירה של נתונים קריטיים','ניתוח כמויות גדולות של נתונים — כמו סמנכ"ל ששואל "מה מגמת הרווחיות של כל הסניפים ב-5 השנים האחרונות?"','קליטת נתוני העברת מוצרים בסופרמרקט','ניהול קופות רושמות'],
+ c:2, e:'ה-A = Analysis. ניתוח כמויות גדולות (סריקת מיליארדי רשומות להצגת תשובה) — "זו הליבה של BI". תיעוד עסקאות בודדות = OLTP.'},
+
+{t:'intro', q:'לפניכם מספר טענות:\nטענה 1: מערכות OLAP מיועדות לעיבוד נתונים בודדים בזמן אמת\nטענה 2: מערכות OLTP משרתות באופן ישיר מערכות בינה עסקית מתקדמות לקבלת החלטות חוצות ארגון\nטענה 3: מערכות OLAP קיימות בחברות שבהן דגש מהותי על שמירה מהירה של נתונים קריטיים\nהטענה / הטענות הנכונה / הנכונות:',
+ o:['טענה 1 בלבד','טענה 2 בלבד','טענה 3 בלבד','טענות 1 ו-2','כל הטענות שגויות'],
+ c:4, e:'בדיוק כמו בבחינה לדוגמה: ה-A ב-OLAP = Analysis (ניתוח, לא תיעוד עסקאות בודדות); ה-T ב-OLTP = Transaction (עסקות בודדות, לא ניתוח חוצה ארגון); ו-OLAP משרת ניתוח ולא שמירה מהירה. כל הטענות שגויות.'},
+
+{t:'intro', q:'מחסן נתונים (Data Warehouse) הוצג במיקוד באנלוגיה של "ספרייה מסודרת". איזה מהבאים נכון לגביו?',
+ o:['זורקים פנימה הכל בכל פורמט — תמונות, סרטונים, קבצים','גישת Schema-on-Read: מסדרים רק כשצריך','כל "ספר" ממוין לפי נושא ומקוטלג; גישת Schema-on-Write — משקיעים בסידור מראש; יתרון: מהיר ומדויק','החיסרון המרכזי שלו: עלול להפוך ל-Data Swamp','דוגמה בולטת: Amazon S3'],
+ c:2, e:'DWH = ספרייה מסודרת, Schema-on-Write, מהיר/מדויק/מוכן לשימוש; החיסרון: צריך להשקיע בסידור מראש. דוגמאות: Snowflake, Google BigQuery, Amazon Redshift. אפשרויות א/ב/ד/ה מתארות אגם נתונים.'},
+
+{t:'intro', q:'אגם נתונים (Data Lake) הוצג במיקוד באנלוגיה של "מחסן ענק". איזה מהבאים נכון לגביו?',
+ o:['אחסון נתונים מובנים בטבלאות בלבד','זורקים פנימה הכל בכל פורמט; Schema-on-Read — מסדרים רק כשצריך; גמיש, אך עלול להפוך ל"ביצת נתונים" (Data Swamp) אם לא מנהלים נכון','Schema-on-Write — סידור מראש','דוגמאות בולטות: Snowflake ו-Redshift','משמש אך ורק להצגת דשבורדים'],
+ c:1, e:'אגם נתונים: הכל בכל פורמט, Schema-on-Read, יתרון גמישות, חיסרון Data Swamp. דוגמאות: Amazon S3, Azure Data Lake. אחסון מובנה בטבלאות = מחסן נתונים.'},
+
+{t:'intro', q:'מהו הפתרון המודרני המשלב את שני העולמות — הגמישות של אגם הנתונים והסדר של מחסן הנתונים?',
+ o:['Data Swamp','Modern Data Stack','Data Lakehouse — ארכיטקטורה חדשנית (מבית Databricks)','dbt','Semantic Layer'],
+ c:2, e:'Data Lakehouse (מבית Databricks) = שילוב הגמישות של אגם + הסדר של מחסן. Data Swamp זה דווקא מה שקורה כשאגם מנוהל רע!'},
+
+{t:'intro', q:'למה עברו בתעשייה מגישת ETL לגישת ELT?',
+ o:['כי מחסני נתונים מודרניים (Snowflake, BigQuery) הם עוצמתיים — טוענים קודם את הנתון הגולמי ואז מנקים ומעבדים בתוך המחסן עצמו, וגם שומרים את הנתון המקורי','כי אין יותר צורך בניקוי נתונים','כי הנתונים כיום קטנים יותר','כי Tableau דורש זאת','כי ETL אינו חוקי באירופה'],
+ c:0, e:'בעבר (ETL) מחסנים היו יקרים ואיטיים — ניקו לפני הטעינה. כיום (ELT) הענן עוצמתי מספיק לעבד בתוך המחסן, ושומרים את הנתון המקורי למקרה שנצטרך. זו גם הסיבה שטענה כמו "Snowflake דורש עיבוד לפני טעינה" — שגויה (ראו בחינה לדוגמה, שאלה 1).'},
+
+{t:'intro', q:'מהו dbt (Data Build Tool)?',
+ o:['מחסן נתונים מבוסס ענן','כלי פופולרי לשכבת ה-Transform — מאפשר לכתוב את לוגיקת הניקוי ב-SQL ולנהל אותה כקוד','כלי ויזואליזציה מתחרה ב-Tableau','שפת שאילתות של Power BI','רכיב ה-Frontend של מערכת BI'],
+ c:1, e:'מהמיקוד: dbt הוא כלי פופולרי לשכבת ה-Transform — כתיבת לוגיקת הניקוי ב-SQL וניהולה כקוד.'},
+
+{t:'intro', q:'מהו הסדר הנכון של מתודולוגיית האפיון (פרק 4 — פרק חשוב!)?',
+ o:['הגדרת KPI ← איתור מקורות נתונים ← יעד עסקי ← שאלות עסקיות','איתור מקורות נתונים ← הגדרת יעד עסקי ← KPI ← שאלות','הגדרת יעד עסקי ← ניסוח שאלות עסקיות ← הגדרת KPI ← איתור מקורות נתונים (רק כעת פונים ל-IT)','יצירת תרשימים ← הצגה למשתמש ← איסוף פידבק ← ניקוי','פנייה ל-IT ← הגדרת יעד ← KPI ← שאלות'],
+ c:2, e:'(1) יעד עסקי — Business Objective ("הקטנת נטישת לקוחות ב-10% ברבעון הקרוב"); (2) ניסוח שאלות עסקיות ("מי הלקוחות שבסיכון נטישה?"); (3) הגדרת KPI (Retention Rate, Churn Rate); (4) איתור מקורות נתונים — רק כעת פונים ל-IT.'},
+
+{t:'intro', q:'טענה: "אפיון מערכת BI מתחיל תמיד מיצירת המספר הרב ביותר של תרשימים, ואם המשתמש ירגיש עומס — ננקה אחר כך". הטענה:',
+ o:['נכונה — כמות יוצרת איכות','נכונה — בתנאי שהתרשימים צבעוניים','שגויה — תהליך ה-BI מתחיל מליבון הצרכים, היעד העסקי והכאב; "לזרוק גרפים על המשתמש" זו לא הדרך למוצר מהודק','שגויה — כי מתחילים תמיד מבחירת צבעים','נכונה רק בחברות גדולות'],
+ c:2, e:'כמו בשאלה 14 בבחינה לדוגמה: מתחילים מליבון הצרכים והיעד העסקי, לא מהצפת תרשימים.'},
+
+{t:'intro', q:'ההגדרה הפורמלית של בינה עסקית כוללת בין היתר:',
+ o:['את המושג Raw Data (מידע גולמי) ואת מטרת העל: שיפור קבלת החלטות ניהוליות בארגון','חובה להכיר את Hans Peter Luhn ואת ההיסטוריה של ה-BI','ערכים מספריים של גודל השוק וקצב הצמיחה','רשימת כל החברות שמשתמשות ב-BI','את שפת VizQL של Tableau'],
+ c:0, e:'מהמיקוד: ההגדרה הפורמלית חיונית — Raw Data ומטרת העל של שיפור קבלת החלטות ניהוליות. ובמפורש לא צריך: Hans Peter Luhn ("שיחפש אותי בראשון"), ערכי שוק, דוגמאות חברות, VizQL.'},
+
+{t:'intro', q:'הבינה העסקית משקפת התפתחות של תהליכי ארגון מידע לצרכים ניהוליים. מאיפה לאן?',
+ o:['ממידע בזמן אמת לדוחות מודפסים','מדוחות קלאסיים (טבלאות ומסמכים מודפסים תקופתיים) למידע דינמי המתעדכן בזמן אמת, עם כלי ניתוח שמקצרים את תהליך קבלת ההחלטה','מ-Excel ל-PowerPoint','מנתונים כמותיים לנתונים איכותניים בלבד','מהענן חזרה לשרתים מקומיים'],
+ c:1, e:'ציטוט רעיוני מהמיקוד: מדוחות קלאסיים תקופתיים ← מידע מתעדכן בזמן אמת, דינמי, שמקצר את ההתרשמות מהמידע וקבלת ההחלטה.'},
+
+{t:'intro', q:'מה מקומה של תוכנת Tableau במערכות בינה עסקית?',
+ o:['היא מחליפה את כל שלבי ה-Pipeline','היא רכיב שמהווה את אחד השלבים המתקדמים במערכת BI — ניתוח מגמות והסקת מסקנות על בסיס הצגה גרפית','היא כלי ETL בלבד','היא מחסן נתונים','היא שפת תכנות לבניית Backend'],
+ c:1, e:'מהמיקוד: Tableau הוא רכיב שמהווה אחד השלבים המתקדמים במערכות BI — אפיון נתונים, ניתוח מגמות והסקת מסקנות על בסיס הצגה גרפית ש-Tableau חזק בה.'},
+
+/* ============ שיעור 3 — הגדרות נתונים ותרשימים ============ */
+{t:'charts', q:'מה ההבדל בין ממד (Dimension) למדד (Measure)?',
+ o:['ממד עונה על "כמה?" ומדד עונה על "מי? מה? מתי? איפה?"','ממד עונה על "מי? מה? מתי? איפה?" (נתונים טקסטואליים/קטגוריאליים, תגית כחולה); מדד עונה על "כמה?" (נתונים מספריים שניתן לחשב עליהם, תגית ירוקה)','שניהם אותו דבר בשמות שונים','ממד הוא תמיד תאריך; מדד הוא תמיד טקסט','ממד קיים רק ב-Power BI'],
+ c:1, e:'ממד = מי/מה/מתי/איפה, חותך את המידע (אזור, קטגוריה, תאריך), יוצר כותרות, תגית כחולה. מדד = כמה?, ערכים מספריים לחישוב (סכום, ממוצע), ציר מספרי, תגית ירוקה.'},
+
+{t:'charts', q:'חיברנו קובץ עם השדות: Years, Product Category, Sales, Profit. אילו מהם מדדים (Measures)?',
+ o:['Years ו-Product Category','Years ו-Sales','Sales ו-Profit','Product Category ו-Profit','כל הארבעה מדדים'],
+ c:2, e:'Sales ו-Profit — הגיוני לחשב סכום/ממוצע עליהם = מדדים. Years ו-Product Category — אין היגיון בפעולה מתמטית (ממוצע של 2024.5? ממוצע של "הלבשה" ו"הנעלה"?) = ממדים.'},
+
+{t:'charts', q:'מדוע "שנה" (2024, 2025...) נחשבת ממד (Dimension) ולא מדד?',
+ o:['כי היא כתובה בספרות','כי אין היגיון בביצוע חישובים מתמטיים על ערכיה (למשל ממוצע של 2024.5)','כי היא תמיד על ציר Y','כי Tableau לא יודע לקרוא תאריכים','כי היא משתנה רציף'],
+ c:1, e:'מהפתרון בבחינה לדוגמה: לגבי משתנה "שנה" אין היגיון בחישובים (ממוצע 2024.5), ולכן שנה — כמו קטגוריית מוצר — היא ממד.'},
+
+{t:'charts', q:'מה נכון לגבי גרירת שדות ב-Tableau?',
+ o:['גרירה ל-Rows מציגה על הציר האופקי; גרירה ל-Columns על הציר האנכי','גרירה ל-Rows מציגה על הציר האנכי (ציר Y); גרירה ל-Columns על הציר האופקי (ציר X)','שתי הגרירות מציגות על אותו ציר','Rows קובע את הצבעים ו-Columns את התוויות','הגרירה אפשרית רק למדדים'],
+ c:1, e:'חובה לדעת: Rows = ציר אנכי (Y), Columns = ציר אופקי (X). זה בסיס להמון שאלות בבחינה!'},
+
+{t:'charts', q:'רוצים תרשים שבו המכירות (Sales) על הציר האנכי והשנים (Years) על הציר האופקי. מה גוררים לאן?',
+ o:['Sales ל-Columns ו-Years ל-Rows','Sales ל-Rows ו-Years ל-Columns','שניהם ל-Rows','שניהם ל-Marks','Sales ל-Filters ו-Years ל-Pages'],
+ c:1, e:'ציר אנכי (Y) = Rows ← לכן Sales ל-Rows. ציר אופקי (X) = Columns ← לכן Years ל-Columns.'},
+
+{t:'charts', q:'התאימו: תרשים קו (Line), תרשים עמודות (Bar), תרשים פיזור (Scatter) —',
+ o:['קו: השוואה בין קטגוריות | עמודות: מגמות | פיזור: הצגת ערך בודד','קו: זיהוי מגמות והתפתחות רציפה | עמודות: השוואה בין קטגוריות / ערכים בדידים | פיזור: קשר בין משתנים (חיובי/שלילי וכמה חזק)','קו: קשר בין משתנים | עמודות: מגמות | פיזור: השוואת קטגוריות','שלושתם מציגים בדיוק את אותו הדבר','קו: טבלת נתונים | עמודות: מפות | פיזור: טקסט'],
+ c:1, e:'המשפט המודגש מהמיקוד: "תרשים קו מסייע בזיהוי מגמות והתפתחות רציפה של ערכים, ולעומתו תרשים עמודות מתאים יותר להצגה השוואתית בין קטגוריות/ערכים בדידים דומים". פיזור = קשר בין משתנים ועוצמתו.'},
+
+{t:'charts', q:'כאשר גוררים ממד (Dimension) כגון קטגוריית מוצר ל-Marks ומגדירים אותו באמצעות Colors, מה יקרה?',
+ o:['פילוח לפי צבעים של ערכי התרשים על בסיס המשתנה שגררנו — ונוצר אוטומטית מקרא','סינון הנתונים לפי קריטריון','שינוי סוג התרשים מקו לעמודות','יצירת שדה מחושב','היפוך הצירים (Mirroring)'],
+ c:0, e:'בדיוק שאלה 5 מהבחינה לדוגמה: גרירת ממד ל-Marks>Colors = פילוח בצבעים של הערכים, כולל מקרא אוטומטי בצד.'},
+
+{t:'charts', q:'מה יאפשר לייצר תצוגה חזותית של ערכים (כטקסט) ישירות על גבי התרשים?',
+ o:['שימוש ב-Marks וב-Labels','שימוש ב-Automatic בהגדרת סוג תרשים','שימוש ב-Pages','שימוש ב-Filters','כל יתר התשובות שגויות'],
+ c:0, e:'שאלה 6 מהבחינה לדוגמה: תוויות נתונים = Labels בתוך Marks. Automatic = בחירת סוג תרשים אוטומטית; Pages = דפדוף; Filters = סינון.'},
+
+{t:'charts', q:'מה עושה הכלי Pages ב-Tableau?',
+ o:['פותח גיליונות (Sheets) חדשים — אחד לכל קטגוריה','מאפשר לקחת תרשים אחד ולדפדף בין תרשימים לפי ערכי משתנה — הכל באותו גיליון ממש','ממיין את העמודות לפי גודל','מדפיס את התרשים','מסנן ערכים לפי טווח'],
+ c:1, e:'מלכודת משאלה 14 בבחינה לדוגמה! Pages לא פותח Sheets חדשים — נשארים באותו גיליון ופשוט נפתחת אפשרות לדפדף בין התרשימים לפי ערכי הקטגוריה.'},
+
+{t:'charts', q:'איזו מהפונקציות הבאות מתארת נכון את השימוש בפילטרים (Filters) ב-Tableau?',
+ o:['סינון נתונים לפי קריטריונים','הצגת נתונים בצורה מסודרת','הקטנת עומס על ידי איחוד ערכי כמה שנים יחד','הצגת נתונים טקסטואליים בצורה ברורה','פילוח חזותי בצבעים של עמודות קיימות'],
+ c:0, e:'שאלה 19 מהבחינה לדוגמה: המהות של Filter היא סינון, נקודה. פילוח בצבעים = Marks>Colors.'},
+
+{t:'charts', q:'באילו דרכים ניתן לבצע סינון (Filters) ב-Tableau?',
+ o:['אך ורק סימון ידני ב-V של ערכים','בחירת ערכים ספציפיים, בחירת טווח ערכים (למשל: מכירות בין 2002-2007 בלבד) וכן על בסיס כללים מוגדרים','רק דרך תיבת ה-Marks','רק על משתנים מספריים','אין אפשרות לסנן ב-Tableau'],
+ c:1, e:'מהמיקוד + שאלה 20 בבחינה לדוגמה: הסינון מגוון — ערכים ספציפיים, טווחים, כללים. והוא לא מבוצע דרך Marks (שעוסקת בתצוגה בלבד).'},
+
+{t:'charts', q:'כיצד מחברים נתונים ל-Tableau לפי שתי הדרכים הבסיסיות שנלמדו?',
+ o:['קבצי csv. דרך Connect >>> Text, וקבצי xlsx דרך Connect > Excel','שתיהן דרך Connect > PDF','קבצי csv דרך Connect > Excel וקבצי xlsx דרך Connect > Text','דרך העתק-הדבק בלבד','דרך חיבור API בלבד'],
+ c:0, e:'מהמיקוד: חיבור קבצי ‎.csv דרך תפריט "Connect >>> Text", וחיבור קבצי xlsx דרך Connect > Excel.'},
+
+{t:'charts', q:'לאחר חיבור קובץ CSV ל-Tableau, לאיזה מסך מגיעים ומה רואים בו?',
+ o:['מסך Dashboard עם תרשימים מוכנים','מסך Data Source — תצוגה מקדימה של השדות ומאפייניהם (טקסט, תאריך, מספר) וכן תצוגה מקדימה של הערכים עצמם','מסך הגדרות המשתמש','מסך Marks','מסך שמציג רק את שמות הגיליונות'],
+ c:1, e:'מהמיקוד: חיבור CSV מוביל למסך Data Source הכולל תצוגה מקדימה של השדות, סוגיהם, והערכים עצמם.'},
+
+{t:'charts', q:'מה קורה כשמחברים קובץ Excel שכולל מספר גיליונות?',
+ o:['Tableau מסרב לקבל את הקובץ','במקרים רבים נצטרך לבצע Join של הטבלאות ורק אז נוכל לייצר הצגה של הדברים','הגיליונות מתאחדים אוטומטית לגיליון אחד','חובה למחוק גיליונות מיותרים לפני החיבור','אפשר להשתמש רק בגיליון הראשון'],
+ c:1, e:'מהמיקוד: קובץ Excel מרובה גיליונות — במקרים רבים נדרש Join בין הטבלאות (ההרחבה בשיעור 10).'},
+
+{t:'charts', q:'כדי להתחיל לייצר תרשימים על בסיס הנתונים שחוברו:',
+ o:['לוחצים על Sheet1 — ובמסך שנפתח רואים את כל השדות הרלוונטיים מצד שמאל','לוחצים על כפתור ההדפסה','חוזרים ל-Connect','גוררים את הקובץ לשולחן העבודה','פותחים את התרשים ב-Excel'],
+ c:0, e:'מהמיקוד: לוחצים על Sheet1, ובמסך ההתוויה רואים את השדות מצד שמאל — וחשוב לזהות שם מה ממד ומה מדד.'},
+
+{t:'charts', q:'מהו ההבדל בין משתנה רציף (Continuous) למשתנה בדיד (Discrete)?',
+ o:['רציף = בעל הפרדה ברורה בין ערכים; בדיד = ללא הפרדה','רציף = אין הפרדה "חלקה" בין ערכיו (כמו טמפרטורה: 37, 37.1, 37.10001); בדיד = הפרדה ברורה בין ערכים (כמו מספר יחידות מוצר או שנים קלנדריות)','רציף = טקסט; בדיד = מספר','רציף קיים רק בתרשימי עוגה','אין הבדל'],
+ c:1, e:'מהבחינה לדוגמה (החלק שכן נדרש!): טמפרטורה = רציף (אין הפרדה בדידה בין ערכים); יחידות מוצר ושנים קלנדריות = בדיד.'},
+
+{t:'charts', q:'מה עושה האפשרות Automatic בהגדרת סוג התרשים ב-Marks?',
+ o:['נועלת את התרשים לתרשים עמודות','גורמת ל-Tableau להחליט באופן עצמאי איזה סוג תרשים לייצר על פי סוג הנתונים המוזנים','מוחקת את התרשים','יוצרת אנימציה','מוסיפה קצפת לתרשים העוגה'],
+ c:1, e:'מהבחינה לדוגמה: Automatic = Tableau מחליט עצמאית לפי סוג הנתונים. למשל: שנים המוגדרות כמשתנה רציף + Automatic ← תרשים קו (כי הזמן נתפס כרציף).'},
+
+{t:'charts', q:'כמה דרכים יש להגדיר תרשים קו ב-Tableau, לפי הנלמד?',
+ o:['דרך אחת בלבד — הגדרה מפורשת של Line ב-Marks','שתי דרכים: הגדרת Marks על Automatic עם משתנה רציף רלוונטי, או הגדרה מפורשת של Line','שלוש דרכים: Line, Bar, Pie','אין אפשרות לתרשים קו ב-Tableau','רק באמצעות Filters'],
+ c:1, e:'מפתרון שאלה 13 בבחינה לדוגמה: או Automatic + משתנה רציף (Tableau משער שרוצים קו), או הגדרה מפורשת של Line. לכן טענה ש"רק הגדרה מפורשת יוצרת קו" — שגויה.'},
+
+{t:'charts', q:'בתרשים מסוים השורות (Rows) מוגדרות כשנים והעמודות (Columns) כהיקף המכירות. איזו פעולה תייצר פילוח של המכירות לפי ז׳אנרים (קטגוריות מוצר)?',
+ o:['גרירת המימד ז׳אנר (Genre) ל-Marks (ב-Colors)','גרירת המימד ז׳אנר ל-Filters','גרירת המימד ז׳אנר ל-Rows','גרירת המימד ז׳אנר ל-Columns','הכל שטויות, כדאי לאכול יותר פירות 🍎'],
+ c:0, e:'שאלה 17 מהבחינה לדוגמה! מבחינתנו בקורס: "פילוח" = שימוש ב-Marks ו-Colors (הכל במסך אחד, ללא דפדוף וללא תרשימים נוספים), אלא אם נאמר אחרת. (ופירות זה תמיד טוב, אבל לא התשובה.)'},
+
+{t:'charts', q:'לפניכם מספר טענות על תרשים שבו גררנו Years ל-Columns ו-Sales ל-Rows:\nטענה 1: השנים יוצגו על הציר האנכי והמכירות על האופקי\nטענה 2: גרירת Product Category ל-Marks (Colors) תיצור הודעת שגיאה\nטענה 3: גרירת Product Category ל-Marks (Labels) פירושה פילוח בצבעים\nהטענה / הטענות הנכונה / הנכונות:',
+ o:['טענה 1 בלבד','טענה 2 בלבד','טענה 3 בלבד','טענות 1 ו-3','כל הטענות שגויות'],
+ c:4, e:'בסגנון שאלה 18 מהבחינה: (1) שגויה — Columns=אופקי, Rows=אנכי, כלומר הפוך; (2) שגויה — אין שום סיבה ש-Marks ייצור שגיאה; (3) שגויה — Labels = תוויות נתונים, לא פילוח. פילוח = Colors.'},
+
+/* ============ שיעור 5 — GAS ============ */
+{t:'gas', q:'מהו הסדר הנכון של התהליך המלא לבניית המערכת שנלמדה בשיעור 5?',
+ o:['בניית Frontend ← הגדרת מטרות ← חיבור API ← בניית Backend','הגדרת מטרות המערכת (ניתוח נתוני מניות) ← בניית Backend באמצעות GAS ← חיבור ה-Backend לנתונים באמצעות API ← יצירת מעטפת Frontend על בסיס HTML','חיבור API ← הגדרת מטרות ← Frontend ← Backend','בניית Backend ← בניית Frontend ← הגדרת מטרות ← חיבור API','קניית שרת ← התקנת Windows ← כתיבת קוד ← תפילה'],
+ c:1, e:'מהמיקוד, התהליך המלא: (1) הגדרת מטרות (מערכת לניתוח נתוני מניות); (2) Backend באמצעות Google Apps Script; (3) חיבור לנתונים באמצעות ממשק API; (4) מעטפת Frontend על בסיס HTML.'},
+
+{t:'gas', q:'לפניכם מספר טענות:\nטענה 1: הטמעה (Deployment) של Google Apps Script יוצרת שרת אמיתי\nטענה 2: השימוש ב-GAS יכול להחליף שימוש בשרתים לצרכים פשוטים יחסית\nטענה 3: השימוש ב-GAS יוצר בהגדרה את ה-Frontend של המערכת\nהטענה / הטענות הנכונה / הנכונות:',
+ o:['טענה 1 בלבד','טענה 2 בלבד','טענה 3 בלבד','טענות 2 ו-3','כל הטענות שגויות'],
+ c:1, e:'שאלה 16 מהבחינה לדוגמה: GAS איננו שרת אמיתי — הוא "מדמה" עבודה של שרת; הוא כן יכול להחליף שרת בצרכים פשוטים; והוא המנוע מאחורי הקלעים = Backend, לא Frontend.'},
+
+{t:'gas', q:'במערכת שנבנתה בקורס, ה-Frontend (הממשק מול המשתמש הסופי) נוצר על בסיס:',
+ o:['Python','HTML','SQL','Google Sheets','Tableau'],
+ c:1, e:'מהמיקוד: יצירת מעטפת Frontend שבוצעה על בסיס HTML לממשק מול המשתמש הסופי.'},
+
+{t:'gas', q:'כיצד חובר ה-Backend (שנבנה ב-GAS) לנתונים רלוונטיים?',
+ o:['באמצעות ממשק API','באמצעות הדבקה ידנית של נתונים','באמצעות סריקת מסמכים','באמצעות Join ב-Tableau','באמצעות דיסק-און-קי'],
+ c:0, e:'מהמיקוד: חיבור ה-Backend לנתונים רלוונטיים באמצעות ממשק API.'},
+
+/* ============ שיעור 8 — KPI ============ */
+{t:'kpi', q:'"כל KPI הוא מדד, אבל..." — השלימו את המשפט מהמיקוד:',
+ o:['כל מדד הוא גם KPI','לא כל מדד הוא KPI','אין מדדים בעולם ה-BI','KPI אינו מדד','רק מדדים כספיים הם KPI'],
+ c:1, e:'"כל KPI הוא מדד, אבל לא כל מדד הוא KPI". נתון הוא כל דבר שניתן לספור; KPI הוא מדד שאם הוא יורד — יש לכם בעיה אסטרטגית.'},
+
+{t:'kpi', q:'איזה מהבאים הוצג במיקוד כ-KPI אמיתי, ואיזה כנתון רגיל?',
+ o:['"מספר פתיחות של מסך ההגדרות" = KPI אמיתי; "אחוז משתמשים שחזרו תוך 7 ימים" = נתון רגיל','"אחוז משתמשים שחזרו תוך 7 ימים מההורדה" = KPI אמיתי; "מספר פתיחות של מסך ההגדרות" = נתון רגיל (אינפורמטיבי אך לא משקף הצלחה)','שניהם KPI אמיתיים','שניהם נתונים חסרי ערך','אף אחד מהם לא מדיד'],
+ c:1, e:'מהמיקוד: אחוז החוזרים תוך 7 ימים — אם עולה חוגגים, אם יורד מתכנסים בדחיפות, הוא מנבא את עתיד המוצר = KPI. פתיחות מסך הגדרות — אינפורמטיבי, אבל לא משקף הצלחה.'},
+
+{t:'kpi', q:'מה קורה לאפליקציה בלי מדדים, ומה ההצדקה היחידה לקיומם של מדדי ביצוע?',
+ o:['כלום, מדדים זה קישוט','הצוותים רבים על "מה חשוב יותר", אף אחד לא יודע מה הצרכן באמת רוצה; ההצדקה: להחליף ניחושים בעובדות','האפליקציה נמחקת אוטומטית מהחנות','מדדים נועדו רק למשקיעים','מדדים נועדו להאשים עובדים'],
+ c:1, e:'מהמיקוד: בלי מדדים — ויכוחים וערפל ("האם השקנו את הפיצ׳ר בהצלחה? לא יודע"). עם מדדים הערפל מתפזר. ההצדקה היחידה: להחליף ניחושים בעובדות.'},
+
+{t:'kpi', q:'לפי המיקוד, KPI טוב הוא:',
+ o:['ארוך, מסובך ויקר','כמותי, רלוונטי, מוגבל בזמן ובר-השפעה','איכותני ופתוח לפרשנות','סודי — רק המנכ"ל מכיר אותו','משתנה כל יום'],
+ c:1, e:'ציטוט מהמיקוד: "KPI טוב הוא כמותי, רלוונטי, מוגבל בזמן, ובר-השפעה".'},
+
+{t:'kpi', q:'מהם רכיבי כלל ה-SMART ל-KPI איכותי?',
+ o:['Simple, Modern, Agile, Rapid, Tested','Specific, Measurable, Achievable, Relevant, Time-bound','Sales, Marketing, Analytics, Revenue, Technology','Specific, Mathematical, Automatic, Real, Total','Smart, Medium, Average, Regular, Typical'],
+ c:1, e:'ספציפי, ניתן למדידה, בר השגה, רלוונטי, תחום בזמן. "KPI איכותי הוא תמיד SMART".'},
+
+{t:'kpi', q:'"מיליון משתמשים בחודש הראשון" — איזה רכיב SMART ההצהרה הזו מפרה?',
+ o:['Specific','Measurable','Achievable — זה לא יעד, אלא חלום. שאפו גבוה, אבל קרקעית','Relevant','Time-bound'],
+ c:2, e:'מהמיקוד, תחת A — Achievable: "מיליון משתמשים בחודש הראשון" — לא יעד, אלא חלום. שאפו גבוה, אבל קרקעית.'},
+
+{t:'kpi', q:'"המשתמשים מרוצים" לעומת "ציון NPS של 50+" — מה ההבדל במונחי SMART?',
+ o:['הראשון Specific והשני לא','"המשתמשים מרוצים" אינו מדיד (לא Measurable); "ציון NPS של 50+" כן מדיד — KPI חייב להיות מספר','שניהם מדידים באותה מידה','ההבדל הוא ברלוונטיות בלבד','NPS אינו מדד'],
+ c:1, e:'מהמיקוד תחת M — Measurable: חייב להיות מספר. "המשתמשים מרוצים" זה לא מדיד; "ציון NPS של 50+" — כן.'},
+
+{t:'kpi', q:'איזו מההצהרות הבאות מקיימת את כל רכיבי ה-SMART (הדוגמה המלאה מהמיקוד)?',
+ o:['"נגדיל משתמשים מתישהו"','"להגיע ל-Retention 40% בשבוע הראשון, בקרב משתמשים חדשים בגילאי 25-40, עד סוף הרבעון הראשון 2027"','"למקסם את חוויית המשתמש"','"להיות האפליקציה הכי טובה בעולם"','"לשפר את המספרים"'],
+ c:1, e:'הדוגמה המלאה מהמיקוד: ספציפית (Retention בשבוע ראשון, גילאי 25-40), מדידה (40%), ברת-השגה, רלוונטית ותחומה בזמן (עד סוף Q1 2027).'},
+
+{t:'kpi', q:'מהו ה-North Star Metric ("מדד כוכב הצפון")?',
+ o:['המדד הכי יקר בחברה','מספר אחד שמסכם את הצלחת המוצר וממרכז את כל הצוותים סביב מטרה משותפת','המדד שמציגים רק למשקיעים','מדד אסטרונומי לחברות תעופה','ממוצע כל המדדים בחברה'],
+ c:1, e:'מהמיקוד: אם היה אסור להציג למנכ"ל אלא מספר אחד שמסכם את הצלחת המוצר — זה ה-North Star. הוא ממרכז את כל הצוותים סביב מטרה משותפת.'},
+
+{t:'kpi', q:'מהן שלוש תכונות החובה של North Star Metric?',
+ o:['גבוה, יציב, סודי','(1) משקף ערך אמיתי שהמוצר נותן למשתמש (לא רק רווח חברה); (2) אם עולה — החברה גדלה, אם יורד — דועכת; (3) נראה כמו "מספר פעולות שמייצרות ערך" ולא "סך הכנסה"','(1) כספי; (2) חודשי; (3) פומבי','(1) קל לחישוב; (2) תמיד עולה; (3) מרשים משקיעים','אין תכונות חובה'],
+ c:1, e:'שלוש התכונות מהמיקוד, אחת לאחת. שימו לב במיוחד: "סך הכנסה" הוא לא North Star תקין!'},
+
+{t:'kpi', q:'כיצד מחושב Churn Rate (שיעור נטישה)?',
+ o:['לקוחות חדשים ÷ סך הלקוחות','לקוחות שעזבו בתקופה נתונה ÷ מספר הלקוחות בתחילת התקופה','הכנסות ÷ הוצאות','לקוחות שעזבו × 100','מספר תלונות ÷ מספר עובדים'],
+ c:1, e:'מטבלת ה-KPI במיקוד (תעשיית SaaS, יעד שימור לקוחות): לקוחות שעזבו ÷ לקוחות בתחילת התקופה. וכן — Churn Rate הוא מ-KPI הנפוצים בעולמות ה-BI (ראו שאלה 1 בבחינה לדוגמה).'},
+
+{t:'kpi', q:'לפי טבלת ה-KPI לפי תעשייה במיקוד — התאימו נוסחה ל-KPI:',
+ o:['AOV = הוצאות שיווק ÷ לקוחות חדשים','CAC = פדיון ÷ עסקאות','Average Order Value = פדיון ÷ עסקאות (קמעונאות, הגדלת פדיון)','NPL Ratio = לקוחות שעזבו ÷ לקוחות בתחילת תקופה','Churn Rate = הלוואות בפיגור ÷ תיק אשראי'],
+ c:2, e:'הטבלה מהמיקוד: קמעונאות/AOV = פדיון÷עסקאות; SaaS/Churn = עזבו÷תחילת תקופה; בנקאות/NPL = הלוואות בפיגור÷תיק אשראי; שיווק דיגיטלי/CAC = הוצאות שיווק÷לקוחות חדשים.'},
+
+{t:'kpi', q:'ה-KPI של תעשיית הבנקאות בטבלת המיקוד, ליעד ניהול סיכונים, הוא:',
+ o:['CAC','AOV','Churn Rate','NPL Ratio — הלוואות בפיגור ÷ תיק אשראי','NPS'],
+ c:3, e:'בנקאות ← ניהול סיכונים ← NPL Ratio = הלוואות בפיגור ÷ תיק אשראי.'},
+
+{t:'kpi', q:'CAC בטבלת המיקוד (שיווק דיגיטלי, מקסום ROI) מחושב כך:',
+ o:['הוצאות שיווק ÷ לקוחות חדשים','לקוחות חדשים ÷ הוצאות שיווק','פדיון ÷ עסקאות','הכנסות ÷ הוצאות','קליקים ÷ חשיפות'],
+ c:0, e:'CAC (עלות רכישת לקוח) = הוצאות שיווק ÷ לקוחות חדשים.'},
+
+/* ============ שיעור 10 — Join ============ */
+{t:'join', q:'איזה סוג Join מייצר טבלה מאוחדת שכוללת בהכרח את כל הרשומות משתי הטבלאות, כאשר מקרים ללא התאמה מקבלים ערך Null?',
+ o:['Full Outer','Inner','Left','Right','Cross'],
+ c:0, e:'שאלה 8 מהבחינה לדוגמה: הג׳וין שכולל הכל ולא מחמיץ אף נתון — Full Outer. אי-התאמות מתמלאות ב-Null.'},
+
+{t:'join', q:'טענה: "אם מבוצע Right Join, מספר השורות בטבלה המאוחדת לא יפחת ממספר השורות בטבלה הימנית". הטענה:',
+ o:['נכונה — Right Join משמעו "שמור על שורות הטבלה הימנית בכל מחיר"','שגויה — ייתכן פחות','שגויה — תמיד יהיו בדיוק פי 2 שורות','נכונה רק אם הטבלאות זהות','נכונה רק ב-Power BI'],
+ c:0, e:'משאלה 15 בבחינה לדוגמה: Right Join שומר על כל רשומות הטבלה הימנית — אין סיכוי שמספר השורות ירד מתחת לכך.'},
+
+{t:'join', q:'טענה: "ב-Inner Join, מספר השורות בטבלה המאוחדת יהיה תמיד מספר השורות של הטבלה הקטנה יותר". הטענה:',
+ o:['נכונה תמיד','שגויה — Inner מחזיר רק שורות עם התאמה; ייתכן אף 0 שורות אם אין התאמות כלל','נכונה רק לטבלאות מעל 10 שורות','שגויה — Inner תמיד מחזיר את הטבלה הגדולה','נכונה אם יש Null'],
+ c:1, e:'משאלה 15 בבחינה: Inner מציג רק התאמות. ייתכן שאין התאמה בכלל בערכים המזהים — ואז אפילו 0 שורות.'},
+
+{t:'join', q:'טענה: "כל Join מחזיר טבלה מאוחדת עם לפחות שורה אחת, ללא תלות בסוג ה-Join". הטענה:',
+ o:['נכונה','שגויה — ב-Inner Join ללא התאמות, הטבלה המאוחדת עשויה לכלול 0 רשומות (ריקה)','נכונה רק ל-3 טבלאות','שגויה — כי Join תמיד מחזיר בדיוק שורה אחת','נכונה ביום שלישי'],
+ c:1, e:'מלכודת משאלה 14 בבחינה לדוגמה: Inner Join בלי התאמות = 0 שורות. לכן הטענה נשללת מיד.'},
+
+{t:'join', q:'טענה: "Outer Join של טבלאות עם 6 ו-8 שורות ייתן בהכרח 14 שורות". הטענה:',
+ o:['נכונה — Outer תמיד מחבר','שגויה — Outer Join "משתדל לאחד" לפי התאמות; רק כשאין אף התאמה מקבלים את סכום השורות. עם התאמות — פחות מ-14','נכונה רק אם יש Null','שגויה — התוצאה תמיד 6','שגויה — התוצאה תמיד 48'],
+ c:1, e:'משאלה 15 בבחינה: אל תסיקו ש-Outer "תמיד מוסיף שורות כמו משוגע". ככל שיש התאמות, שורות מתמזגות. 3+2 עם 2 התאמות = 3 שורות בלבד!'},
+
+{t:'join', q:'מהו הביצוע הטכני של Join ב-Tableau (לפי המיקוד)?',
+ o:['כותבים שאילתת SQL בחלון הקוד','גוררים טבלה ראשונה לאזור התווית הנתונים ← דאבל קליק עליה (כניסה לשכבה הפיזית) ← גוררים טבלאות נוספות ← Tableau מזהה שדות מקשרים ומבצע ברירת מחדל Inner Join ← לוחצים על העיגולים לשינוי הסוג / השדות','מסמנים את שתי הטבלאות ולוחצים Ctrl+J','מעלים את הקובץ לענן ומחכים','אי אפשר לבצע Join ב-Tableau'],
+ c:1, e:'חמשת השלבים מהמיקוד: גרירה לקנבס ← דאבל קליק לשכבה הפיזית ← גרירת טבלאות נוספות ← זיהוי אוטומטי + ברירת מחדל Inner ← לחיצה על סמל העיגולים לשינוי סוג/שדות, סגירה ב-X וחזרה ל-Sheets.'},
+
+{t:'join', q:'מהי ברירת המחדל של Tableau בעת יצירת Join בין טבלאות?',
+ o:['Full Outer Join','Left Join','Inner Join','Right Join','Cross Join'],
+ c:2, e:'מהמיקוד: Tableau ינסה לזהות אוטומטית שדות מקשרים ויבצע כברירת מחדל Inner Join.'},
+
+{t:'join', q:'טענה: "אם מאחדים טבלה ימנית עם 3 שורות עם טבלה שמאלית ריקה, ב-Right Join, ייתכנו 2 שורות או פחות בתוצאה". הטענה:',
+ o:['נכונה','שגויה — ברגע שהוגדר Right Join, מספר הרשומות ייקבע לפי הטבלה הימנית (3), ולכן "2 או פחות" נשלל מיד','נכונה רק אם אין Null','נכונה כי טבלה ריקה מוחקת הכל','אי אפשר לדעת'],
+ c:1, e:'ההדגמה הקטנה מהמיקוד עצמו: Right Join = הרשומות לפי הטבלה הימנית. 3 שורות בימנית ← 3 שורות בתוצאה (עם Null-ים בצד השמאלי).'},
+];
+/* ---------- טענות נכון/שגוי (טורבו טענות) ---------- */
+/* {t, s:statement, a:true/false, e:explanation} */
+const TF = [
+/* שיעור 1 */
+{t:'intro', s:'תובנה מניעת פעולה יכולה להישען על אינטואיציה בלבד, ללא נתונים', a:false, e:'מרכיב חובה: מבוססת ראיות — נתמכת בנתונים ולא באינטואיציה בלבד.'},
+{t:'intro', s:'תובנה מניעת פעולה חייבת להיות ספציפית ולהתייחס לבעיה קונקרטית', a:true, e:'זהו המרכיב הראשון בהגדרה: ספציפיות והתייחסות לבעיה קונקרטית.'},
+{t:'intro', s:'תובנה מניעת פעולה היא כזו שניתן לפעול לפיה (ברת-ביצוע)', a:true, e:'המרכיב השני בהגדרה: ברת-ביצוע — שניתן לפעול לפיה.'},
+{t:'intro', s:'תובנות Actionable רק מתארות מה קרה, בלי לומר מה לעשות', a:false, e:'בדיוק הפוך: "תובנות שלא רק מתארות מה קרה, אלא אומרות לך מה לעשות" — מידע שמשנה החלטה.'},
+{t:'intro', s:'Data (נתונים) = עובדות גולמיות, מספרים או סמלים חסרי הקשר', a:true, e:'ההגדרה מהמיקוד. דוגמה: המספר "1200" לבדו.'},
+{t:'intro', s:'המושג Data מתייחס לנתונים שעברו עיבוד וקיבלו הקשר ומשמעות', a:false, e:'זו ההגדרה של Information! ‏Data היא השכבה הנמוכה, "הטיפשה ביותר" — עובדות גולמיות.'},
+{t:'intro', s:'Knowledge = הבנת המידע בהקשר רחב, זיהוי תבניות ומגמות', a:true, e:'ההגדרה מהמיקוד, כמו "הפדיון בימי שלישי נמוך ב-30%".'},
+{t:'intro', s:'כל מקבץ נתונים מסודר נחשב ידע (Knowledge)', a:false, e:'משאלה 2 בבחינה לדוגמה: ידע = זיהוי דפוסים ומגמות, לא "מקבץ נתונים מסודר".'},
+{t:'intro', s:'Wisdom = הפעלת הידע לצורך קבלת החלטה או פעולה', a:true, e:'השכבה העליונה — וזה בדיוק Actionable Insight.'},
+{t:'intro', s:'מערכות BI הן ה"גשר" מהנתונים הגולמיים ועד תובנות מניעות פעולה', a:true, e:'המשפט מהמיקוד שחובה להכיר, מילה במילה כמעט.'},
+{t:'intro', s:'חובה לדעת לבחינה מי המציא את פירמידת DIKW', a:false, e:'המיקוד אומר במפורש: לא נדרש לדעת מי המציא את הפירמידה.'},
+{t:'intro', s:'ETL = ‏Extract, Transform, Load', a:true, e:'שואבים ממקורות שונים, מנקים, וטוענים למקום מרכזי.'},
+{t:'intro', s:'שכבת ה-Semantic Layer מתרגמת שמות טכניים לשפה עסקית', a:true, e:'זה תפקידה ב-Pipeline לפי המיקוד.'},
+{t:'intro', s:'מחסן הנתונים (DWH) הוא מסד נתונים מרכזי ענק שמאחסן נתונים מכל הארגון לצורך ניתוח', a:true, e:'ההגדרה מהמיקוד, רכיב 3 ב-Pipeline.'},
+{t:'intro', s:'שכבת התצוגה ב-Pipeline היא הדשבורד שהמנהל רואה — ב-Tableau או Power BI', a:true, e:'רכיב 5: Dashboards & Reports.'},
+{t:'intro', s:'מערכות OLTP מיועדות לניתוח כמויות עתק של נתונים היסטוריים', a:false, e:'ה-T = Transaction: עיבוד פעולות בודדות בזמן אמת. הניתוח הגדול = OLAP.'},
+{t:'intro', s:'ה-A ב-OLAP מייצג Analysis (ניתוח)', a:true, e:'הדגש ה"קטנצ׳יק" מהבחינה לדוגמה — ניתוח, לא תיעוד עסקאות.'},
+{t:'intro', s:'OLAP הוא "הליבה של BI"', a:true, e:'ציטוט מהמיקוד: סריקת מיליארדי רשומות למגמות — זה OLAP, וזו הליבה של BI.'},
+{t:'intro', s:'קופאית שסורקת מוצר בסופר — זו דוגמה ל-OLAP', a:false, e:'זו טרנזקציה בודדת בזמן אמת = OLTP.'},
+{t:'intro', s:'מחסן נתונים משרת אחסון של נתונים מובנים בטבלאות בלבד', a:true, e:'משאלה 1 בבחינה לדוגמה — טענה נכונה! נתונים לא מובנים = אגם נתונים.'},
+{t:'intro', s:'אגם נתונים עובד בגישת Schema-on-Write — סידור מראש לפני הטעינה', a:false, e:'אגם = Schema-on-Read (מסדרים רק כשצריך). מחסן = Schema-on-Write.'},
+{t:'intro', s:'Snowflake ו-BigQuery דורשים שעיבוד הנתונים יבוצע לפני הטעינה אליהם', a:false, e:'משאלה 1 בבחינה: הם עוצמתיים — טוענים קודם ומעבדים בפנים (ELT).'},
+{t:'intro', s:'אגם נתונים שלא מנוהל נכון יכול להפוך ל"ביצת נתונים" (Data Swamp)', a:true, e:'החיסרון של האגם לפי המיקוד.'},
+{t:'intro', s:'Data Lakehouse היא ארכיטקטורה המשלבת את הגמישות של אגם עם הסדר של מחסן', a:true, e:'הפתרון המודרני, מבית Databricks.'},
+{t:'intro', s:'Amazon S3 ו-Azure Data Lake הן דוגמאות למחסני נתונים (DWH)', a:false, e:'אלו דוגמאות לאגמי נתונים. מחסנים: Snowflake, BigQuery, Redshift.'},
+{t:'intro', s:'dbt הוא כלי פופולרי לכתיבת לוגיקת הניקוי (Transform) ב-SQL', a:true, e:'Data Build Tool — לשכבת ה-Transform, ניהול הלוגיקה כקוד.'},
+{t:'intro', s:'באפיון מערכת BI פונים ל-IT רק אחרי הגדרת יעד עסקי, שאלות ו-KPI', a:true, e:'שלב 4 במתודולוגיה: איתור מקורות נתונים — "רק כעת פונים ל-IT".'},
+{t:'intro', s:'שלב 1 באפיון: לייצר כמה שיותר תרשימים למשתמש', a:false, e:'שלב 1 = הגדרת יעד עסקי. גרפים על הפנים = לא מוצר מהודק.'},
+{t:'intro', s:'מטרת העל של BI היא שיפור קבלת החלטות ניהוליות בארגון', a:true, e:'חלק מההגדרה הפורמלית שחובה להכיר.'},
+{t:'intro', s:'צריך לדעת לבחינה את מסמך ה-BRD', a:false, e:'המיקוד: "לא צריך לדעת מסמך BRD".'},
+{t:'intro', s:'Tableau הוא רכיב באחד השלבים המתקדמים של מערכת BI — ההצגה הגרפית', a:true, e:'מהמיקוד: ניתוח מגמות והסקת מסקנות על בסיס הצגה גרפית ש-Tableau חזק בה.'},
+
+/* שיעור 3 */
+{t:'charts', s:'גרירת שדה ל-Rows מציגה אותו על הציר האופקי (X)', a:false, e:'Rows = ציר אנכי (Y). ‏Columns = ציר אופקי (X).'},
+{t:'charts', s:'גרירת שדה ל-Columns מציגה אותו על ציר ה-X (האופקי)', a:true, e:'בדיוק. וזה בסיס להמון שאלות תרשימים.'},
+{t:'charts', s:'מכירות (Sales) הן דוגמה לממד (Dimension)', a:false, e:'הגיוני לחשב סכום/ממוצע מכירות ← מדד (Measure).'},
+{t:'charts', s:'קטגוריית מוצר היא דוגמה לממד (Dimension)', a:true, e:'אין היגיון בממוצע של "הלבשה" ו"הנעלה" ← ממד.'},
+{t:'charts', s:'מדדים (Measures) מופיעים ב-Tableau עם תגית ירוקה', a:true, e:'מדד = תגית ירוקה, ממד = תגית כחולה.'},
+{t:'charts', s:'ממד עונה על השאלה "כמה?"', a:false, e:'"כמה?" זה מדד. ממד עונה על מי/מה/מתי/איפה.'},
+{t:'charts', s:'תרשים קו מתאים בעיקר להשוואה בין קטגוריות בדידות', a:false, e:'קו = מגמות והתפתחות רציפה. השוואת קטגוריות = עמודות.'},
+{t:'charts', s:'תרשים עמודות (Bar) מתאים להצגה השוואתית בין קטגוריות', a:true, e:'המשפט המודגש מהמיקוד.'},
+{t:'charts', s:'תרשים פיזור (Scatter) שימושי להצגת קשר בין משתנים ועוצמתו', a:true, e:'קשר חיובי, שלילי, ועד כמה חזק.'},
+{t:'charts', s:'גרירת ממד ל-Marks עם Colors יוצרת פילוח בצבעים ומקרא אוטומטי', a:true, e:'שאלה 5 בבחינה לדוגמה.'},
+{t:'charts', s:'Labels ב-Marks יוצרות תוויות נתונים (ערכים כטקסט) על התרשים', a:true, e:'שאלה 6 בבחינה לדוגמה.'},
+{t:'charts', s:'גרירת שדה ל-Pages פותחת מספר גיליונות (Sheets) חדשים', a:false, e:'מלכודת משאלה 14! נשארים באותו גיליון ומדפדפים בין התרשימים.'},
+{t:'charts', s:'Filters מאפשרים סינון לפי טווח ערכים (למשל שנים 2002-2007)', a:true, e:'מהמיקוד: ערכים ספציפיים, טווחים, וכללים.'},
+{t:'charts', s:'סינון ערכים מבוצע על ידי גרירת המשתנה לתיבת ה-Marks', a:false, e:'שאלה 20 בבחינה: Marks עוסקת בתצוגה (סוג תרשים, צבעים, תוויות) — לא בסינון.'},
+{t:'charts', s:'חיבור קובץ csv ל-Tableau מבוצע דרך Connect >>> Text', a:true, e:'ו-xlsx דרך Connect > Excel.'},
+{t:'charts', s:'אחרי חיבור CSV מגיעים למסך Data Source עם תצוגה מקדימה של השדות וסוגיהם', a:true, e:'טקסט, תאריך, מספר וכו׳ + הערכים עצמם.'},
+{t:'charts', s:'קובץ Excel מרובה גיליונות — במקרים רבים נדרש Join כדי לייצר הצגה', a:true, e:'מהמיקוד, וההרחבה בשיעור 10.'},
+{t:'charts', s:'טמפרטורה היא דוגמה קלאסית למשתנה בדיד (Discrete)', a:false, e:'טמפרטורה (37, 37.1, 37.10001) = רציף. בדיד = יחידות מוצר, שנים קלנדריות.'},
+{t:'charts', s:'שנים קלנדריות הן דוגמה למשתנה בדיד', a:true, e:'יש הפרדה ברורה בין ערכים.'},
+{t:'charts', s:'Marks על Automatic + שנים כמשתנה רציף ← Tableau ייצר תרשים קו', a:true, e:'שאלה 13 בבחינה: "הזמן רציף ← מציגים השתנות רציפה (קו)".'},
+{t:'charts', s:'הדרך היחידה לייצר תרשים קו היא הגדרה מפורשת של Line', a:false, e:'יש שתי דרכים: ‏Automatic+רציף, או הגדרת Line מפורשת.'},
+{t:'charts', s:'בקורס שלנו, "פילוח" = שימוש ב-Marks ו-Colors, הכל במסך אחד', a:true, e:'ההגדרה המחייבת משאלה 17 בבחינה לדוגמה, אלא אם נאמר אחרת.'},
+{t:'charts', s:'כדי להתחיל להתוות תרשים לוחצים על Sheet1, והשדות מופיעים מצד שמאל', a:true, e:'מהמיקוד. וחשוב לזהות שם מה ממד ומה מדד.'},
+
+/* שיעור 5 */
+{t:'gas', s:'הטמעה (Deployment) של Google Apps Script יוצרת שרת אמיתי', a:false, e:'GAS "מדמה" עבודה של שרת — זה לא שרת אמיתי.'},
+{t:'gas', s:'GAS יכול להחליף שימוש בשרת לצרכים פשוטים יחסית', a:true, e:'לא שרת, אבל אם הצורך פשוט — הוא יכול להחליפו.'},
+{t:'gas', s:'GAS הוא ה-Frontend של המערכת שנבנתה בקורס', a:false, e:'GAS = המנוע מאחורי הקלעים = Backend. ה-Frontend נבנה ב-HTML.'},
+{t:'gas', s:'ה-Backend חובר לנתונים באמצעות ממשק API', a:true, e:'שלב 3 בתהליך מהמיקוד.'},
+{t:'gas', s:'מטרת המערכת שנבנתה בשיעור 5 הייתה ניתוח נתוני מניות', a:true, e:'שלב 1: הגדרת מטרות — מערכת לניתוח נתוני מניות.'},
+{t:'gas', s:'ה-Frontend נבנה על בסיס HTML לממשק מול המשתמש הסופי', a:true, e:'שלב 4 בתהליך.'},
+
+/* שיעור 8 */
+{t:'kpi', s:'כל מדד הוא KPI', a:false, e:'"כל KPI הוא מדד, אבל לא כל מדד הוא KPI" — כאן נופלים 80% מהסטודנטים!'},
+{t:'kpi', s:'כל KPI הוא מדד', a:true, e:'החצי הנכון של המשפט המפורסם.'},
+{t:'kpi', s:'Churn Rate הוא אחד ממדדי ה-KPI הנפוצים בעולמות ה-BI', a:true, e:'טענה נכונה משאלה 1 בבחינה לדוגמה.'},
+{t:'kpi', s:'"מספר פתיחות של מסך ההגדרות" הוא דוגמה ל-KPI אמיתי', a:false, e:'אינפורמטיבי אבל לא משקף הצלחה — נתון רגיל.'},
+{t:'kpi', s:'"אחוז משתמשים שחזרו תוך 7 ימים מההורדה" הוא KPI אמיתי', a:true, e:'עולה = חגיגה; יורד = צונח ← מתכנסים בדחיפות. מנבא את עתיד המוצר.'},
+{t:'kpi', s:'KPI הוא מדד שאם הוא יורד — יש לכם בעיה אסטרטגית', a:true, e:'ההגדרה המודגשת מהמיקוד.'},
+{t:'kpi', s:'KPI טוב הוא כמותי, רלוונטי, מוגבל בזמן ובר-השפעה', a:true, e:'ציטוט מהמיקוד, מילה במילה.'},
+{t:'kpi', s:'"מיליון משתמשים בחודש הראשון" הוא יעד SMART תקין', a:false, e:'לא Achievable — "לא יעד, אלא חלום. שאפו גבוה, אבל קרקעית".'},
+{t:'kpi', s:'"המשתמשים מרוצים" הוא יעד מדיד (Measurable)', a:false, e:'חייב להיות מספר. "ציון NPS של 50+" — כן מדיד.'},
+{t:'kpi', s:'ה-T ב-SMART הוא Time-bound — תחום בזמן', a:true, e:'"להגיע ל-DAU של 10,000" — עד מתי? בלי זמן זה לא יעד.'},
+{t:'kpi', s:'North Star Metric יכול להיות "סך הכנסה"', a:false, e:'תכונה 3: הוא נראה כמו "מספר פעולות שמייצרות ערך", לא "סך הכנסה".'},
+{t:'kpi', s:'North Star משקף ערך אמיתי שהמוצר נותן למשתמש, לא רק רווח חברה', a:true, e:'תכונת חובה מספר 1.'},
+{t:'kpi', s:'אם ה-North Star עולה — החברה גדלה; אם יורד — דועכת', a:true, e:'תכונת חובה מספר 2.'},
+{t:'kpi', s:'Churn Rate = לקוחות שעזבו ÷ לקוחות בתחילת התקופה', a:true, e:'הנוסחה מטבלת המיקוד (SaaS / שימור לקוחות).'},
+{t:'kpi', s:'CAC = הוצאות שיווק ÷ לקוחות חדשים', a:true, e:'שיווק דיגיטלי / מקסום ROI.'},
+{t:'kpi', s:'AOV (Average Order Value) = פדיון ÷ עסקאות', a:true, e:'קמעונאות / הגדלת פדיון.'},
+{t:'kpi', s:'NPL Ratio שייך לתעשיית השיווק הדיגיטלי', a:false, e:'NPL = בנקאות (ניהול סיכונים): הלוואות בפיגור ÷ תיק אשראי.'},
+{t:'kpi', s:'ההצדקה היחידה לקיומם של מדדי ביצוע: להחליף ניחושים בעובדות', a:true, e:'המשפט המודגש מסיפור האפליקציה בערפל.'},
+
+/* שיעור 10 */
+{t:'join', s:'כל Join מחזיר תמיד לפחות שורה אחת בטבלה המאוחדת', a:false, e:'Inner Join ללא התאמות = 0 שורות. הטענה נשללת מיד.'},
+{t:'join', s:'ב-Right Join מספר השורות בתוצאה לא יפחת ממספר השורות בטבלה הימנית', a:true, e:'"שמור על הטבלה הימנית בכל מחיר".'},
+{t:'join', s:'Inner Join מחזיר תמיד את מספר השורות של הטבלה הקטנה יותר', a:false, e:'תלוי בהתאמות! ייתכן גם 0.'},
+{t:'join', s:'Full Outer Join כולל את כל הרשומות משתי הטבלאות', a:true, e:'לא מחמיץ אף נתון, ויהי מה.'},
+{t:'join', s:'ב-Full Outer, מקרים ללא התאמה מקבלים ערך Null', a:true, e:'ההגדרה משאלה 8 בבחינה לדוגמה.'},
+{t:'join', s:'ברירת המחדל של Tableau בעת יצירת Join היא Left Join', a:false, e:'ברירת המחדל: Inner Join (אחרי זיהוי אוטומטי של שדות מקשרים).'},
+{t:'join', s:'Outer Join של טבלאות בנות 3 ו-2 שורות ייתן תמיד 5 שורות', a:false, e:'עם התאמות — שורות מתמזגות. בדוגמת המיקוד: יצאו 3 שורות בלבד.'},
+{t:'join', s:'כדי לשנות סוג Join לוחצים על סמל העיגולים שנוצר', a:true, e:'שלב 4 בביצוע הטכני מהמיקוד.'},
+{t:'join', s:'הכניסה לשכבה הפיזית של הנתונים מבוצעת בדאבל-קליק על הטבלה בקנבס', a:true, e:'שלב 2 בביצוע הטכני — "שלב קריטי" — רק אז נפתח מסך ה-Join.'},
+{t:'join', s:'ב-Left Join נשמרות בהכרח כל שורות הטבלה השמאלית', a:true, e:'אותו היגיון כמו Right, רק לצד השמאלי.'},
+];
+
+/* ---------- חידות סדר (Pipeline Runner) ---------- */
+const ORDERS = [
+{title:'סדרו את ה-Pipeline של מערכת ה-BI (שרשרת הערך של הנתונים):',
+ items:['מקורות נתונים (קופות, CRM, ERP, IoT)','תהליך ETL — שואבים, מנקים, טוענים','מחסן נתונים (DWH)','שכבת מודלים סמנטיים','דשבורדים ודוחות (Tableau / Power BI)'],
+ e:'זו הצנרת שחובה להכיר "פרפקט": מקורות ← ETL ← מחסן ← שכבה סמנטית ← תצוגה.'},
+{title:'סדרו את פירמידת DIKW מלמטה (הבסיס) למעלה:',
+ items:['Data — נתונים גולמיים','Information — מידע עם הקשר','Knowledge — תבניות ומגמות','Wisdom — הפעלת הידע לפעולה'],
+ e:'מהעובדה הגולמית "1200" ועד "נשיק מבצע ביום שלישי" — תובנה מניעת פעולה.'},
+{title:'סדרו את מתודולוגיית האפיון (פרק 4 — פרק חשוב!):',
+ items:['הגדרת יעד עסקי (Business Objective)','ניסוח שאלות עסקיות','הגדרת KPI — מדדים כמותיים','איתור מקורות נתונים — רק כעת פונים ל-IT'],
+ e:'קודם היעד ("הקטנת נטישה ב-10%"), אחר כך השאלות, המדדים, ורק בסוף IT.'},
+{title:'סדרו את תהליך בניית המערכת משיעור 5:',
+ items:['הגדרת מטרות המערכת (ניתוח נתוני מניות)','בניית Backend באמצעות Google Apps Script','חיבור ה-Backend לנתונים באמצעות API','יצירת Frontend על בסיס HTML'],
+ e:'מטרות ← GAS (מדמה שרת) ← API ← מעטפת HTML למשתמש הסופי.'},
+{title:'סדרו את הביצוע הטכני של Join ב-Tableau:',
+ items:['גוררים את הטבלה הראשונה לאזור התווית הנתונים','דאבל קליק על הטבלה — כניסה לשכבה הפיזית','גוררים טבלאות נוספות — Tableau מזהה ומבצע Inner כברירת מחדל','לוחצים על סמל העיגולים לשינוי סוג ה-Join או השדות','סוגרים ב-X וחוזרים ל-Sheets להתחיל לעבוד'],
+ e:'חמשת השלבים מהמיקוד, אחד לאחד. שלב הדאבל-קליק הוא "שלב קריטי"!'},
+];
+
+/* ---------- מחולל שאלות Join (טבלאות אקראיות, כמו בבחינה) ---------- */
+const JoinGen = {
+  names:['שיר','קנדרו','דנה','יובל','נועה','אבנר','משה','אוריאן','רוני','טל'],
+  make(level){
+    // level 1-2: התאמות פשוטות; level 3+: מקרים קיצוניים (אפס התאמות, טבלה ריקה)
+    const type = ['Inner','Left','Right','Full Outer'][Math.floor(Math.random()*4)];
+    let na = 2+Math.floor(Math.random()*3);           // 2-4 שורות בטבלה 1
+    let nb = 2+Math.floor(Math.random()*3);           // 2-4 שורות בטבלה 2
+    let pool = [1,2,3,4,5,6,7,8];
+    // בחר מזהים
+    const shuffle = a=>a.sort(()=>Math.random()-.5);
+    let extreme = level>=3 && Math.random()<0.45;
+    let aIds, bIds;
+    if(extreme && Math.random()<0.5){
+      // אפס התאמות
+      aIds = shuffle(pool.slice()).slice(0,na).sort((x,y)=>x-y);
+      bIds = shuffle(pool.filter(x=>!aIds.includes(x))).slice(0,Math.min(nb,8-na)).sort((x,y)=>x-y);
+      if(bIds.length===0) bIds=[9,10].slice(0,nb);
+    } else if(extreme){
+      // טבלה ריקה
+      if(Math.random()<0.5){ aIds=[]; bIds=shuffle(pool.slice()).slice(0,nb).sort((x,y)=>x-y); }
+      else { bIds=[]; aIds=shuffle(pool.slice()).slice(0,na).sort((x,y)=>x-y); }
+    } else {
+      aIds = shuffle(pool.slice()).slice(0,na).sort((x,y)=>x-y);
+      // חלק חופפים חלק לא
+      const overlap = shuffle(aIds.slice()).slice(0, 1+Math.floor(Math.random()*Math.min(2,aIds.length)));
+      const rest = shuffle(pool.filter(x=>!aIds.includes(x)));
+      bIds = shuffle(overlap.concat(rest.slice(0, Math.max(0,nb-overlap.length)))).slice(0,nb).sort((x,y)=>x-y);
+    }
+    const inter = aIds.filter(x=>bIds.includes(x)).length;
+    let answer;
+    if(type==='Inner') answer=inter;
+    else if(type==='Left') answer= aIds.length===0?0 : (inter>0? aIds.length : aIds.length); // מזהים ייחודיים ← |A|
+    else if(type==='Right') answer= bIds.length;
+    else answer = aIds.length + bIds.length - inter;
+    if(type==='Left') answer = aIds.length;
+    // הסבר
+    const expl = {
+      'Inner':`Inner Join מציג רק שורות עם התאמה בשדה המזהה. יש ${inter} מזהים משותפים ← ${answer} שורות. ${inter===0?'אין התאמות בכלל — טבלה ריקה! (בדיוק המלכודת מהבחינה)':''}`,
+      'Left':`Left Join = "שמור על הטבלה השמאלית (טבלה 1) בכל מחיר": כל ${aIds.length} השורות שלה נשמרות; היכן שאין התאמה — Null. ← ${answer} שורות.`,
+      'Right':`Right Join = "שמור על הטבלה הימנית (טבלה 2) בכל מחיר": כל ${bIds.length} השורות שלה נשמרות; היכן שאין התאמה — Null. ← ${answer} שורות.`,
+      'Full Outer':`Full Outer = כל הרשומות משתי הטבלאות: ${aIds.length} + ${bIds.length} − ${inter} התאמות (שורות שמתמזגות) = ${answer} שורות. אי-התאמות מקבלות Null.`
+    }[type];
+    // מסיחים
+    const opts = new Set([answer]);
+    const cands = [inter, aIds.length, bIds.length, aIds.length+bIds.length, aIds.length+bIds.length-inter, Math.max(aIds.length,bIds.length), answer+1, Math.max(0,answer-1)];
+    for(const c of shuffle(cands)){ if(opts.size<4 && c>=0) opts.add(c); }
+    let i=1; while(opts.size<4){ opts.add(answer+ ++i); }
+    return {type, aIds, bIds,
+      aRows:aIds.map(id=>({id, val:(id*10+40)})),
+      bRows:bIds.map((id,i2)=>({id, val:this.names[(id+i2)%this.names.length]})),
+      answer, opts:shuffle([...opts]), e:expl};
+  }
+};
+/* =====================================================================
+   AUDIO — צ׳יפטיון ארקייד ב-WebAudio (בלי קבצים חיצוניים)
+   ===================================================================== */
+const Audio2 = {
+  ctx:null, on:true, musicTimer:null, step:0, track:null, gainM:null,
+  init(){ if(!this.ctx){ this.ctx=new (window.AudioContext||window.webkitAudioContext)(); this.gainM=this.ctx.createGain(); this.gainM.gain.value=.14; this.gainM.connect(this.ctx.destination);} if(this.ctx.state==='suspended') this.ctx.resume(); },
+  toggle(){ this.on=!this.on; document.getElementById('soundBtn').textContent = this.on?'🔊 מוזיקה':'🔇 מושתק'; if(!this.on) this.stopMusic(); else if(this.lastTrack) this.playMusic(this.lastTrack); },
+  beep(f,d,type='square',vol=.5,when=0){ if(!this.on||!this.ctx) return; const t=this.ctx.currentTime+when; const o=this.ctx.createOscillator(), g=this.ctx.createGain(); o.type=type; o.frequency.value=f; g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g); g.connect(this.gainM); o.start(t); o.stop(t+d+.02); },
+  noise(d=.3,vol=.5){ if(!this.on||!this.ctx) return; const t=this.ctx.currentTime; const b=this.ctx.createBuffer(1,this.ctx.sampleRate*d,this.ctx.sampleRate); const data=b.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*(1-i/data.length); const s=this.ctx.createBufferSource(); s.buffer=b; const g=this.ctx.createGain(); g.gain.value=vol; s.connect(g); g.connect(this.gainM); s.start(t); },
+  /* SFX */
+  sfxShoot(){ this.beep(880,.08,'square',.4); this.beep(1320,.06,'square',.3,.05); },
+  sfxGood(){ [523,659,784,1047].forEach((f,i)=>this.beep(f,.12,'square',.45,i*.07)); },
+  sfxBad(){ this.beep(196,.25,'sawtooth',.5); this.beep(147,.3,'sawtooth',.4,.12); this.noise(.15,.2); },
+  sfxCombo(n){ [660,880,1100,1320].slice(0,Math.min(4,n)).forEach((f,i)=>this.beep(f*1.1,.07,'triangle',.4,i*.05)); },
+  sfxBossHit(){ this.noise(.25,.45); this.beep(110,.3,'sawtooth',.5); },
+  sfxWin(){ [523,659,784,1047,1319,1568].forEach((f,i)=>this.beep(f,.18,'square',.4,i*.1)); },
+  sfxLose(){ [392,330,262,196].forEach((f,i)=>this.beep(f,.3,'triangle',.45,i*.18)); },
+  sfxCoin(){ this.beep(988,.09,'square',.4); this.beep(1319,.25,'square',.4,.09); },
+  /* MUSIC — לופים קצרים לפי מסך */
+  TRACKS:{
+    menu:{bpm:112, bass:[130.8,0,196,0, 174.6,0,196,0, 130.8,0,196,0, 220,0,196,0],
+          lead:[523,0,659,784, 0,659,0,523, 587,0,698,880, 0,784,659,0]},
+    action:{bpm:150, bass:[110,110,0,110, 130.8,0,110,0, 146.8,146.8,0,130.8, 110,0,98,0],
+          lead:[440,0,523,0, 587,523,0,440, 0,659,587,523, 440,523,0,0]},
+    dojo:{bpm:96, bass:[98,0,0,146.8, 98,0,0,123.5, 110,0,0,164.8, 110,0,0,98],
+          lead:[392,0,440,0, 494,0,440,392, 330,0,392,0, 440,0,0,0]},
+    boss:{bpm:138, bass:[82.4,82.4,87.3,82.4, 82.4,82.4,98,92.5, 82.4,82.4,87.3,82.4, 110,103.8,98,92.5],
+          lead:[330,0,311,330, 0,392,370,330, 330,0,311,330, 494,466,440,415]},
+  },
+  playMusic(name){ this.lastTrack=name; if(!this.on||!this.ctx) return; this.stopMusic(); this.track=this.TRACKS[name]; this.step=0;
+    const stepDur = 60/this.track.bpm/2;
+    this.musicTimer = setInterval(()=>{ const i=this.step%16;
+      const b=this.track.bass[i], l=this.track.lead[i];
+      if(b) this.beep(b, stepDur*1.7,'triangle',.5);
+      if(l) this.beep(l, stepDur*.9,'square',.16);
+      if(i%4===0) this.noise(.03,.07);
+      this.step++; }, stepDur*1000);
+  },
+  stopMusic(){ if(this.musicTimer){ clearInterval(this.musicTimer); this.musicTimer=null; } },
+};
+document.addEventListener('pointerdown', ()=>Audio2.init(), {once:false});
+
+/* =====================================================================
+   רקע כוכבים
+   ===================================================================== */
+(function(){ const cv=document.getElementById('stars'), cx=cv.getContext('2d'); let stars=[];
+  function size(){ cv.width=innerWidth; cv.height=innerHeight; stars=Array.from({length:90},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.6+.3,s:Math.random()*.5+.1})); }
+  size(); addEventListener('resize',size);
+  (function loop(){ cx.clearRect(0,0,cv.width,cv.height);
+    for(const st of stars){ st.y+=st.s; if(st.y>cv.height) st.y=0; cx.fillStyle='rgba(160,180,255,'+(st.r/2)+')'; cx.fillRect(st.x,st.y,st.r,st.r); }
+    requestAnimationFrame(loop); })();
+})();
+
+/* =====================================================================
+   כלים כלליים + ניקוד ושמירה
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const shuffle=a=>a.slice().sort(()=>Math.random()-.5);
+const Store={
+  get(k,d){ try{ const v=localStorage.getItem('biarcade_'+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
+  set(k,v){ try{ localStorage.setItem('biarcade_'+k, JSON.stringify(v)); }catch(e){} }
+};
+function refreshHighscores(){
+  $('hs-invaders').textContent=Store.get('hs_invaders',0);
+  $('hs-turbo').textContent=Store.get('hs_turbo',0);
+  $('hs-dojo').textContent=Store.get('hs_dojo',0);
+  $('hs-runner').textContent=Store.get('hs_runner',0);
+  const b=Store.get('hs_boss',null); $('hs-boss').textContent=b===null?'—':b;
+}
+function trackTopic(topic, ok){
+  const st=Store.get('topics',{});
+  st[topic]=st[topic]||{ok:0,all:0};
+  st[topic].all++; if(ok) st[topic].ok++;
+  Store.set('topics',st);
+}
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo({top:0}); }
+
+/* =====================================================================
+   GAME — שלד משותף לכל המשחקים
+   ===================================================================== */
+const Game = {
+  mode:null, score:0, lives:3, combo:0, qnum:0, timer:null, locked:false,
+  reset(title, lives=3){
+    this.score=0; this.lives=lives; this.combo=0; this.qnum=0; this.locked=false;
+    $('game-title').textContent=title;
+    $('boss-area').style.display='none';
+    $('feedback-zone').innerHTML=''; $('next-btn').style.display='none';
+    this.updateHud(); showScreen('scr-game');
+  },
+  updateHud(){
+    $('hud-score').textContent=this.score;
+    $('hud-qnum').textContent=this.qnum;
+    $('hud-lives').textContent= this.lives>0 ? '❤️'.repeat(this.lives) : '💀';
+    $('hud-combo').textContent= this.combo>=2 ? `🔥 קומבו x${this.combo}` : '';
+  },
+  stopTimer(){ if(this.timer){ clearInterval(this.timer); this.timer=null; } },
+  startTimer(seconds, onEnd){
+    this.stopTimer(); const fill=$('timer-fill'); let left=seconds;
+    fill.style.width='100%'; $('timer-wrap').style.display='block';
+    this.timer=setInterval(()=>{ left-=0.1; fill.style.width=Math.max(0,left/seconds*100)+'%';
+      if(left<=0){ this.stopTimer(); onEnd(); } },100);
+  },
+  feedback(ok, expl, points){
+    const fz=$('feedback-zone');
+    fz.innerHTML = `<div class="feedback ${ok?'good':'bad'} pop">${ok? '✔ בול פגיעה! +'+points+' נק׳' : '✘ פספוס!'}</div>
+      <div class="explain pop"><div class="t">🥙 פיתה-רון:</div>${expl}</div>`;
+    $('next-btn').style.display='inline-block';
+    $('next-btn').focus();
+  },
+  next(){ $('feedback-zone').innerHTML=''; $('next-btn').style.display='none'; this.locked=false;
+    if(this.lives<=0){ this.gameOver(); return; }
+    if(this.mode && this.mode.nextRound) this.mode.nextRound(); },
+  quit(){ this.stopTimer(); Audio2.stopMusic(); Audio2.playMusic('menu'); refreshHighscores(); showScreen('scr-menu'); },
+  gameOver(extraHtml){ this.stopTimer();
+    const m=this.mode;
+    $('res-score').textContent = m.finalText ? m.finalText() : this.score;
+    $('res-msg').textContent = m.resultMsg ? m.resultMsg() : (this.lives>0? 'כל הכבוד!' : 'לא נורא — ככה לומדים!');
+    $('res-extra').innerHTML = extraHtml||'';
+    $('res-review').innerHTML = m.reviewHtml ? m.reviewHtml() : '';
+    $('res-retry').onclick=()=>m.start();
+    // שיא
+    if(m.hsKey){ const prev=Store.get(m.hsKey, m.hsKey==='hs_boss'?-1:0);
+      const cur = m.hsValue? m.hsValue() : this.score;
+      if(cur>prev){ Store.set(m.hsKey,cur); $('res-msg').textContent += ' 🏆 שיא חדש!'; Audio2.sfxWin(); } else if(this.lives>0){ Audio2.sfxWin(); } else { Audio2.sfxLose(); } }
+    showScreen('scr-result');
+  }
+};
+
+/* מקשי מקלדת 1-5 לתשובות */
+document.addEventListener('keydown',e=>{
+  if(!$('scr-game').classList.contains('active') || Game.locked) return;
+  const map={'1':0,'2':1,'3':2,'4':3,'5':4};
+  const tf=[...document.querySelectorAll('#answers .tfbtn')];
+  if(tf.length){ // טורבו טענות: 1/חץ־ימינה = נכון, 2/חץ־שמאלה = שגוי
+    if(e.key==='1'||e.key==='ArrowRight') tf[0].click();
+    if(e.key==='2'||e.key==='ArrowLeft') tf[1].click();
+    return;
+  }
+  if(e.key in map){ const btns=[...document.querySelectorAll('#answers .ans')]; if(btns[map[e.key]]) btns[map[e.key]].click(); }
+  if(e.key==='Enter' && $('next-btn').style.display!=='none') Game.next();
+});
+
+/* עזר לרינדור שאלת רב-ברירה */
+const HEB=['א','ב','ג','ד','ה'];
+function renderMCQ(q, onPick, opts={}){
+  $('q-topic').textContent=TOPICS[q.t].name; $('q-topic').style.color=TOPICS[q.t].color;
+  $('q-text').textContent=q.q; $('q-extra').innerHTML='';
+  const zone=$('answers'); zone.innerHTML=''; zone.className='answers'+(opts.invader?' invaderZone':'');
+  const order=shuffle(q.o.map((txt,i)=>({txt,i})));
+  order.forEach((o,idx)=>{
+    const b=document.createElement('button'); b.className='ans';
+    if(opts.invader) b.style.setProperty('--fall',(14+idx*2)+'s');
+    b.innerHTML=`<span class="key">${HEB[idx]}</span><span>${o.txt}</span>`;
+    b.onclick=()=>{ if(Game.locked) return; Game.locked=true; Game.stopTimer();
+      const ok = o.i===q.c;
+      [...zone.children].forEach((bb,j)=>{ bb.disabled=true; if(order[j].i===q.c) bb.classList.add('correct'); });
+      if(!ok) b.classList.add('wrong');
+      onPick(ok);
+    };
+    zone.appendChild(b);
+  });
+  return order;
+}
+
+/* =====================================================================
+   1) BI INVADERS — רב-ברירה עם טיימר
+   ===================================================================== */
+const Invaders = {
+  hsKey:'hs_invaders', deck:[],
+  start(){ Audio2.init(); Audio2.sfxCoin(); Audio2.playMusic('action');
+    Game.mode=this; Game.reset('👾 BI INVADERS');
+    this.deck=shuffle(MCQ); this.idx=0; this.nextRound(); },
+  nextRound(){
+    if(this.idx>=this.deck.length){ Game.gameOver('<div style="font-size:16px;color:var(--neon-green)">🤯 סיימתם את כל מאגר השאלות! אתם מוכנים לבחינה!</div>'); return; }
+    Game.qnum++; Game.updateHud();
+    const q=this.deck[this.idx++];
+    renderMCQ(q, ok=>{ trackTopic(q.t, ok);
+      if(ok){ Game.combo++; const pts=100+ (Game.combo>=2? (Game.combo-1)*25:0); Game.score+=pts; Audio2.sfxGood(); if(Game.combo>=2) Audio2.sfxCombo(Game.combo); Game.feedback(true,q.e,pts); }
+      else { Game.combo=0; Game.lives--; Audio2.sfxBad(); $('qpanel').classList.add('shake'); setTimeout(()=>$('qpanel').classList.remove('shake'),450); Game.feedback(false,q.e,0); }
+      Game.updateHud();
+    }, {invader:true});
+    Game.startTimer(35, ()=>{ if(Game.locked) return; Game.locked=true; Game.combo=0; Game.lives--; Audio2.sfxBad(); Game.updateHud();
+      [...$('answers').children].forEach(b=>b.disabled=true);
+      Game.feedback(false,'⏰ החייזרים נחתו! '+q.e,0); trackTopic(q.t,false); });
+  },
+  resultMsg(){ return Game.lives>0? 'ניצחתם את הפלישה!' : 'החייזרים ניצחו הפעם... נסו שוב!'; }
+};
+
+/* =====================================================================
+   2) טורבו טענות — נכון/שגוי מהיר
+   ===================================================================== */
+const Turbo = {
+  hsKey:'hs_turbo', deck:[],
+  start(){ Audio2.init(); Audio2.sfxCoin(); Audio2.playMusic('action');
+    Game.mode=this; Game.reset('🏎️ טורבו טענות');
+    this.deck=shuffle(TF); this.idx=0; this.nextRound(); },
+  nextRound(){
+    if(this.idx>=this.deck.length){ Game.gameOver('<div style="font-size:16px;color:var(--neon-green)">🏁 עברתם את כל הטענות במאגר!</div>'); return; }
+    Game.qnum++; Game.updateHud();
+    const q=this.deck[this.idx++];
+    $('q-topic').textContent=TOPICS[q.t].name; $('q-topic').style.color=TOPICS[q.t].color;
+    $('q-text').textContent='טענה: "'+q.s+'"'; $('q-extra').innerHTML='';
+    const zone=$('answers'); zone.className='answers'; zone.innerHTML='<div class="tfbtns">'+
+      '<button class="tfbtn true" data-v="1">✔ נכון</button>'+
+      '<button class="tfbtn false" data-v="0">✘ שגוי</button></div>';
+    zone.querySelectorAll('.tfbtn').forEach(b=>b.onclick=()=>{ if(Game.locked) return; Game.locked=true; Game.stopTimer();
+      const pick = b.dataset.v==='1', ok = pick===q.a;
+      trackTopic(q.t, ok);
+      if(ok){ Game.combo++; const pts=50+(Game.combo>=2?(Game.combo-1)*20:0); Game.score+=pts; Audio2.sfxGood(); if(Game.combo>=3) Audio2.sfxCombo(Game.combo);
+        Game.feedback(true,(q.a?'הטענה אכן נכונה. ':'הטענה אכן שגויה. ')+q.e,pts); }
+      else { Game.combo=0; Game.lives--; Audio2.sfxBad(); Game.feedback(false,(q.a?'הטענה דווקא נכונה! ':'הטענה דווקא שגויה! ')+q.e,0); }
+      Game.updateHud(); });
+    Game.startTimer(14, ()=>{ if(Game.locked) return; Game.locked=true; Game.combo=0; Game.lives--; Audio2.sfxBad(); Game.updateHud();
+      Game.feedback(false,'⏰ נגמר הדלק! '+(q.a?'הטענה נכונה. ':'הטענה שגויה. ')+q.e,0); trackTopic(q.t,false); });
+  },
+  resultMsg(){ return Game.lives>0? 'מלך/מלכת הכביש! 🏁' : 'ירדתם מהמסלול... עוד סיבוב?'; }
+};
+
+/* =====================================================================
+   3) JOIN DOJO — טבלאות אקראיות
+   ===================================================================== */
+const Dojo = {
+  hsKey:'hs_dojo', level:1,
+  start(){ Audio2.init(); Audio2.sfxCoin(); Audio2.playMusic('dojo');
+    Game.mode=this; Game.reset('🥋 JOIN DOJO'); this.level=1; this.nextRound(); },
+  nextRound(){
+    Game.qnum++; this.level=Math.min(5, 1+Math.floor((Game.qnum-1)/3)); Game.updateHud();
+    const j=JoinGen.make(this.level);
+    $('q-topic').textContent=TOPICS.join.name+' · חגורה '+['לבנה','צהובה','ירוקה','חומה','שחורה'][this.level-1];
+    $('q-topic').style.color=TOPICS.join.color;
+    $('q-text').textContent='מאחדים את שתי הטבלאות לפי השדה id. כמה שורות תהיינה בטבלה המאוחדת?';
+    const tbl=(cap,rows,col2,isName)=>`<table class="jtable"><caption>${cap}</caption>
+      <tr><th>id</th><th>${col2}</th></tr>
+      ${rows.length? rows.map(r=>`<tr><td>${r.id}</td><td>${r.val}</td></tr>`).join('') : '<tr><td colspan="2" style="color:#889">— אין שורות —</td></tr>'}</table>`;
+    $('q-extra').innerHTML = `<div class="jointype pop">⚔️ ${j.type} Join ⚔️</div>
+      <div class="tables">${tbl('טבלה 1 (שמאלית)',j.aRows,'מחיר')}${tbl('טבלה 2 (ימנית)',j.bRows,'שם לקוח')}</div>`;
+    const zone=$('answers'); zone.className='answers'; zone.innerHTML='<div class="numopts"></div>';
+    const grid=zone.firstChild;
+    j.opts.forEach(v=>{ const b=document.createElement('button'); b.className='ans'; b.textContent=v+' שורות';
+      b.onclick=()=>{ if(Game.locked) return; Game.locked=true; Game.stopTimer();
+        const ok=v===j.answer; trackTopic('join',ok);
+        [...grid.children].forEach(bb=>{ bb.disabled=true; if(parseInt(bb.textContent)===j.answer) bb.classList.add('correct'); });
+        if(!ok) b.classList.add('wrong');
+        if(ok){ Game.combo++; const pts=120+this.level*30+(Game.combo>=2?(Game.combo-1)*30:0); Game.score+=pts; Audio2.sfxGood(); Game.feedback(true,j.e,pts); }
+        else { Game.combo=0; Game.lives--; Audio2.sfxBad(); Game.feedback(false,j.e,0); }
+        Game.updateHud(); };
+      grid.appendChild(b); });
+    Game.startTimer(40-this.level*3, ()=>{ if(Game.locked) return; Game.locked=true; Game.combo=0; Game.lives--; Audio2.sfxBad(); Game.updateHud();
+      Game.feedback(false,'⏰ הסנסיי מאוכזב. '+j.e,0); trackTopic('join',false); });
+  },
+  resultMsg(){ return Game.lives>0? 'הסנסיי גאה בכם! 🥇' : 'הדוג׳ו מחכה לחזרתכם. תרגלו את סוגי ה-Join!'; }
+};
+
+/* =====================================================================
+   4) PIPELINE RUNNER — סידור שלבים
+   ===================================================================== */
+const Runner = {
+  hsKey:'hs_runner', puzzles:[], pi:0, pos:0, mistakes:0,
+  start(){ Audio2.init(); Audio2.sfxCoin(); Audio2.playMusic('menu');
+    Game.mode=this; Game.reset('🏃 PIPELINE RUNNER');
+    this.puzzles=shuffle(ORDERS); this.pi=0; this.nextRound(); },
+  nextRound(){
+    if(this.pi>=this.puzzles.length){ Game.gameOver('<div style="font-size:16px;color:var(--neon-green)">🚰 כל הצנרת חוברה! זרימת נתונים מושלמת.</div>'); return; }
+    Game.qnum++; Game.updateHud();
+    const p=this.puzzles[this.pi]; this.pos=0; this.mistakes=0;
+    $('q-topic').textContent='סדר שלבים'; $('q-topic').style.color='#ff9d00';
+    $('q-text').textContent=p.title; $('timer-wrap').style.display='none';
+    $('q-extra').innerHTML='<div class="slots" id="slots"><span style="color:#7f7ab8;font-size:13px">לחצו על השלבים לפי הסדר הנכון — מהראשון לאחרון</span></div>';
+    const zone=$('answers'); zone.className='answers'; zone.innerHTML='<div class="chips" id="chips"></div>';
+    const chips=$('chips');
+    shuffle(p.items.map((txt,i)=>({txt,i}))).forEach(it=>{
+      const c=document.createElement('button'); c.className='chip'; c.textContent=it.txt;
+      c.onclick=()=>{ if(Game.locked) return;
+        if(it.i===this.pos){ // נכון
+          c.classList.add('used'); Audio2.sfxShoot();
+          const s=$('slots'); if(this.pos===0) s.innerHTML='';
+          if(this.pos>0) s.insertAdjacentHTML('beforeend','<span class="arrow">⬅</span>');
+          s.insertAdjacentHTML('beforeend',`<span class="slot-item pop">${this.pos+1}. ${it.txt}</span>`);
+          this.pos++;
+          if(this.pos===p.items.length){ Game.locked=true;
+            const pts=Math.max(60, 250 - this.mistakes*60); Game.score+=pts; Game.combo++;
+            trackTopic('intro', this.mistakes===0); Audio2.sfxGood();
+            Game.feedback(true, p.e + (this.mistakes? ` (עם ${this.mistakes} פספוסים בדרך)`:' — בלי אף טעות! 💎'), pts);
+            this.pi++; Game.updateHud(); }
+        } else { // טעות
+          this.mistakes++; Game.combo=0; Audio2.sfxBad();
+          c.classList.add('shake'); setTimeout(()=>c.classList.remove('shake'),450);
+          if(this.mistakes>=3 && Game.lives>0){ Game.lives--; this.mistakes=0; Game.updateHud();
+            if(Game.lives<=0){ Game.locked=true; Game.feedback(false,'נגמרו החיים... הסדר הנכון: '+p.items.join(' ← '),0); this.pi++; } }
+        } };
+      chips.appendChild(c); });
+  },
+  resultMsg(){ return Game.lives>0? 'מהנדס/ת צנרת מוסמכ/ת! 🔧' : 'הצנרת התפוצצה... נסו שוב!'; }
+};
+
+/* =====================================================================
+   5) BOSS EXAM — סימולציית בחינה: 20 שאלות לפי משקלי המיקוד
+   ===================================================================== */
+const Boss = {
+  hsKey:'hs_boss', deck:[], correct:0, log:[],
+  hsValue(){ return this.correct*5; },
+  buildDeck(){
+    const by=t=>shuffle(MCQ.filter(q=>q.t===t));
+    /* משקלים לפי המיקוד: שיעור 1: 6 | שיעור 3: 4 | שיעור 5: 1 | שיעור 8: 5 | שיעור 10: 4 */
+    let d=[ ...by('intro').slice(0,6), ...by('charts').slice(0,4), ...by('gas').slice(0,1), ...by('kpi').slice(0,5), ...by('join').slice(0,4) ];
+    return shuffle(d).slice(0,20);
+  },
+  start(){ Audio2.init(); Audio2.sfxCoin(); Audio2.playMusic('boss');
+    Game.mode=this; Game.reset('🐲 BOSS EXAM — 20 שאלות, 5 נק׳ כל אחת', 5);
+    this.deck=this.buildDeck(); this.idx=0; this.correct=0; this.log=[];
+    $('boss-area').style.display='block'; this.drawBars(); this.nextRound(); },
+  drawBars(){
+    const bossHp=Math.round((1-this.correct/20)*100);
+    $('boss-hp').style.width=bossHp+'%'; $('boss-hp-txt').textContent=bossHp+'%';
+    $('player-hp').style.width=(Game.lives*20)+'%'; $('player-hp-txt').textContent=Game.lives*20+'%';
+    $('boss-face').textContent = this.correct>=15? '🥵' : this.correct>=8? '😠' : '🐲';
+  },
+  nextRound(){
+    if(this.idx>=this.deck.length || Game.lives<=0){ this.finish(); return; }
+    Game.qnum++; Game.updateHud();
+    const q=this.deck[this.idx++];
+    renderMCQ(q, ok=>{ trackTopic(q.t,ok); this.log.push({q,ok});
+      if(ok){ this.correct++; Game.score=this.correct*5; Audio2.sfxBossHit();
+        Game.feedback(true,'🗡️ הדרקון חטף מכה! '+q.e,5); }
+      else { Game.lives--; Audio2.sfxBad(); Game.feedback(false,'🔥 הדרקון נשף אש! '+q.e,0); }
+      this.drawBars(); Game.updateHud();
+    });
+    $('timer-wrap').style.display='none';
+  },
+  finish(){
+    const grade=this.correct*5;
+    const answered=this.log.length;
+    Game.gameOver(`<div style="font-size:15px;color:#cfd3ff">ענית נכון על <b style="color:var(--neon-green)">${this.correct}</b> מתוך ${answered} שאלות ${answered<20?'(הדרקון הפיל אותך לפני הסוף!)':''}</div>`);
+  },
+  finalText(){ return this.correct*5; },
+  resultMsg(){ const g=this.correct*5;
+    return g>=90? 'אלוף/ה!! הדרקון נכנע! 👑' : g>=75? 'ניצחון יפה! עוד קצת ליטוש ואתם שם 💪' : g>=56? 'עברתם... אבל הדרקון עוד מחייך 🐲' : 'הדרקון ניצח הפעם. חוזרים למיקוד ותוקפים שוב!'; },
+  reviewHtml(){
+    if(!this.log.length) return '';
+    return '<h3 style="color:var(--neon-cyan)">📋 סקירת הבחינה:</h3>'+ this.log.map((l,i)=>
+      `<div class="review-item ${l.ok?'ok':'bad'}"><b>${l.ok?'✔':'✘'} שאלה ${i+1}</b> · ${TOPICS[l.q.t].name}<br>${l.q.q.split('\n')[0]}<br><span style="color:#ffeead">🥙 ${l.q.e}</span></div>`).join('');
+  }
+};
+
+/* =====================================================================
+   STATS — מפת המיקוד
+   ===================================================================== */
+const Stats = {
+  show(){ Audio2.init();
+    const st=Store.get('topics',{});
+    const grid=$('stats-grid'); grid.innerHTML='';
+    Object.entries(TOPICS).forEach(([k,t])=>{
+      const d=st[k]||{ok:0,all:0};
+      const pct=d.all? Math.round(d.ok/d.all*100) : 0;
+      grid.insertAdjacentHTML('beforeend',
+        `<div class="topicbox"><b style="color:${t.color}">${t.name}</b>
+         ${d.all? `${d.ok}/${d.all} נכונות (${pct}%)` : 'עוד לא שוחק'}
+         <div class="pbar"><div style="width:${pct}%;background:${t.color}"></div></div>
+         <div style="margin-top:4px;color:#8f8ad0;font-size:11px">משקל במיקוד: ~${t.weight} שאלות</div></div>`);
+    });
+    showScreen('scr-stats');
+  },
+  reset(){ Store.set('topics',{}); this.show(); }
+};
+
+refreshHighscores();
+
+</script>
+</body>
+</html>

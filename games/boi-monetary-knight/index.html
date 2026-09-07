@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>האביר המוניטרי של בנק ישראל - ד"ר צבאן</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Celebration Canvas for Fireworks & Confetti -->
+    <canvas id="celebration-canvas"></canvas>
+
+    <!-- Header Navigation with HUD -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">🏛️</div>
+            <div class="logo-text">
+                <h1>האביר המוניטרי של בנק ישראל</h1>
+                <p>המשחק הרשמי ללימודי מאקרו-כלכלה</p>
+            </div>
+        </div>
+        <div class="hud-container" id="game-hud" style="display: none;">
+            <div class="hud-item" title="נקודות">
+                <span>🏆</span>
+                <span id="hud-score">0</span>
+            </div>
+            <div class="hud-item" title="שלב">
+                <span>🎮</span>
+                <span id="hud-stage">מבוא</span>
+            </div>
+            <div class="hud-item" id="hud-avatar-item" title="דמות">
+                <span id="hud-avatar-emoji">🧙‍♂️</span>
+                <span id="hud-avatar-name">אורח</span>
+            </div>
+            <button class="hud-item" id="audio-toggle" style="background: none; border: 1px solid var(--border-color); cursor: pointer;" title="הפעל/השתק קול">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <main>
+        
+        <!-- Screen 1: Registration and Avatar Choice -->
+        <section id="screen-auth" class="screen active">
+            <div class="auth-layout">
+                <div class="glass-container auth-form-card glow-card">
+                    <h2>ברוכים הבאים למשחק המוניטרי! 🪙</h2>
+                    <p class="subtitle">הוכן במיוחד עבור הסטודנטים של ד"ר צבאן. רשמו את שמכם ובחרו דמות כדי להתחיל!</p>
+                    
+                    <div class="input-group">
+                        <label for="student-name">שם הסטודנט/ית:</label>
+                        <input type="text" id="student-name" placeholder="הקלידו שם מלא לתעודה..." autocomplete="off">
+                    </div>
+
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600;">בחרו את הדמות שלכם:</label>
+                    <div class="avatar-grid">
+                        <div class="avatar-card" data-avatar="saver">
+                            <span class="avatar-emoji">📉</span>
+                            <h4>שרגא החוסך</h4>
+                            <p>אוהב ריביות גבוהות ומפחד משינויים.</p>
+                        </div>
+                        <div class="avatar-card" data-avatar="entrepreneur">
+                            <span class="avatar-emoji">🚀</span>
+                            <h4>נטע היזמת</h4>
+                            <p>רוצה הלוואות זולות כדי להצמיח מאפיות.</p>
+                        </div>
+                        <div class="avatar-card" data-avatar="inflationist">
+                            <span class="avatar-emoji">🔥</span>
+                            <h4>דינוזאור האינפלציה</h4>
+                            <p>שונא יציבות ורוצה לשרוף את ערך השקל.</p>
+                        </div>
+                        <div class="avatar-card" data-avatar="governor">
+                            <span class="avatar-emoji">🎓</span>
+                            <h4>הנגיד/ה הבא/ה</h4>
+                            <p>התלמיד/ה הכי מצטיין/נת של ד"ר צבאן.</p>
+                        </div>
+                    </div>
+
+                    <button class="btn" id="btn-start-game">
+                        <span>לכניסה למשחק!</span>
+                        <span>🚀</span>
+                    </button>
+                </div>
+                <div class="intro-illustration">
+                    <img id="intro-illustration-img" src="assets/inflation_monster.png" alt="מפלצת האינפלציה ובנק ישראל">
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 2: Stage 1 - Monetary Academy -->
+        <section id="screen-stage1" class="screen">
+            <div class="glass-container stage-card">
+                <div class="stage-title">
+                    <span>שלב 1: האקדמיה המאקרו-מוניטרית 📚</span>
+                    <span class="stage-step-badge">צעד 1 מתוך 5</span>
+                </div>
+
+                <div class="tabs-container">
+                    <button class="tab-btn active" data-tab="tab-monetary">מדיניות מוניטרית</button>
+                    <button class="tab-btn" data-tab="tab-fiscal">מדיניות פיסקלית ואנטי-מחזורית</button>
+                    <button class="tab-btn" data-tab="tab-why">למה פיסקלית לא מספיקה?</button>
+                    <button class="tab-btn" data-tab="tab-boi">תפקיד בנק ישראל ומדרג מטרות</button>
+                </div>
+
+                <!-- Tab content 1 -->
+                <div class="tab-content active" id="tab-monetary">
+                    <div class="academy-layout">
+                        <div class="learn-text">
+                            <h3>מהי מדיניות מוניטרית?</h3>
+                            <p>מדיניות מוניטרית היא קבוצת הצעדים שנוקט <strong>הבנק המרכזי</strong> (בנק ישראל) כדי לשלוט בהיצע הכסף, באשראי ובגובה הריבית במשק. המטרה היא להבטיח את יציבות המחירים ולתמוך בצמיחה הכלכלית.</p>
+                            <p>הכלי המרכזי של מדיניות זו הוא <strong>ריבית בנק ישראל</strong> (מחיר הבסיס במשק, המהווה עוגן לריבית הפריים = ריבית בנק ישראל + 1.5%). העלאה או הפחתה של הריבית משפיעה כמו שרשרת דומינו על כל פרט ועסק במדינת ישראל.</p>
+                            
+                            <h4>השפעות הריבית כדוושת גז ובלם 🏎️</h4>
+                            <p><strong>הורדת הריבית</strong> – מאיצה את הביקושים והכלכלה (הוצאת כספים מהפיקדון, הלוואות זולות לרכישת רכבים ודירות).</p>
+                            <p><strong>העלאת הריבית</strong> – מרסנת ביקושים ואינפלציה (החיסכון הופך משתלם יותר, וההלוואות יקרות מדי לרכישות גדולות כמו רכב או דירה במסלולי פריים משתנים).</p>
+
+                            <div class="example-box">
+                                <h5>השפעה עסקית - IRR מול מחיר ההון (k):</h5>
+                                <p>עסקים מקבלים החלטות רציונליות לחלוטין. נניח שפרויקט הרחבת מסעדה מניב שיעור תשואה פנימי (IRR) של 14%, ומחיר ההון (k) העסקי המבוסס על הריבית המקורית הוא 12%. הפרויקט כדאי (IRR > k). אם בנק ישראל מעלה את הריבית ומחיר ההון העסקי קופץ ל-15%, הפרויקט נפסל מיד (IRR &lt; k) והעסק עוצר את ההתרחבות!</p>
+                            </div>
+                        </div>
+                        <div class="side-illustration">
+                            <img src="assets/inflation_monster.png" alt="אינפלציה">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab content 2 -->
+                <div class="tab-content" id="tab-fiscal">
+                    <div class="academy-layout">
+                        <div class="learn-text">
+                            <h3>מדיניות פיסקלית והגישה ה״אנטי-מחזורית״ 🔄</h3>
+                            <p>במפגשים הקודמים עסקנו בהרחבה בתקציב הממשלה, במיסים והוצאות הממשלה (מדיניות פיסקלית). למדנו על הגישה ה<strong>אנטי-מחזורית</strong>: הרעיון שבו הממשלה צריכה "לחסוך" בתקופות שגשוג ורווחה (לצמצם הוצאות ולהעלות מיסים קלות) כדי לייצר כרית ביטחון תקציבית, שתאפשר לה לעודד ולהניע את המשק באמצעות הרחבה תקציבית בתקופות שפל ומיתון.</p>
+                            <p>אך כפי שנראה מיד, הכלים הפיסקליים האלה לעיתים אינם מספיקים לטיפול בכלל האתגרים הכלכליים במשק, ובדיוק כאן נכנסים הכלים המוניטריים.</p>
+                            <div class="example-box">
+                                <h5>דוגמה מהמציאות:</h5>
+                                <p>בזמן מיתון, ממשלה הנוקטת מדיניות אנטי-מחזורית תשתמש ברזרבות שצברה כדי להשקיע במיזמי תשתית ענקיים (כבישים, רכבות) כדי להעסיק אלפי עובדים שפוטרו, במקום לקצץ בתקציבים ולעכב את ההבראה הכלכלית.</p>
+                            </div>
+                        </div>
+                        <div class="side-illustration">
+                            <img src="assets/awake_student.png" alt="סטודנט מוניטרי">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab content 3 -->
+                <div class="tab-content" id="tab-why">
+                    <div class="academy-layout">
+                        <div class="learn-text">
+                            <h3>למה מדיניות פיסקלית פשוט לא מספיקה לבדה?</h3>
+                            <p>למרות חשיבות המדיניות הפיסקלית האנטי-מחזורית, יש לה חסרונות בולטים ההופכים את המדיניות המוניטרית למשלימה הכרחית:</p>
+                            <ul>
+                                <li><strong>איטיות ביצוע קיצונית (Time Lag):</strong> שינויי מס ותקציבים דורשים חודשי דיונים בכנסת ובממשלה. הבנק המרכזי מגיב בתוך שעות ספורות.</li>
+                                <li><strong>לחצים פוליטיים:</strong> פוליטיקאים מתקשים מאוד להעלות מיסים או לקצץ הוצאות גם כשהמשק רותח, מתוך חשש לאובדן קולות בבחירות.</li>
+                                <li><strong>מגבלות חוב:</strong> הממשלה כבולה בגירעון וחוב לאומי, בעוד הבנק המרכזי פועל באופן עצמאי ומקצועי.</li>
+                            </ul>
+                            <div class="example-box" style="border-right-color: var(--danger); background: rgba(239, 68, 68, 0.05);">
+                                <h5>🚨 חוק איסור הדפסת כסף (חוק יציבות בנקאית):</h5>
+                                <p>חשוב לזכור! מאז תיקון חוק בנק ישראל ב-1985 (תכנית הייצוב הכלכלית), <strong>אסור לבנק ישראל להדפיס שקלים כדי לממן את גירעונות הממשלה!</strong> כל החלטה על הזרמת נזילות נעשית באמצעי שוק חופשי מבוקרי סיכון (עסקאות ריפו, קניית אג"ח בשוק המשני) ולא בהדפסת כסף גרידא לכיסוי חובות פוליטיים.</p>
+                            </div>
+                        </div>
+                        <div class="side-illustration">
+                            <img src="assets/inflation_monster.png" alt="מדיניות פיסקלית">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab content 4 -->
+                <div class="tab-content" id="tab-boi">
+                    <div class="academy-layout">
+                        <div class="learn-text">
+                            <h3>תפקיד בנק ישראל, מדרג המטרות ושער החליפין</h3>
+                            <p>מדרג המטרות קובע בבירור את סדר העדיפויות של בנק ישראל:</p>
+                            <ol>
+                                <li><strong>יעד ראשי: יציבות מחירים (יעד אינפלציה 1%-3%) First and Foremost.</strong></li>
+                                <li><strong>יעד משני א': תמיכה במטרות הממשלה - צמיחה ותעסוקה.</strong></li>
+                                <li><strong>יעד משני ב': שמירה על יציבות המערכת הפיננסית כולה.</strong></li>
+                            </ol>
+                            
+                            <h4>ערוץ שער החליפין והסחר הבינלאומי (מבוא ראשוני 🗺️)</h4>
+                            <p>כאשר הריבית בארץ עולה, משקיעים מכל העולם ממירים דולרים לשקלים כדי להשקיע בנכסים שקליים מניבים. היצע הדולרים עולה, ושער הדולר יורד (השקל מתחזק!).</p>
+                            <p><strong>השפעה על היצואנים 📉:</strong> היצואנים מקבלים דולרים בחו"ל אך משלמים שכר בשקלים. שקל חזק פוגע קשות ברווחיותם (פחות משתלם לייצא).</p>
+                            <p><strong>השפעה על היבואנים 📈:</strong> עלות רכישת מוצרים בדולרים יורדת, והייבוא הופך לזול ומשתלם יותר לצרכנים הישראלים.</p>
+                            <p><em>הערה: הדיון כאן הוא ראשוני בלבד. מודל מקיף של תנועות הון ושוק המט"ח יידון בפירוט במפגש הבא של ד"ר צבאן!</em></p>
+                        </div>
+                        <div class="side-illustration">
+                            <img src="assets/awake_student.png" alt="בנק ישראל">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Flowcharts -->
+                <div class="flowchart-wrapper">
+                    <h4>תרשים זרימה: ערוצי ההשפעה המוניטרית</h4>
+                    
+                    <div style="margin-bottom: 25px; text-align: center;">
+                        <button class="btn btn-secondary active" id="btn-flow-up">תרחיש א': העלאת ריבית (צינון אינפלציה) 📈</button>
+                        <button class="btn btn-secondary" id="btn-flow-down">תרחיש ב': הפחתת ריבית (עידוד צמיחה) 📉</button>
+                    </div>
+
+                    <div class="flowchart-nodes" id="flowchart-container">
+                        <!-- Filled dynamically by JS based on selected scenario -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: left;">
+                    <button class="btn" id="btn-stage1-next">המשך לסימולטור המעשי! 🎮</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 3: Stage 2 - Transmission Simulator -->
+        <section id="screen-stage2" class="screen">
+            <div class="glass-container stage-card">
+                <div class="stage-title">
+                    <span>שלב 2: סימולטור ערוצי התמסורת המוניטרית 🕹️</span>
+                    <span class="stage-step-badge">צעד 2 מתוך 4</span>
+                </div>
+
+                <p style="margin-bottom: 20px;">התנסו בניהול גובה הריבית של בנק ישראל! הזיזו את הסליידר כדי לקבוע את "מחיר הכסף" וראו כיצד המדדים הכלכליים מגיבים בזמן אמת. שימו לב ליעד האינפלציה הרצוי (1%-3%)!</p>
+
+                <div class="simulator-layout">
+                    <!-- Left: Slider Control -->
+                    <div class="glass-container slider-card">
+                        <h3>ריבית בנק ישראל</h3>
+                        <p class="subtitle">קבעו את גובה הריבית באחוזים:</p>
+                        <div class="slider-container">
+                            <div class="rate-value-display" id="sim-rate-display">4.0%</div>
+                            <input type="range" class="rate-slider" id="rate-range-slider" min="0" max="10" step="0.25" value="4.0">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>ריבית נמוכה (עידוד צמיחה) 📉</span>
+                            <span>ריבית גבוהה (ריסון אינפלציה) 📈</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Metrics -->
+                    <div class="glass-container metrics-card">
+                        <h3>מדדים כלכליים חיים</h3>
+                        
+                        <!-- Metric 1: Inflation -->
+                        <div class="metric-row">
+                            <div class="metric-info">
+                                <span>🎈 אינפלציה שנתית:</span>
+                                <span id="metric-inflation-val" style="font-weight: bold; color: var(--warning);">2.5%</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill" id="metric-inflation-bar" style="background-color: var(--success);"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 3px; color: var(--text-muted);">
+                                <span>דיפלציה 🥶</span>
+                                <span style="color: var(--success); font-weight: bold;">יעד יציבות (1%-3%) 🎯</span>
+                                <span>אינפלציה גבוהה 🔥</span>
+                            </div>
+                        </div>
+
+                        <!-- Metric 2: Growth -->
+                        <div class="metric-row">
+                            <div class="metric-info">
+                                <span>📈 צמיחה ותעסוקה (תוצר):</span>
+                                <span id="metric-growth-val" style="font-weight: bold; color: var(--success);">3.2%</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill" id="metric-growth-bar" style="background-color: var(--success);"></div>
+                            </div>
+                            <div class="metric-desc" id="metric-growth-desc">המשק צומח בקצב בריא, האבטלה נמוכה.</div>
+                        </div>
+
+                        <!-- Metric 3: Exchange Rate -->
+                        <div class="metric-row">
+                            <div class="metric-info">
+                                <span>🇺🇸 שער הדולר (USD/ILS):</span>
+                                <span id="metric-forex-val" style="font-weight: bold; color: var(--info);">3.65 ₪</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill" id="metric-forex-bar" style="background-color: var(--info);"></div>
+                            </div>
+                            <div class="metric-desc" id="metric-forex-desc">השקל יציב מול המטבעות הזרים.</div>
+                        </div>
+                    </div>
+
+                    <!-- Event Zone (Populates via JS based on steps) -->
+                    <div class="sim-events-container" id="sim-event-zone">
+                        <div class="sim-event-card">
+                            <div class="event-details">
+                                <h4>אירוע משקי: יציבות יחסית</h4>
+                                <p id="event-text">המשק נמצא באיזון. הריבית הנוכחית מתאימה. נסו לשנות את הריבית כדי לראות את ההשפעות, או לחצו על הכפתור כדי להתחיל את האתגר הכלכלי הגדול!</p>
+                            </div>
+                            <button class="btn" id="btn-trigger-challenges">התחל אתגר אירועים! 💥</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: left; display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary" id="btn-stage2-prev">חזור לשלב 1</button>
+                    <button class="btn" id="btn-stage2-next" disabled style="opacity: 0.5; cursor: not-allowed;">השלימו את האתגרים כדי להמשיך 🔒</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 4: Stage 3 - Monetary Committee -->
+        <section id="screen-stage3" class="screen">
+            <div class="glass-container stage-card">
+                <div class="stage-title">
+                    <span>שלב 3: חדר הדיונים של הוועדה המוניטרית 👔</span>
+                    <span class="stage-step-badge">צעד 3 מתוך 4</span>
+                </div>
+
+                <div class="committee-wrapper">
+                    <p style="margin-bottom: 25px; font-size: 1.1rem; text-align: center;">הגעתם לרגע ההכרעה. הוועדה המוניטרית המונה 6 חברים צריכה להחליט על גובה הריבית. ישנו <strong>תיקו מותח של 3 מול 3</strong>! מתוקף תפקידכם כנגיד בנק ישראל (בעל קול כפול במצב של תיקו), אתם חייבים להכריע את הדיון הכלכלי הגורלי.</p>
+                    
+                    <div class="committee-table-view">
+                        <!-- Committee member 1 -->
+                        <div class="committee-member" id="member-1">
+                            <span class="member-avatar">👨‍💼</span>
+                            <div class="member-name">פרופ' אהרון</div>
+                            <div class="member-role">נציג האקדמיה (נציג חיצוני)</div>
+                            <div class="member-speech" id="speech-member-1">האינפלציה הגיעה ל-4.5%! חייבים להעלות את הריבית מיד כדי להציל את ערך החסכונות של הציבור!</div>
+                        </div>
+
+                        <!-- Committee member 2 -->
+                        <div class="committee-member" id="member-2">
+                            <span class="member-avatar">👩‍💼</span>
+                            <div class="member-name">ד"ר מיכל</div>
+                            <div class="member-role">מחלקת המחקר (בנק ישראל)</div>
+                            <div class="member-speech" id="speech-member-2">הדולר צונח מול השקל ופוגע אנושות ביצואני ההייטק שלנו. העלאת ריבית נוספת תחזק את השקל עוד יותר ותמוטט את ההייטק!</div>
+                        </div>
+
+                        <!-- Committee member 3 -->
+                        <div class="committee-member" id="member-3">
+                            <span class="member-avatar">👴</span>
+                            <div class="member-name">פרופ' גדעון</div>
+                            <div class="member-role">נציג חיצוני</div>
+                            <div class="member-speech" id="speech-member-3">שוק הדיור רותח. המשכנתאות המשתנות מתייקרות ומשפחות צעירות קורסות תחת נטל התשלומים. אסור להעלות ריבית.</div>
+                        </div>
+                    </div>
+
+                    <div class="committee-vote-panel">
+                        <h3>קולות הועדה המוניטרית</h3>
+                        <div class="vote-tally">
+                            <div class="tally-box tally-up">
+                                <div>להעלות ריבית 📈</div>
+                                <div style="font-size: 2rem; font-weight: bold;">3 קולות</div>
+                            </div>
+                            <div class="tally-box tally-down">
+                                <div>להפחית ריבית 📉</div>
+                                <div style="font-size: 2rem; font-weight: bold;">3 קולות</div>
+                            </div>
+                        </div>
+
+                        <h4 style="margin-bottom: 20px; color: var(--gold);" id="tiebreaker-alert">🚨 כבוד הנגיד/ה, קולכם הוא שובר השוויון! מהי החלטתכם?</h4>
+
+                        <div style="display: flex; justify-content: center; gap: 20px;">
+                            <button class="btn" id="btn-vote-up" style="background: linear-gradient(135deg, var(--danger), #b91c1c); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);">
+                                להעלות ריבית (צינון האינפלציה) 📈
+                            </button>
+                            <button class="btn" id="btn-vote-down" style="background: linear-gradient(135deg, var(--success), #047857); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                                להפחית ריבית (הקלה על משכנתאות ויצואנים) 📉
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feedback for decision -->
+                    <div class="feedback-card" id="committee-feedback" style="margin-top: 30px; text-align: center;">
+                        <h4 id="committee-feedback-title" style="margin-bottom: 10px; font-family: var(--font-heading);"></h4>
+                        <p id="committee-feedback-text"></p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: left; display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary" id="btn-stage3-prev">חזור לשלב 2</button>
+                    <button class="btn" id="btn-stage3-next" disabled style="opacity: 0.5; cursor: not-allowed;">קבלו החלטה כדי להמשיך 🔒</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 5: Stage 4 - Unconventional Tools -->
+        <section id="screen-stage4" class="screen">
+            <div class="glass-container stage-card">
+                <div class="stage-title">
+                    <span>שלב 4: ארגז הכלים לשעת חירום (כלים לא קונבנציונליים) 🛠️</span>
+                    <span class="stage-step-badge">צעד 4 מתוך 4</span>
+                </div>
+
+                <p style="margin-bottom: 30px; font-size: 1.1rem;">לפעמים, המשק נקלע למצבים כה קיצוניים שבהם שינוי הריבית הרגיל פשוט אינו מספיק או אינו יעיל יותר. במקרים אלו, בנק ישראל משתמש ב<strong>כלים לא קונבנציונליים</strong>. בחרו כלי כדי להפעיל אותו ולפתור את משבר הכלכלה הבא:</p>
+
+                <div class="tools-grid">
+                    <!-- Tool 1: Forex intervention -->
+                    <div class="glass-container tool-card glow-card" id="tool-forex" data-tool="forex">
+                        <span class="tool-icon">💵</span>
+                        <h4>התערבות בשוק המט"ח (רכישת דולרים)</h4>
+                        <p>כאשר השקל חזק מדי ומאיים לחנוק את יצואני ההייטק והתעשייה המקומית, הבנק מדפיס שקלים ורוכש בעזרתם מיליארדי דולרים בשוק הפתוח כדי להחליש את השקל באופן מלאכותי.</p>
+                        <button class="btn btn-secondary" style="margin-top: 15px; width: 100%;">הפעל התערבות בשוק המט"ח 💸</button>
+                    </div>
+
+                    <!-- Tool 2: QE -->
+                    <div class="glass-container tool-card glow-card" id="tool-qe" data-tool="qe">
+                        <span class="tool-icon">🖨️</span>
+                        <h4>הרחבה כמותית - Quantitative Easing (QE)</h4>
+                        <p>במצבי מיתון חריף (כמו במשבר הקורונה או 2008), כשהריבית כבר קרובה לאפס, הבנק יוצר כסף חדש ורוכש אג"ח ממשלתי וקונצרני מהבנקים כדי להזרים מיליארדי שקלים של נזילות ישירות לשוק האשראי.</p>
+                        <button class="btn btn-secondary" style="margin-top: 15px; width: 100%;">הפעל הרחבה כמותית (הדפסת כסף) ⚡</button>
+                    </div>
+                </div>
+
+                <!-- Simulation visual output -->
+                <div class="feedback-card" id="tool-activation-feedback" style="margin-top: 30px; text-align: center;">
+                    <h4 style="color: var(--success); font-family: var(--font-heading); margin-bottom: 10px;">🚀 הכלי הופעל בהצלחה!</h4>
+                    <p id="tool-activation-text"></p>
+                </div>
+
+                <div style="margin-top: 30px; text-align: left; display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary" id="btn-stage4-prev">חזור לשלב 3</button>
+                    <button class="btn" id="btn-stage4-next" disabled style="opacity: 0.5; cursor: not-allowed;">הפעילו לפחות כלי אחד כדי להמשיך 🔒</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 5.5: Pacman Monetary Game -->
+        <section id="screen-pacman" class="screen pacman-screen-container">
+            <div class="glass-container pacman-card">
+                <div class="stage-title">
+                    <span>שלב מיוחד: פקמן המוניטרי של בנק ישראל! 🕹️👾</span>
+                    <span class="stage-step-badge">שלב חצי-סופי</span>
+                </div>
+                <p>האינפלציה המפלצתית רודפת אחריכם! בתור "הנגיד/ה", אתם שולטים בפקמן הוורוד/צהוב המוניטרי. אספו את נקודות הצמיחה הכלכלית 🪙 ברחבי הלוח מבלי שהרוח של <strong>האינפלציה 👻</strong> תתפוס אתכם! </p>
+                <p style="color: var(--warning); margin-top: 5px; font-weight: bold;">💡 אם תאספו "גלולת העלאת ריבית" (עיגול גדול וזוהר), תוכלו לבלום ולאכול את רוח האינפלציה! יש לכם 10 פסילות!</p>
+                
+                <div class="pacman-board-wrapper">
+                    <canvas id="pacman-canvas" width="600" height="360"></canvas>
+                    <div id="pacman-start-overlay" class="pacman-overlay-msg">לחצו כאן כדי להתחיל את המשחק! 🕹️</div>
+                </div>
+
+                <div class="pacman-stats">
+                    <div>🥇 נקודות בפקמן: <span id="pacman-score-val" style="color: var(--gold); font-weight: bold;">0</span></div>
+                    <div>💖 פסילות שנותרו: <span id="pacman-lives-val" style="color: var(--danger); font-weight: bold;">10</span> / 10</div>
+                </div>
+
+                <div class="pacman-controls-hint">
+                    שליטה: השתמשו במקלדת ב<strong>חצי המקלדת (למעלה, למטה, שמאלה, ימינה)</strong> או בכפתורים מטה לנייד:
+                    <div style="margin-top: 10px; display: flex; justify-content: center; gap: 10px;">
+                        <button class="btn btn-secondary" id="pac-btn-up">⬆️</button>
+                        <button class="btn btn-secondary" id="pac-btn-down">⬇️</button>
+                        <button class="btn btn-secondary" id="pac-btn-left">⬅️</button>
+                        <button class="btn btn-secondary" id="pac-btn-right">➡️</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: left; display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary" id="btn-pacman-prev">חזור לשלב 4</button>
+                    <button class="btn" id="btn-pacman-next" disabled style="opacity: 0.5; cursor: not-allowed;">השיגו לפחות 150 נקודות פקמן כדי להמשיך לחידון 🔒</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 6: The Grand Quiz -->
+        <section id="screen-quiz" class="screen">
+            <div class="quiz-container">
+                <div class="glass-container stage-card">
+                    <div class="quiz-header">
+                        <div style="text-align: right;">
+                            <span id="quiz-level-badge" style="background: var(--warning); padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">רמת קושי: סטודנט מתחיל 🎓</span>
+                            <h3 style="font-family: var(--font-heading); margin-top: 5px;" id="quiz-q-num">שאלה 1 מתוך 15</h3>
+                        </div>
+                        <div class="progress-dots" id="quiz-progress-dots">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="quiz-question-card">
+                        <div class="question-text" id="question-title">
+                            כאשר בנק ישראל מחליט להעלות את הריבית, מה תהיה ההשפעה המיידית על משפחה עם משכנתא במסלול ריבית פריים משתנה?
+                        </div>
+                        <div class="options-list" id="question-options">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <button class="btn btn-secondary" id="btn-quiz-hint">💡 קבל רמז מצוות המרצים</button>
+                        <button class="btn" id="btn-quiz-next" style="display: none;">השאלה הבאה ➔</button>
+                    </div>
+
+                    <!-- Hint Box -->
+                    <div class="hint-box" id="quiz-hint-box">
+                        רמז: שימו לב איזה מסלול ייפגע ישירות מעליית הריבית הבסיסית של בנק ישראל...
+                    </div>
+
+                    <!-- Explanation Card -->
+                    <div class="feedback-card" id="quiz-feedback-card">
+                        <h4 id="quiz-feedback-title" style="margin-bottom: 8px;"></h4>
+                        <p id="quiz-feedback-explanation"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 7: Certificate & Graduation -->
+        <section id="screen-cert" class="screen certificate-screen">
+            <div class="certificate-frame" id="printable-certificate">
+                <div class="cert-logo">🎓🏆📜</div>
+                <h2>תעודת ערנות והצטיינות מוניטרית</h2>
+                <div class="cert-sub">בנק ישראל & המחלקה למאקרו כלכלה</div>
+                <div class="cert-proudly">תעודה זו מוענקת בגאווה רבה ל:</div>
+                <div class="cert-name" id="cert-holder-name">ישראל ישראלי</div>
+                <div class="cert-reason">
+                    על כך שהפגין/ה עירנות מרשימה, נלחם/ה בגבורה באינפלציה המשתוללת, 
+                    <strong>ולא נרדם/ה אפילו לשנייה אחת בשיעור המאקרו המאתגר של ד״ר צבאן!</strong>
+                    הדגיש/ה הבנה מעמיקה בערוצי התמסורת הכלכליים, החלטות הריבית וסייע/ה בהצלת המשק קליל.
+                </div>
+                
+                <div class="cert-signatures">
+                    <div class="signature">
+                        <div class="signature-name">ד״ר צבאן</div>
+                        <div class="signature-line"></div>
+                        <div class="signature-title">מרצה בכיר למאקרו כלכלה</div>
+                    </div>
+                    <div class="signature">
+                        <div class="signature-name" id="cert-avatar-signature">האביר המוניטרי המלווה</div>
+                        <div class="signature-line"></div>
+                        <div class="signature-title">המלווה הרשמי שלך במשחק</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px;">
+                <button class="btn" id="btn-print-certificate">
+                    <span>הדפיסו או שמרו את התעודה 🖨️</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-restart-game">
+                    <span>שחקו שוב 🔄</span>
+                </button>
+            </div>
+            <div style="margin-top: 20px;">
+                <img src="assets/awake_student.png" alt="הסטודנט המצטיין" style="max-width: 250px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 האביר המוניטרי של בנק ישראל. פותח עבור הקורס למאקרו כלכלה של ד"ר צבאן. כל הזכויות שמורות לשעשועי מאקרו.</p>
+    </footer>
+
+    <!-- Game Engine & Script -->
+    <script src="script.js"></script>
+</body>
+</html>
