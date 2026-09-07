@@ -10,7 +10,7 @@
   :root{
     --navy:#003e6f; --navy-deep:#041a33; --navy-ink:#02101f; --blue:#0E1F81;
     --sky:#4fb3e8; --sky-soft:#9ad4f5; --gold:#c9a24a; --gold-soft:#e6c77a; --mint:#2FF7BF;
-    --text:#f2f6fb; --muted:#b7c6d8; --card:rgba(255,255,255,0.05); --card-border:rgba(255,255,255,0.12);
+    --text:#f2f6fb; --muted:#c3d0df; --card:rgba(255,255,255,0.06); --card-border:rgba(255,255,255,0.14);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:var(--navy-ink);color:var(--text);font-family:'Heebo',Arial,sans-serif;overflow:hidden}
@@ -19,103 +19,95 @@
     radial-gradient(900px 600px at 5% 110%, rgba(0,62,111,0.65), transparent 60%),
     linear-gradient(180deg,#041a33 0%,#02101f 100%)}
 
+  /* fixed 1600x900 stage, scaled to fit any projector */
+  #stage{position:absolute;width:1600px;height:900px;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);transform-origin:center center}
+
   /* chrome */
-  .brand{position:fixed;top:22px;left:32px;display:flex;align-items:center;gap:14px;z-index:20}
-  .brand img{height:52px;width:auto;display:block}
-  .lecturer{position:fixed;top:26px;right:36px;z-index:20;font-size:15px;color:var(--muted);letter-spacing:.2px}
+  .brand{position:absolute;top:24px;left:40px;z-index:20}
+  .brand img{height:64px;width:auto;display:block}
+  .lecturer{position:absolute;top:34px;right:44px;z-index:20;font-size:22px;color:var(--muted)}
   .lecturer b{color:var(--gold-soft);font-weight:500}
-  .progress{position:fixed;top:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--sky));z-index:30;transition:width .6s ease}
-  .counter{position:fixed;bottom:22px;left:36px;font-size:14px;color:var(--muted);z-index:20;direction:ltr}
-  .nav{position:fixed;bottom:16px;right:32px;display:flex;gap:8px;z-index:20}
-  .nav button{background:var(--card);border:1px solid var(--card-border);color:var(--text);width:44px;height:44px;border-radius:12px;font-size:20px;cursor:pointer;transition:background .4s ease,transform .4s ease}
+  .progress{position:absolute;top:0;right:0;height:5px;background:linear-gradient(90deg,var(--gold),var(--sky));z-index:30;transition:width .6s ease}
+  .counter{position:absolute;bottom:26px;left:44px;font-size:20px;color:var(--muted);z-index:20;direction:ltr}
+  .nav{position:absolute;bottom:18px;right:40px;display:flex;gap:10px;z-index:20}
+  .nav button{background:var(--card);border:1px solid var(--card-border);color:var(--text);width:52px;height:52px;border-radius:14px;font-size:24px;cursor:pointer;transition:background .4s ease,transform .4s ease}
   .nav button:hover{background:rgba(255,255,255,0.12);transform:translateY(-2px)}
-  .hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);font-size:13px;color:rgba(183,198,216,0.6);z-index:20}
+  .hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:18px;color:rgba(195,208,223,0.55);z-index:20}
 
   /* slides */
-  .slide{position:absolute;inset:0;padding:110px 90px 90px;opacity:0;pointer-events:none;transition:opacity .7s ease,transform .7s ease;transform:translateY(10px);display:flex;flex-direction:column;justify-content:center}
+  .slide{position:absolute;inset:0;padding:112px 90px 80px;opacity:0;pointer-events:none;transition:opacity .7s ease,transform .7s ease;transform:translateY(10px);display:flex;flex-direction:column;justify-content:center}
   .slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
-  .slide .inner{max-width:1500px;width:100%;margin:0 auto}
-  .kicker{display:inline-block;font-size:15px;letter-spacing:1.5px;color:var(--gold-soft);border:1px solid rgba(201,162,74,0.45);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:500}
-  h1{font-size:clamp(44px,5.6vw,84px);font-weight:900;line-height:1.08;letter-spacing:-.5px}
-  h2{font-size:clamp(34px,4vw,58px);font-weight:800;line-height:1.12;margin-bottom:18px}
+  .slide .inner{width:100%}
+  .kicker{display:inline-block;font-size:22px;letter-spacing:1px;color:var(--gold-soft);border:1px solid rgba(201,162,74,0.5);padding:6px 18px;border-radius:999px;margin-bottom:20px;font-weight:500}
+  h1{font-size:96px;font-weight:900;line-height:1.08}
+  h2{font-size:62px;font-weight:800;line-height:1.12;margin-bottom:16px}
   h2 .em{color:var(--sky-soft)}
-  .lead{font-size:clamp(19px,1.6vw,26px);color:var(--muted);font-weight:300;line-height:1.55;max-width:1100px}
-  .sub{font-size:clamp(20px,2vw,30px);color:var(--muted);font-weight:300;margin-top:18px}
-  .meta{margin-top:44px;font-size:19px;color:var(--gold-soft);font-weight:400}
+  .lead{font-size:31px;color:var(--muted);font-weight:300;line-height:1.45;max-width:1300px}
+  .sub{font-size:40px;color:var(--muted);font-weight:300;margin-top:18px;line-height:1.3}
+  .meta{margin-top:44px;font-size:30px;color:var(--gold-soft);font-weight:400}
   .meta span{color:var(--muted)}
 
   /* generic blocks */
-  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:38px}
-  .block{background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:28px 26px;position:relative;overflow:hidden;transition:transform .5s ease,border-color .5s ease}
-  .block:hover{transform:translateY(-3px);border-color:rgba(201,162,74,0.55)}
-  .block .ic{font-size:38px;margin-bottom:14px;display:block}
-  .block h3{font-size:24px;font-weight:700;margin-bottom:10px}
-  .block p{font-size:17px;color:var(--muted);line-height:1.55;font-weight:300}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:30px}
+  .block{background:var(--card);border:1px solid var(--card-border);border-radius:22px;padding:28px 28px;position:relative;overflow:hidden}
+  .block .ic{font-size:46px;margin-bottom:10px;display:block;line-height:1.1}
+  .block h3{font-size:33px;font-weight:700;margin-bottom:8px;line-height:1.2}
+  .block p{font-size:25px;color:var(--muted);line-height:1.45;font-weight:300}
   .block.gold{border-color:rgba(201,162,74,0.5);background:linear-gradient(160deg,rgba(201,162,74,0.10),rgba(255,255,255,0.03))}
   .block.sky{border-color:rgba(79,179,232,0.5);background:linear-gradient(160deg,rgba(79,179,232,0.10),rgba(255,255,255,0.03))}
   .block.mint{border-color:rgba(47,247,191,0.4);background:linear-gradient(160deg,rgba(47,247,191,0.08),rgba(255,255,255,0.03))}
-  .tag{position:absolute;top:18px;left:18px;font-size:13px;color:var(--gold-soft);background:rgba(201,162,74,0.12);border:1px solid rgba(201,162,74,0.35);padding:3px 10px;border-radius:999px;direction:ltr}
+  .tag{position:absolute;top:20px;left:20px;font-size:22px;color:var(--gold-soft);background:rgba(201,162,74,0.12);border:1px solid rgba(201,162,74,0.35);padding:2px 14px;border-radius:999px;direction:ltr;font-weight:700}
 
-  .flow{display:flex;align-items:stretch;gap:0;margin-top:40px}
-  .flow .step{flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:24px 22px;position:relative}
-  .flow .arrow{display:flex;align-items:center;padding:0 12px;font-size:34px;color:var(--gold)}
-  .flow .step .n{position:absolute;top:-14px;right:20px;background:var(--gold);color:var(--navy-ink);font-weight:800;font-size:14px;padding:3px 12px;border-radius:999px}
-  .flow .step h3{font-size:22px;font-weight:700;margin:8px 0 8px}
-  .flow .step p{font-size:16px;color:var(--muted);line-height:1.5;font-weight:300}
+  .flow{display:flex;align-items:stretch;margin-top:34px}
+  .flow .step{flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:26px 22px 20px;position:relative}
+  .flow .arrow{display:flex;align-items:center;padding:0 10px;font-size:40px;color:var(--gold)}
+  .flow .step .n{position:absolute;top:-16px;right:22px;background:var(--gold);color:var(--navy-ink);font-weight:800;font-size:20px;padding:2px 14px;border-radius:999px}
+  .flow .step h3{font-size:30px;font-weight:700;margin:6px 0 6px}
+  .flow .step p{font-size:23px;color:var(--muted);line-height:1.4;font-weight:300}
 
-  .bullets{list-style:none;margin-top:30px;display:grid;gap:16px}
-  .bullets li{display:flex;gap:16px;align-items:flex-start;font-size:clamp(18px,1.45vw,23px);line-height:1.5;font-weight:300}
-  .bullets li::before{content:"";flex:none;width:12px;height:12px;border-radius:50%;background:var(--gold);margin-top:14px;box-shadow:0 0 0 5px rgba(201,162,74,0.18)}
+  .bullets{list-style:none;margin-top:26px;display:grid;gap:12px}
+  .bullets li{display:flex;gap:18px;align-items:flex-start;font-size:29px;line-height:1.4;font-weight:300}
+  .bullets li::before{content:"";flex:none;width:14px;height:14px;border-radius:50%;background:var(--gold);margin-top:14px;box-shadow:0 0 0 6px rgba(201,162,74,0.18)}
   .bullets li b{font-weight:600;color:var(--text)}
 
   /* game cards */
-  .type-head{display:flex;align-items:center;gap:18px;margin-bottom:22px}
-  .type-head .badge{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:30px;font-weight:900;color:var(--navy-ink);flex:none}
+  .type-head{display:flex;align-items:center;gap:22px;margin-bottom:24px}
+  .type-head .badge{width:84px;height:84px;border-radius:22px;display:grid;place-items:center;font-size:42px;font-weight:900;color:var(--navy-ink);flex:none}
   .type-head .badge.a{background:linear-gradient(135deg,var(--gold-soft),var(--gold))}
   .type-head .badge.b{background:linear-gradient(135deg,var(--sky-soft),var(--sky))}
   .type-head .badge.c{background:linear-gradient(135deg,#9ffbe0,var(--mint))}
-  .type-head h2{margin:0}
-  .type-head p{color:var(--muted);font-size:18px;font-weight:300;margin-top:4px}
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}
+  .type-head h2{margin:0;font-size:54px}
+  .type-head p{color:var(--muted);font-size:26px;font-weight:300;margin-top:4px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
   .grid.three{grid-template-columns:repeat(3,1fr)}
-  .game{background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:8px;min-height:190px;transition:transform .5s ease,border-color .5s ease,background .5s ease}
-  .game:hover{transform:translateY(-4px);border-color:rgba(201,162,74,0.6);background:rgba(255,255,255,0.075)}
-  .game .course{font-size:12.5px;color:var(--sky-soft);font-weight:500;letter-spacing:.3px}
-  .game h3{font-size:19px;font-weight:700;line-height:1.25}
-  .game p{font-size:14.5px;color:var(--muted);line-height:1.5;font-weight:300;flex:1}
-  .game .foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-  .game a{color:var(--navy-ink);background:var(--gold-soft);text-decoration:none;font-weight:700;font-size:14px;padding:8px 14px;border-radius:10px;transition:background .4s ease}
+  .game{background:var(--card);border:1px solid var(--card-border);border-radius:22px;padding:24px 24px 22px;display:flex;flex-direction:column;gap:10px}
+  .game .course{font-size:20px;color:var(--sky-soft);font-weight:500}
+  .game h3{font-size:31px;font-weight:700;line-height:1.2}
+  .game p{font-size:24px;color:var(--muted);line-height:1.42;font-weight:300;flex:1}
+  .game .foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:10px}
+  .game a{color:var(--navy-ink);background:var(--gold-soft);text-decoration:none;font-weight:700;font-size:23px;padding:12px 20px;border-radius:12px;transition:background .4s ease;white-space:nowrap}
   .game a:hover{background:#fff}
-  .cert{font-size:12px;color:var(--gold-soft);border:1px solid rgba(201,162,74,0.4);padding:3px 9px;border-radius:999px}
+  .cert{font-size:19px;color:var(--gold-soft);border:1px solid rgba(201,162,74,0.4);padding:4px 12px;border-radius:999px;white-space:nowrap}
+  .note-card{justify-content:center;align-items:center;text-align:center;border-style:dashed}
+  .note-card p{flex:0;font-size:26px;color:var(--text)}
 
-  /* index table */
-  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:15.5px}
-  th{text-align:right;color:var(--gold-soft);font-weight:600;padding:10px 12px;border-bottom:1px solid rgba(201,162,74,0.35)}
-  td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.07);color:var(--muted);font-weight:300}
+  /* index tables */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin-top:16px}
+  table{width:100%;border-collapse:collapse;font-size:23px}
+  th{text-align:right;color:var(--gold-soft);font-weight:600;padding:8px 12px;border-bottom:1px solid rgba(201,162,74,0.35)}
+  td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.08);color:var(--muted);font-weight:300;vertical-align:middle}
   td:first-child{color:var(--text);font-weight:500}
-  td a{color:var(--sky-soft);text-decoration:none;font-weight:500}
-  td a:hover{color:#fff;text-decoration:underline}
-  .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;font-weight:600;color:var(--navy-ink)}
+  td a{color:var(--navy-ink);background:var(--gold-soft);text-decoration:none;font-weight:700;padding:4px 14px;border-radius:9px;white-space:nowrap;font-size:20px}
+  td a:hover{background:#fff}
+  .pill{display:inline-block;font-size:19px;padding:1px 12px;border-radius:999px;font-weight:700;color:var(--navy-ink)}
   .pill.a{background:var(--gold-soft)} .pill.b{background:var(--sky-soft)} .pill.c{background:var(--mint)}
+  .footer-note{margin-top:22px;font-size:24px;color:rgba(195,208,223,0.8);font-weight:300}
 
-  .footer-note{margin-top:26px;font-size:15px;color:rgba(183,198,216,0.7);font-weight:300}
-  .big-num{font-size:clamp(60px,7vw,110px);font-weight:900;color:var(--gold-soft);line-height:1}
-  .stat-row{display:flex;gap:40px;margin-top:34px}
-  .stat{flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:26px}
-  .stat .big-num{font-size:clamp(46px,5vw,72px)}
-  .stat p{color:var(--muted);font-size:17px;margin-top:8px;font-weight:300}
-
-  @media (max-width:1100px){
-    .slide{padding:96px 40px 80px;overflow-y:auto;justify-content:flex-start}
-    .grid,.grid.three,.cols{grid-template-columns:repeat(2,1fr)}
-    .flow{flex-direction:column} .flow .arrow{transform:rotate(90deg);justify-content:center}
-    .brand img{height:40px}
-  }
-  @media (max-width:700px){ .grid,.grid.three,.cols{grid-template-columns:1fr} .stat-row{flex-direction:column} }
-  @media print{ .slide{position:static;opacity:1;transform:none;page-break-after:always;height:100vh} .nav,.hint,.counter,.progress{display:none} }
+  @media print{ #stage{position:static;transform:none;width:auto;height:auto} .slide{position:static;opacity:1;transform:none;page-break-after:always;height:100vh} .nav,.hint,.counter,.progress{display:none} }
 </style>
 </head>
 <body>
+<div id="stage">
 
 <div class="progress" id="progress"></div>
 <div class="brand"><img src="assets/peres-logo.png" alt="המרכז האקדמי פרס"></div>
@@ -126,7 +118,7 @@
   <div class="inner">
     <span class="kicker">מפגש סגל · חדשנות בהוראה</span>
     <h1>למידה דרך משחק</h1>
-    <p class="sub">משחקים לימודיים שנבנו בעזרת בינה מלאכותית בקורסים שלי, מה למדנו, ולאן זה הולך</p>
+    <p class="sub">משחקים לימודיים שנבנו בעזרת בינה מלאכותית: דוגמאות מקורסים שונים, מה למדנו, ולאן זה הולך</p>
     <p class="meta">ד״ר שי צבאן <span>· מרצה בכיר, המרכז האקדמי פרס · ספטמבר 2026</span></p>
   </div>
 </section>
@@ -161,8 +153,8 @@
       <div class="step"><span class="n">4</span><h3>התאמה</h3><p>שינוי שאלות, רמות, או דמויות תוך דקות. כל קורס וכל מפגש מקבלים גרסה משלהם.</p></div>
     </div>
     <ul class="bullets" style="margin-top:34px">
-      <li><b>התאמה אישית לקורס:</b> המשחק מדבר בשפת הקורס, עם הדוגמאות והבדיחות של המרצה.</li>
-      <li><b>עלות שולית נמוכה:</b> משחק שלם בשעות, לא בשבועות. אפשר לבנות אחד לכל מפגש.</li>
+      <li><b>התאמה אישית:</b> המשחק מדבר בשפת הקורס, עם הדוגמאות והבדיחות של המרצה.</li>
+      <li><b>עלות שולית נמוכה:</b> משחק שלם בשעות, לא בשבועות. אחד לכל מפגש.</li>
     </ul>
   </div>
 </section>
@@ -181,19 +173,29 @@
   </div>
 </section>
 
-<!-- 5 · סוג א -->
+<!-- 5 · סוג א (1/2) -->
 <section class="slide">
   <div class="inner">
     <div class="type-head"><div class="badge a">א</div><div><h2>משחקי תוכן עם המחשה ויזואלית</h2><p>המטרה: להפוך מושג מופשט למשהו שרואים ומזיזים</p></div></div>
     <div class="grid">
       <div class="game"><span class="course">בינה עסקית · מבוא למערכות מידע</span><h3>Tableau Join Banana Lab 🍌</h3><p>15 אתגרי JOIN בין טבלאות. Inner, Left, Right ו-Full Join מומחשים עם בננות, ותעודה בסיום.</p><div class="foot"><a href="games/tableau-join-banana-lab/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
-      <div class="game"><span class="course">בינה עסקית</span><h3>שומרי הנתונים</h3><p>מהגדרת טבלאות ל-Tableau: מפתחות, סכמות, ניקוי נתונים, ועד דשבורד שלם. משחק לימודי מורחב.</p><div class="foot"><a href="games/data-guardians-tableau/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
+      <div class="game"><span class="course">בינה עסקית</span><h3>שומרי הנתונים</h3><p>מהגדרת טבלאות ל-Tableau: מפתחות, סכמות, ניקוי נתונים, ועד דשבורד שלם.</p><div class="foot"><a href="games/data-guardians-tableau/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
       <div class="game"><span class="course">מימון</span><h3>מודל CAPM, שיעור אינטראקטיבי</h3><p>בסגנון Brilliant: גרפים חיים שמגיבים לכל שינוי, צעד אחר צעד, עם חגיגה בסיום.</p><div class="foot"><a href="games/capm-interactive/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
       <div class="game"><span class="course">נגזרים פיננסיים</span><h3>OptionsAcademy</h3><p>סימולטור מסחר באופציות ידידותי למתחילים, עם מאמן וירטואלי שמלווה את ההחלטות.</p><div class="foot"><a href="games/options-academy/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
+    </div>
+    <p class="footer-note">המשותף: המושג לא מוסבר במילים. הוא נראה ומוזז על המסך.</p>
+  </div>
+</section>
+
+<!-- 6 · סוג א (2/2) -->
+<section class="slide">
+  <div class="inner">
+    <div class="type-head"><div class="badge a">א</div><div><h2>משחקי תוכן עם המחשה ויזואלית (המשך)</h2><p>מאקרו כלכלה וחשבונאות פיננסית</p></div></div>
+    <div class="grid">
       <div class="game"><span class="course">מאקרו כלכלה</span><h3>האביר המוניטרי של בנק ישראל</h3><p>מדיניות מוניטרית כמסע של אביר: ריבית, אינפלציה והחלטות הבנק המרכזי.</p><div class="foot"><a href="games/boi-monetary-knight/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
       <div class="game"><span class="course">מאקרו כלכלה · שיעור 10</span><h3>מסיבת המט״ח של שי ואילנית</h3><p>שער חליפין, ייסוף ופיחות דרך מסיבה כלכלית עם דמויות מהקורס.</p><div class="foot"><a href="games/forex-party/index.html" target="_blank" rel="noopener">פתח משחק ↗</a></div></div>
       <div class="game"><span class="course">חשבונאות פיננסית</span><h3>אקדמיית צבאן: IAS 8 ו-IAS 10</h3><p>מודולי למידה לרואי חשבון: מדיניות חשבונאית, תיקון טעויות ואירועים לאחר תאריך הדיווח.</p><div class="foot"><a href="games/ias-academy/index.html" target="_blank" rel="noopener">פתח משחק ↗</a><span class="cert">🎓 תעודה</span></div></div>
-      <div class="game" style="justify-content:center;align-items:center;text-align:center;border-style:dashed"><p style="flex:0">המשותף: כל משחק מומחש. המושג לא מוסבר במילים, הוא נראה ומוזז על המסך.</p></div>
+      <div class="game note-card"><p>כל משחק נבנה מחומר המפגש עצמו, בשפת הקורס, עם הדמויות והבדיחות של הכיתה.</p></div>
     </div>
   </div>
 </section>
@@ -210,7 +212,7 @@
     <ul class="bullets" style="margin-top:28px">
       <li><b>איך זה עובד כמטלה:</b> הסטודנט מסיים, מקליד את שמו, מקבל תעודה, ומעלה צילום מסך ל-Moodle.</li>
       <li><b>למה זה עובד:</b> יעד ברור וקצר, משוב מיידי על כל תשובה, ותוצר שאפשר להראות.</li>
-      <li><b>גם משחקי התוכן</b> מסוג א׳ (Banana Lab, שומרי הנתונים, האביר המוניטרי, IAS) מסתיימים בתעודה ויכולים לשמש כך.</li>
+      <li><b>גם משחקי התוכן</b> שמסתיימים בתעודה (Banana Lab, שומרי הנתונים, IAS) יכולים לשמש כך.</li>
     </ul>
   </div>
 </section>
@@ -242,7 +244,7 @@
       <div class="block"><span class="ic">🧊</span><h3>העבודה סטטית</h3><p>מאגר שאלות קבוע, ללא התאמה לרמת הסטודנט תוך כדי משחק, וללא שמירת התקדמות בין כניסות.</p></div>
       <div class="block"><span class="ic">📊</span><h3>אין עדיין נתונים שיטתיים</h3><p>יש רשמים מהכיתה, אבל אין עדיין מדידה של שימוש בפועל או של השפעה על הישגים.</p></div>
     </div>
-    <p class="footer-note">כל משחק הוא קובץ עצמאי. זה יתרון בהפצה, אבל פירושו שכל שיפור צריך להיעשות בכל משחק בנפרד.</p>
+    <p class="footer-note">כל משחק הוא קובץ עצמאי: קל להפיץ, אבל כל שיפור נעשה בכל משחק בנפרד.</p>
   </div>
 </section>
 
@@ -258,46 +260,32 @@
       <div class="block mint"><span class="ic">✅</span><h3>בדיקת אפקטיביות</h3><p>קשר בין שימוש להישגים בבחינה, השוואה לחומר בפורמט רגיל, וסקר עמדות סטודנטים.</p></div>
     </div>
     <ul class="bullets" style="margin-top:30px">
-      <li><b>במקביל:</b> התאמה למובייל, ומעבר משאלות קבועות למשחקים שמתאימים את עצמם לרמת הסטודנט.</li>
-      <li><b>התוצר:</b> תשתית שמרצים אחרים במרכז יוכלו להשתמש בה, ותוצאות שאפשר לפרסם.</li>
+      <li><b>במקביל:</b> התאמה למובייל, ומשחקים שמתאימים את עצמם לרמת הסטודנט.</li>
+      <li><b>התוצר:</b> תשתית למרצים אחרים במרכז, ותוצאות שאפשר לפרסם.</li>
     </ul>
   </div>
 </section>
 
-<!-- 10 · אינדקס -->
+<!-- 11 · אינדקס -->
 <section class="slide">
   <div class="inner">
     <span class="kicker">כל הקישורים</span>
     <h2>המשחקים במקום אחד</h2>
-    <table>
-      <thead><tr><th>משחק</th><th>קורס</th><th>סוג</th><th>קישור</th></tr></thead>
-      <tbody>
-        <tr><td>Tableau Join Banana Lab</td><td>בינה עסקית · מבוא למערכות מידע</td><td><span class="pill a">א</span></td><td><a href="games/tableau-join-banana-lab/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>שומרי הנתונים: מהגדרת טבלאות ל-Tableau</td><td>בינה עסקית</td><td><span class="pill a">א</span></td><td><a href="games/data-guardians-tableau/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>מודל CAPM, שיעור אינטראקטיבי</td><td>מימון</td><td><span class="pill a">א</span></td><td><a href="games/capm-interactive/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>OptionsAcademy</td><td>נגזרים פיננסיים</td><td><span class="pill a">א</span></td><td><a href="games/options-academy/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>האביר המוניטרי של בנק ישראל</td><td>מאקרו כלכלה</td><td><span class="pill a">א</span></td><td><a href="games/boi-monetary-knight/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>מסיבת המט״ח של שי ואילנית</td><td>מאקרו כלכלה</td><td><span class="pill a">א</span></td><td><a href="games/forex-party/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>אקדמיית צבאן: IAS 8 ו-IAS 10</td><td>חשבונאות פיננסית</td><td><span class="pill a">א</span></td><td><a href="games/ias-academy/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>BI & AI: המדריך לסטודנט המבולבל</td><td>בינה עסקית</td><td><span class="pill b">ב</span></td><td><a href="games/bi-ai-guide/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>מטלה להגשה אחרי שיעור 11</td><td>מאקרו כלכלה</td><td><span class="pill b">ב</span></td><td><a href="games/macro-lesson11-assignment/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>שאלון תרגול: מערכות ליבה ERP</td><td>מבוא למערכות מידע</td><td><span class="pill b">ב</span></td><td><a href="games/erp-practice-quiz/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>BI ARCADE</td><td>בינה עסקית</td><td><span class="pill c">ג</span></td><td><a href="games/bi-arcade/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>ארקייד המבולבלים: קרב המערכות</td><td>מבוא למערכות מידע</td><td><span class="pill c">ג</span></td><td><a href="games/mis-arcade-confused/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>אקסל בטירוף: מיון וסינון</td><td>ניתוח מידע עסקי ממוחשב</td><td><span class="pill c">ג</span></td><td><a href="games/excel-sorting-filtering/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-        <tr><td>שוק העבודה ועוני: ARCADE</td><td>מאקרו כלכלה</td><td><span class="pill c">ג</span></td><td><a href="games/labor-market-arcade/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr>
-      </tbody>
-    </table>
+    <div class="two"><table><thead><tr><th>משחק</th><th>סוג</th><th></th></tr></thead><tbody><tr><td>Tableau Join Banana Lab</td><td><span class="pill a">א</span></td><td><a href="games/tableau-join-banana-lab/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>שומרי הנתונים</td><td><span class="pill a">א</span></td><td><a href="games/data-guardians-tableau/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>מודל CAPM, שיעור אינטראקטיבי</td><td><span class="pill a">א</span></td><td><a href="games/capm-interactive/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>OptionsAcademy</td><td><span class="pill a">א</span></td><td><a href="games/options-academy/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>האביר המוניטרי של בנק ישראל</td><td><span class="pill a">א</span></td><td><a href="games/boi-monetary-knight/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>מסיבת המט״ח של שי ואילנית</td><td><span class="pill a">א</span></td><td><a href="games/forex-party/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>אקדמיית צבאן: IAS 8 ו-IAS 10</td><td><span class="pill a">א</span></td><td><a href="games/ias-academy/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr></tbody></table><table><thead><tr><th>משחק</th><th>סוג</th><th></th></tr></thead><tbody><tr><td>BI & AI: המדריך לסטודנט המבולבל</td><td><span class="pill b">ב</span></td><td><a href="games/bi-ai-guide/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>מטלה להגשה אחרי שיעור 11</td><td><span class="pill b">ב</span></td><td><a href="games/macro-lesson11-assignment/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>שאלון תרגול: מערכות ליבה ERP</td><td><span class="pill b">ב</span></td><td><a href="games/erp-practice-quiz/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>BI ARCADE</td><td><span class="pill c">ג</span></td><td><a href="games/bi-arcade/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>ארקייד המבולבלים: קרב המערכות</td><td><span class="pill c">ג</span></td><td><a href="games/mis-arcade-confused/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>אקסל בטירוף: מיון וסינון</td><td><span class="pill c">ג</span></td><td><a href="games/excel-sorting-filtering/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr><tr><td>שוק העבודה ועוני: ARCADE</td><td><span class="pill c">ג</span></td><td><a href="games/labor-market-arcade/index.html" target="_blank" rel="noopener">פתח ↗</a></td></tr></tbody></table></div>
     <p class="footer-note">תודה. שאלות, רעיונות, ומרצים שרוצים להצטרף לפיילוט: shay.tsaban@gmail.com</p>
   </div>
 </section>
 
-<div class="counter" id="counter">1 / 10</div>
+<div class="counter" id="counter">1 / 11</div>
 <div class="nav"><button id="prev" title="הקודם">→</button><button id="next" title="הבא">←</button></div>
 <div class="hint">חצים או רווח למעבר בין שקפים · Esc לשקף הראשון</div>
+</div><!-- /stage -->
 
 <script>
 (function(){
+  const stage=document.getElementById('stage');
+  function fit(){const k=Math.min(innerWidth/1600,innerHeight/900);stage.style.transform='translate(-50%,-50%) scale('+k+')';}
+  fit(); addEventListener('resize',fit);
   const slides=[...document.querySelectorAll('.slide')];
   let i=Math.min(Math.max(parseInt(location.hash.slice(1))||1,1),slides.length)-1;
   const counter=document.getElementById('counter'), progress=document.getElementById('progress');
