@@ -317,6 +317,7 @@
     else if(e.key==='Escape'){show(0);}
     else if(e.key==='End'){show(slides.length-1);}
   });
+  window.addEventListener('hashchange',()=>{const n=parseInt(location.hash.slice(1))||1; if(n-1!==i) show(Math.min(Math.max(n,1),slides.length)-1);});
   show(i);
 })();
 </script>
